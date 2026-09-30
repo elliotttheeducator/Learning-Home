@@ -6,7 +6,32 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "not_found_handling": "404-page"
+    // No not_found_handling: a path that is not a file must reach the Worker
+    // (class calendars, sign-in, API). The Worker serves 404.html itself.
+    // The teacher area is static files, but the Worker checks the sign-in first.
+    "run_worker_first": ["/teacher", "/teacher/*"]
   },
-  "preview_urls": true
+  // Secrets (set in the Cloudflare dashboard, never committed):
+  //   TEACHER_PASSWORD, SESSION_SECRET
+  "d1_databases": [
+    {
+      // Lesson plans edited in the teacher planner.
+      "binding": "DB",
+      "database_name": "learning-home",
+      "database_id": "e427ab4f-2ff5-48d3-a9ee-6531437aa99d",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "preview_urls": true,
+  // Settings for branch previews. Previews do not inherit bindings or secrets,
+  // and they use their own database so testing never touches real lessons.
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "learning-home-preview",
+        "database_id": "0d96368a-7ea6-4ef1-8598-128efda17fe2"
+      }
+    ]
+  }
 }

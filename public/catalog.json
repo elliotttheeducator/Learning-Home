@@ -1,9 +1,52 @@
 {
+  "school": "Woodcroft College",
+  "teacher": "Mr Hall",
+  "bells": [
+    { "id": "P1", "label": "Period 1", "start": "09:00", "end": "09:45" },
+    { "id": "P2", "label": "Period 2", "start": "09:45", "end": "10:30" },
+    { "id": "P3", "label": "Period 3", "start": "10:50", "end": "11:35" },
+    { "id": "P4", "label": "Period 4", "start": "11:35", "end": "12:20" },
+    { "id": "P5", "label": "Period 5", "start": "12:20", "end": "13:05" },
+    { "id": "P6", "label": "Period 6", "start": "13:45", "end": "14:30" },
+    { "id": "P7", "label": "Period 7", "start": "14:30", "end": "15:15" }
+  ],
+  "terms": [
+    { "name": "Term 4", "year": 2026, "start": "2026-10-12", "weeks": 8, "noLessons": [] }
+  ],
   "classes": [
-    { "id": "y7-science",    "name": "Year 7 Science",          "code": "07EH_Science", "colour": "#1FA971", "resources": [] },
-    { "id": "y7-enrichment", "name": "Year 7 Enrichment Maths", "code": "07EnrMaths3",  "colour": "#F29B1D", "resources": [] },
-    { "id": "y9-maths",      "name": "Year 9 Maths",            "code": "09MATC202",    "colour": "#3474F5", "resources": [] },
-    { "id": "y10-science",   "name": "Year 10 Science",         "code": "10Science2B",  "colour": "#E0457B", "resources": [] },
-    { "id": "y10-ess-maths", "name": "Year 10 Essential Maths", "code": "10EssMt2A",    "colour": "#7B55E0", "resources": [] }
+    { "id": "y7-science",    "name": "Year 7 Science",          "code": "07EH_Science", "colour": "#1FA971",
+      "timetable": [
+        { "day": "Wed", "periods": ["P1", "P2"], "room": "27" },
+        { "day": "Fri", "periods": ["P6", "P7"], "room": "Lab 34" }
+      ],
+      "resources": [] },
+    { "id": "y7-enrichment", "name": "Year 7 Enrichment Maths", "code": "07EnrMaths3",  "colour": "#F29B1D",
+      "timetable": [
+        { "day": "Tue", "periods": ["P6", "P7"], "room": "27" },
+        { "day": "Thu", "periods": ["P3"],       "room": "27" },
+        { "day": "Fri", "periods": ["P1", "P2"], "room": "27" }
+      ],
+      "resources": [] },
+    { "id": "y9-maths",      "name": "Year 9 Maths",            "code": "09MATC202",    "colour": "#3474F5",
+      "timetable": [
+        { "day": "Tue", "periods": ["P4", "P5"], "room": "62" },
+        { "day": "Wed", "periods": ["P4", "P5"], "room": "62" },
+        { "day": "Fri", "periods": ["P3"],       "room": "62" }
+      ],
+      "resources": [] },
+    { "id": "y10-science",   "name": "Year 10 Science",         "code": "10Science2B",  "colour": "#E0457B",
+      "timetable": [
+        { "day": "Mon", "periods": ["P1", "P2"], "room": "39" },
+        { "day": "Tue", "periods": ["P2"],       "room": "39" },
+        { "day": "Thu", "periods": ["P6", "P7"], "room": "7" }
+      ],
+      "resources": [] },
+    { "id": "y10-ess-maths", "name": "Year 10 Essential Maths", "code": "10EssMt2A",    "colour": "#7B55E0",
+      "timetable": [
+        { "day": "Mon", "periods": ["P6", "P7"], "room": "31" },
+        { "day": "Tue", "periods": ["P3"],       "room": "31" },
+        { "day": "Thu", "periods": ["P1", "P2"], "room": "31" }
+      ],
+      "resources": [] }
   ]
 }
