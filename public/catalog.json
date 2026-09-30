@@ -29,10 +29,7 @@
         { "day": "Thu", "periods": ["P3"],       "room": "27" },
         { "day": "Fri", "periods": ["P1", "P2"], "room": "27" }
       ],
-      "resources": [
-        { "title": "Geometry Booklet 1: Angles and shapes (student copy)", "type": "booklet", "unit": "Topic 9: Geometry", "for": "print", "path": "/teacher/booklets/y7-enrichment/geometry-booklet-1", "added": "2026-09-30" },
-        { "title": "Geometry Booklet 1: teacher copy", "type": "key", "unit": "Topic 9: Geometry", "for": "teacher", "path": "/teacher/booklets/y7-enrichment/geometry-booklet-1-teacher", "added": "2026-09-30" }
-      ] },
+      "resources": [] },
     { "id": "y9-maths",      "name": "Year 9 Maths",            "code": "09MATC202",    "colour": "#3474F5",
       "timetable": [
         { "day": "Tue", "periods": ["P4", "P5"], "room": "62" },
