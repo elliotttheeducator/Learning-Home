@@ -4,8 +4,8 @@ Class resources for Mr Hall's classes at Woodcroft College, served by a Cloudfla
 
 - `public/` : everything students see. `catalog.json` lists the classes, their timetable, bell times and term dates.
 - `public/class.html` : the student calendar. Served at `/<class-id>`, for example `/y7-enrichment`.
-- `public/teacher/` : the teacher planner. Only opens for a signed-in teacher (Google sign-in).
-- `src/index.js` : the Worker: sign-in, the teacher gate, and the lesson API.
+- `public/teacher/` : the teacher planner. Only opens after the teacher password.
+- `src/index.js` : the Worker: password sign-in, the teacher gate, and the lesson API.
 - `src/plans/<class-id>.json` : starting lesson outlines written in the repo, keyed by `date|first period`.
   Edits made in the planner are saved in the D1 database `learning-home` and replace the outline for that lesson.
 - `CLAUDE.md` : the build rules Claude follows when working in this repo.
@@ -24,13 +24,14 @@ Deploys automatically from `main` via Cloudflare Workers Builds.
 New term: add it to `terms` in `catalog.json` (start is the Monday of week 1). Days with no lessons
 (pupil free days, public holidays) go in its `noLessons` list as dates.
 
-## Setting up teacher sign-in (once)
+## Teacher sign-in
 
-1. In Google Cloud Console, create an OAuth client ID of type "Web application".
-2. Add the authorised redirect URI `https://<your site>/auth/callback`. Preview URLs are different
-   sites, so add a preview's `/auth/callback` too if you want to sign in there.
-3. Set three Worker secrets (Cloudflare dashboard, Worker, Settings, Variables and Secrets, or
-   `npx wrangler secret put NAME`):
-   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from step 1
-   - `SESSION_SECRET`: any long random string
-4. Allowed teacher accounts are `TEACHER_EMAILS` in `wrangler.jsonc`.
+The teacher area uses one password until Microsoft sign-in is set up. It needs two Worker secrets
+(Cloudflare dashboard, Workers & Pages, learning-home, Settings, Variables and Secrets, type Secret):
+
+- `TEACHER_PASSWORD`: the password you type at `/teacher/`. Changing it signs every device out.
+- `SESSION_SECRET`: a long random string the site uses to sign its sign-in cookie. You never type it.
+
+Five wrong passwords from one address locks that address out for 15 minutes. A sign-in lasts 30 days.
+Branch previews do not share these secrets. To sign in on a preview, add the same two secrets to
+Previews (`npx wrangler preview secret`, or the Previews settings in the dashboard).

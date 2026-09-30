@@ -12,7 +12,6 @@ const SEED_PLANS = { "y7-enrichment": y7Enrichment };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const SESSION_COOKIE = "lh_session";
-const STATE_COOKIE = "lh_oauth";
 const SESSION_DAYS = 30;
 
 export default {
@@ -25,17 +24,14 @@ export default {
 
       // Sign-in
       if (path === "/auth/login") return login(request, env, url);
-      if (path === "/auth/callback") return callback(request, env, url);
       if (path === "/auth/logout") return logout(url);
       if (path === "/api/me") {
-        const who = await teacher(request, env);
-        return json({ teacher: !!who, email: who || null });
+        return json({ teacher: await teacher(request, env) });
       }
 
       // Teacher area: static files, but only for a signed-in teacher.
       if (path === "/teacher" || path.startsWith("/teacher/")) {
-        const who = await teacher(request, env);
-        if (!who) return redirect("/auth/login?next=" + encodeURIComponent(path + url.search));
+        if (!(await teacher(request, env))) return redirect("/auth/login?next=" + encodeURIComponent(path + url.search));
         const res = await env.ASSETS.fetch(request);
         const out = new Response(res.body, res);
         out.headers.set("Cache-Control", "private, no-store");
@@ -128,6 +124,9 @@ async function db(env) {
     await env.DB.prepare(
       "CREATE TABLE IF NOT EXISTS lessons (class_id TEXT NOT NULL, date TEXT NOT NULL, slot TEXT NOT NULL, " +
       "data TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (class_id, date, slot))"
+    ).run();
+    await env.DB.prepare(
+      "CREATE TABLE IF NOT EXISTS login_attempts (ip TEXT PRIMARY KEY, fails INTEGER NOT NULL, since INTEGER NOT NULL)"
     ).run();
     tableReady = true;
   }
@@ -230,76 +229,92 @@ async function saveLesson(request, env) {
   return json({ ok: true, plan: { ...plan, updatedAt: now }, source: "saved" });
 }
 
-// ---------- Google sign-in ----------
+// ---------- Password sign-in ----------
+// One teacher password, kept as the TEACHER_PASSWORD secret. Five wrong tries
+// from one address locks that address out for 15 minutes.
 
-function allowedEmails(env) {
-  return String(env.TEACHER_EMAILS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+const MAX_TRIES = 5;
+const LOCK_MINUTES = 15;
+
+function signinReady(env) {
+  return !!(env.TEACHER_PASSWORD && env.SESSION_SECRET);
+}
+
+// Sessions are signed with both secrets, so changing the password signs
+// every device out.
+function sessionKey(env) {
+  return env.SESSION_SECRET + "\n" + env.TEACHER_PASSWORD;
 }
 
 async function login(request, env, url) {
-  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.SESSION_SECRET) {
+  if (!signinReady(env)) {
     return page("Teacher sign-in is not set up yet",
-      "<p>Google sign-in needs three Worker secrets: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and SESSION_SECRET. " +
-      "The setup steps are in the README.</p>", 503);
+      "<p>The site needs two Worker secrets: TEACHER_PASSWORD and SESSION_SECRET. The steps are in the README.</p>", 503);
   }
-  const next = safeNext(url.searchParams.get("next"));
-  const state = b64url(crypto.getRandomValues(new Uint8Array(24)));
-  const google = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  google.search = new URLSearchParams({
-    client_id: env.GOOGLE_CLIENT_ID,
-    redirect_uri: url.origin + "/auth/callback",
-    response_type: "code",
-    scope: "openid email",
-    state,
-    prompt: "select_account",
-    login_hint: allowedEmails(env)[0] || "",
-  }).toString();
-  const res = redirect(google.toString());
-  res.headers.append("Set-Cookie",
-    `${STATE_COOKIE}=${state}.${encodeURIComponent(next)}; Path=/auth; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
-  return res;
-}
+  if (request.method === "GET") {
+    if (await teacher(request, env)) return redirect(safeNext(url.searchParams.get("next")));
+    return loginPage(safeNext(url.searchParams.get("next")), "");
+  }
+  if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
-async function callback(request, env, url) {
-  const saved = cookie(request, STATE_COOKIE) || "";
-  const dot = saved.indexOf(".");
-  const state = dot > 0 ? saved.slice(0, dot) : "";
-  const next = safeNext(decodeURIComponent(saved.slice(dot + 1)));
-  const code = url.searchParams.get("code");
-  if (!code || !state || url.searchParams.get("state") !== state) {
-    return page("Sign-in did not finish", '<p>Something interrupted the sign-in. <a href="/auth/login">Try again</a>.</p>', 400);
+  const form = await request.formData();
+  const next = safeNext(form.get("next"));
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const d = await db(env);
+
+  let fails = 0;
+  if (d) {
+    const row = await d.prepare("SELECT fails, since FROM login_attempts WHERE ip = ?").bind(ip).first();
+    if (row && Date.now() - row.since < LOCK_MINUTES * 60000) fails = row.fails;
+  }
+  if (fails >= MAX_TRIES) {
+    return loginPage(next, `Too many wrong tries. Wait ${LOCK_MINUTES} minutes, then try again.`, 429);
   }
 
-  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: url.origin + "/auth/callback", grant_type: "authorization_code",
-    }),
-  });
-  if (!tokenRes.ok) {
-    return page("Sign-in did not finish", '<p>Google did not accept the sign-in. <a href="/auth/login">Try again</a>.</p>', 400);
-  }
-  // The ID token came straight from Google over TLS, so its claims can be read
-  // without checking the signature (OpenID Connect Core 3.1.3.7).
-  const { id_token } = await tokenRes.json();
-  const claims = JSON.parse(new TextDecoder().decode(unb64url(String(id_token).split(".")[1] || "")));
-  const email = String(claims.email || "").toLowerCase();
-  const ok = claims.aud === env.GOOGLE_CLIENT_ID && claims.email_verified === true && allowedEmails(env).includes(email);
-  if (!ok) {
-    return page("This account is not a teacher account",
-      `<p>${esc(email || "That account")} cannot open the teacher area. <a href="/auth/logout">Use a different account</a>.</p>`, 403);
+  if (!(await samePassword(String(form.get("password") || ""), env.TEACHER_PASSWORD))) {
+    fails += 1;
+    if (d) {
+      await d.prepare(
+        "INSERT INTO login_attempts (ip, fails, since) VALUES (?, ?, ?) " +
+        "ON CONFLICT (ip) DO UPDATE SET fails = excluded.fails, since = CASE WHEN excluded.fails = 1 THEN excluded.since ELSE since END"
+      ).bind(ip, fails, Date.now()).run();
+    }
+    const left = MAX_TRIES - fails;
+    return loginPage(next, left > 0
+      ? `That password is not right. ${left === 1 ? "1 try" : left + " tries"} left.`
+      : `Too many wrong tries. Wait ${LOCK_MINUTES} minutes, then try again.`, 401);
   }
 
+  if (d) await d.prepare("DELETE FROM login_attempts WHERE ip = ?").bind(ip).run();
   const exp = Date.now() + SESSION_DAYS * 86400000;
-  const value = b64url(new TextEncoder().encode(JSON.stringify({ e: email, x: exp })));
-  const token = value + "." + (await sign(value, env.SESSION_SECRET));
+  const value = b64url(new TextEncoder().encode(JSON.stringify({ t: 1, x: exp })));
+  const token = value + "." + (await sign(value, sessionKey(env)));
   const res = redirect(next);
   res.headers.append("Set-Cookie",
     `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`);
-  res.headers.append("Set-Cookie", `${STATE_COOKIE}=; Path=/auth; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
   return res;
+}
+
+// Compares two strings in constant time by comparing their hashes.
+async function samePassword(given, real) {
+  const enc = new TextEncoder();
+  const [a, b] = await Promise.all([
+    crypto.subtle.digest("SHA-256", enc.encode(given)),
+    crypto.subtle.digest("SHA-256", enc.encode(real)),
+  ]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
+function loginPage(next, message, status = 200) {
+  return page("Teacher sign in", `
+<form method="post" action="/auth/login" style="display:grid;gap:14px;margin:18px auto 0;max-width:420px;text-align:left">
+  <input type="hidden" name="next" value="${esc(next)}">
+  <label for="pw" style="font-weight:700">Password</label>
+  <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus
+    style="font:inherit;padding:12px 14px;border:2px solid #D9E1EE;border-radius:12px">
+  ${message ? `<p role="alert" style="margin:0;color:#B42318;font-weight:700">${esc(message)}</p>` : ""}
+  <button style="font:inherit;font-weight:700;padding:12px;border:0;border-radius:12px;background:#3474F5;color:#fff;cursor:pointer">Sign in</button>
+</form>`, status);
 }
 
 function logout() {
@@ -308,18 +323,17 @@ function logout() {
   return res;
 }
 
-// Returns the signed-in teacher's email, or null.
+// True when the request carries a valid, unexpired teacher session.
 async function teacher(request, env) {
-  if (!env.SESSION_SECRET) return null;
+  if (!signinReady(env)) return false;
   const token = cookie(request, SESSION_COOKIE);
-  if (!token) return null;
+  if (!token) return false;
   const [value, mac] = token.split(".");
-  if (!value || !mac || !(await verify(value, mac, env.SESSION_SECRET))) return null;
+  if (!value || !mac || !(await verify(value, mac, sessionKey(env)))) return false;
   try {
     const s = JSON.parse(new TextDecoder().decode(unb64url(value)));
-    if (!s.x || s.x < Date.now()) return null;
-    return allowedEmails(env).includes(s.e) ? s.e : null;
-  } catch { return null; }
+    return !!(s.t && s.x && s.x > Date.now());
+  } catch { return false; }
 }
 
 function safeNext(n) {

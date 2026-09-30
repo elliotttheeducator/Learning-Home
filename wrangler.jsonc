@@ -11,12 +11,8 @@
     // The teacher area is static files, but the Worker checks the sign-in first.
     "run_worker_first": ["/teacher", "/teacher/*"]
   },
-  "vars": {
-    // Google accounts allowed into the teacher area. Comma separated.
-    "TEACHER_EMAILS": "elliotttheeducator@gmail.com"
-    // Secrets (set with `npx wrangler secret put NAME`, never committed):
-    //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET
-  },
+  // Secrets (set in the Cloudflare dashboard, never committed):
+  //   TEACHER_PASSWORD, SESSION_SECRET
   "d1_databases": [
     {
       // Lesson plans edited in the teacher planner.
@@ -27,12 +23,9 @@
     }
   ],
   "preview_urls": true,
-  // Settings for branch previews. Previews do not inherit vars or bindings,
+  // Settings for branch previews. Previews do not inherit bindings or secrets,
   // and they use their own database so testing never touches real lessons.
   "previews": {
-    "vars": {
-      "TEACHER_EMAILS": "elliotttheeducator@gmail.com"
-    },
     "d1_databases": [
       {
         "binding": "DB",
