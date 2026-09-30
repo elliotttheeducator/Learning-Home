@@ -8,23 +8,34 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
 - Cloudflare Worker `learning-home`, connected to this repo with Workers Builds.
 - Anything in `public/` is served as a static file. `src/index.js` only runs for paths that
   are not files, so all API routes (ink sync, sign-in) go there.
-- `public/catalog.json` drives the home page. A resource that is not listed there does not
-  appear on the site, even if the file exists.
-- A push to `main` deploys to students. Any other branch gets its own preview URL.
+- `public/catalog.json` holds the classes, their timetable, bell times, term dates and each
+  class's resource library. Lesson plans live in `src/plans/` (outlines) and D1 (planner edits).
+- A push to `main` deploys the site. Any other branch gets its own preview URL.
+- Students only see what Elliott publishes. Lessons are unpublished until he presses Publish in the
+  teacher planner (`/teacher/`); until then students see only the time and room. So new files and
+  outlines can go live on the site without students seeing them.
 
 ## Workflow (always)
 1. Work on a new branch, never directly on `main`.
 2. Push the branch and open a pull request. Cloudflare posts the preview URL on the PR.
-3. Give Elliott the preview URL and wait. He merges to go live.
-4. Never force-push, never rewrite history on `main`, never delete a resource without asking.
+3. When the Workers Builds check on the PR passes, merge it yourself (Elliott asked for merges to
+   be automatic). If the build fails, fix it first. Then tell Elliott what went live.
+4. Never set `published` to true in a lesson outline or in D1. Publishing is Elliott's call.
+5. Never force-push, never rewrite history on `main`, never delete a resource without asking.
 
 ## Adding a resource
 1. Put the file in the class folder: `public/<class-id>/<short-name>.html`
    Class ids: y7-science, y7-enrichment, y9-maths, y10-science, y10-ess-maths
-2. Add an entry to that class in `public/catalog.json`:
+2. Add an entry to that class's `resources` in `public/catalog.json`, so it shows in the planner's
+   "Add from the class library" list:
    `{ "title": "Net force to acceleration", "type": "deck", "unit": "Newton's laws", "path": "/y10-science/net-force.html", "added": "2026-10-12" }`
    Types: deck, app, sim, booklet, link.
-3. Updating an existing resource: edit the file in place and keep its path, so links in
+3. If you know which lesson it is for, attach it in `src/plans/<class-id>.json` under that
+   lesson's `resources` (`{ "title": "...", "url": "/y7-enrichment/angles.html", "type": "deck" }`).
+   If the lesson has already been edited in the planner, its saved copy in the D1 database
+   `learning-home` wins: add to the `resources` inside that row's `data` and leave every other
+   field (including `published`) alone.
+4. Updating an existing resource: edit the file in place and keep its path, so links in
    Elliott's planner and OneNote keep working.
 
 ## Porting resources built on claude.ai
@@ -55,7 +66,8 @@ do not exist on this site. When bringing one across:
 - Bronze / Silver / Gold tiers for extension.
 
 ## Content and privacy
-- Until student sign-in is in place, everything in `public/` is on the open internet.
+- Until student sign-in is in place, everything in `public/` is on the open internet, published
+  or not: anyone with the exact URL can open a file.
   Do not put textbook pages, scanned faculty booklets or anything identifying a student here.
 - Never commit secrets, tokens or passwords. Use Wrangler secrets.
 

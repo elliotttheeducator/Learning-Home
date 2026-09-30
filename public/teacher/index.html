@@ -80,7 +80,15 @@
   .pill { border:1px solid currentColor; border-radius:99px; padding:0 5px; opacity:.8; }
   .pill.assess { background:#E0457B; border-color:#E0457B; color:#fff; opacity:1; }
   .card.past { opacity:.55; } .card.past:hover { opacity:.9; }
-  .card.hidden-l { background:repeating-linear-gradient(135deg, var(--surface-2) 0 8px, #fff 8px 16px); }
+  .card.unpub { background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 6%, #fff) 0 8px, #fff 8px 16px);
+    border-style:dashed; border-left-style:solid; }
+  .pubbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-radius:12px; padding:12px 14px; font-size:13.5px; }
+  .pubbar.off { background:#FFF4E5; border:1px solid #F5C77E; color:#7A4A00; }
+  .pubbar.on { background:#E3F7EE; border:1px solid #9ED9BC; color:#0E5E3A; }
+  .pubbar strong { font-size:14.5px; }
+  .pubbar .btn { margin-left:auto; }
+  .wkh { display:flex; align-items:center; gap:10px; }
+  .wkh .btn { margin-left:auto; padding:3px 10px; font-size:11.5px; letter-spacing:0; text-transform:none; font-family:"Public Sans", sans-serif; }
 
   .legend { display:flex; flex-wrap:wrap; gap:6px; margin-top:18px; }
   .lg { display:flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--surface); border-radius:99px;
@@ -172,7 +180,7 @@
   <div class="scroller"><div class="grid" id="grid"><div class="msg" style="grid-column:1/-1">Loading the planner...</div></div></div>
   <div class="legend" id="legend"></div>
   <p class="footnote">Everything here saves as you type. Students see the topic, unit, objectives, bring list, note for students and the resources.
-    Teacher notes and prep never leave the teacher area. Tick "Hide from students" to keep a lesson's details private until it is ready.
+    Teacher notes and prep never leave the teacher area. Nothing reaches students until you press Publish on a lesson, or Publish week in a class list.
     Resource links can be a site path such as /y7-enrichment/angles.html or a full https:// address.</p>
 </main>
 
@@ -293,12 +301,12 @@
   function cardHTML(l, style, t) {
     var c = classes[l.classId] || {}, p = l.plan || {};
     var past = l.date < t;
-    return '<button class="card' + (past ? " past" : "") + (p.hidden ? " hidden-l" : "") + '" style="--c:' + esc(c.colour) + ";" + style + '" data-k="' + esc(key(l)) + '">' +
+    return '<button class="card' + (past ? " past" : "") + (p.published ? "" : " unpub") + '" style="--c:' + esc(c.colour) + ";" + style + '" data-k="' + esc(key(l)) + '">' +
       '<span class="code"><span>' + esc(c.code) + '</span><span class="room">' + esc(l.room ? "Rm " + l.room : "") + "</span></span>" +
       '<span class="cname">' + esc(c.name) + "</span>" +
       '<span class="topic' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
       '<span class="foot">' + (p.assess ? '<span class="pill assess">' + esc(p.assess) + "</span>" : "") +
-      (p.draft ? '<span class="pill">DRAFT</span>' : "") + (p.hidden ? '<span class="pill">HIDDEN</span>' : "") +
+      (p.published ? "" : '<span class="pill">NOT PUBLISHED</span>') +
       '<span class="r">' + esc(prepCount(p)) + (l.periods.length > 1 ? " · DOUBLE" : "") + "</span></span></button>";
   }
 
@@ -341,11 +349,17 @@
     var body = "", lastWk = "";
     ls.forEach(function (l) {
       var wk = l.term + ", Week " + l.week;
-      if (wk !== lastWk) { body += '<div class="wkh">' + esc(wk) + "</div>"; lastWk = wk; }
+      if (wk !== lastWk) {
+        var inWk = ls.filter(function (x) { return x.term === l.term && x.week === l.week; });
+        var allOn = inWk.every(function (x) { return x.plan && x.plan.published; });
+        body += '<div class="wkh">' + esc(wk) + '<button class="btn" data-wk="' + esc(l.term + "|" + l.week) + '" data-on="' + (allOn ? "0" : "1") + '">' +
+          (allOn ? "Unpublish week" : "Publish week") + "</button></div>";
+        lastWk = wk;
+      }
       var p = l.plan || {};
       body += '<button class="lesson-row' + (l.date < t ? " past" : "") + '" data-k="' + esc(key(l)) + '"><span class="when">' + esc(l.day + " " + fmt(l.date)) + "<br>" +
         esc(l.periods.length > 1 ? "Double" : "Single") + '</span><span><span class="tt' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
-        '<span class="meta">' + esc([p.unit, p.assess, p.draft ? "Draft" : "", p.hidden ? "Hidden" : "", prepCount(p)].filter(Boolean).join(" · ")) + "</span></span></button>";
+        '<span class="meta">' + esc([p.unit, p.assess, p.published ? "Published" : "Not published", prepCount(p)].filter(Boolean).join(" · ")) + "</span></span></button>";
     });
     var tt = (c.timetable || []).map(function (s) { return s.day + " " + s.periods.map(function (p) { return p.slice(1); }).join("/"); }).join(", ");
     openDrawer(c.colour,
@@ -355,6 +369,15 @@
       '<div class="dr-body"><div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
     Array.prototype.forEach.call(drawer.querySelectorAll(".lesson-row"), function (b) {
       b.addEventListener("click", function () { openLesson(b.dataset.k, true); });
+    });
+    Array.prototype.forEach.call(drawer.querySelectorAll("[data-wk]"), function (b) {
+      b.addEventListener("click", function () {
+        var on = b.dataset.on === "1";
+        ls.filter(function (x) { return x.term + "|" + x.week === b.dataset.wk; }).forEach(function (x) {
+          if (!!x.plan.published !== on) { x.plan.published = on; changed(x); }
+        });
+        openClass(id);
+      });
     });
   }
 
@@ -374,7 +397,7 @@
       '<div class="eyebrow">' + esc(c.code + " · " + l.term + ", Week " + l.week) + "</div><h2>" + esc(when) + "</h2>" +
       '<div class="links"><a href="#" id="toClass">All ' + esc(c.name) + ' lessons</a><a href="/' + esc(l.classId) + '" target="_blank" rel="noopener">Student view</a></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
-      '<div class="dr-body">' + banner +
+      '<div class="dr-body"><div id="pubbar"></div>' + banner +
       '<div class="sect">For students <small>shown on the class calendar</small></div>' +
       field("Topic", '<input type="text" id="f-topic" value="' + esc(p.topic) + '" placeholder="What the lesson is about">') +
       field("Unit", '<input type="text" id="f-unit" value="' + esc(p.unit) + '" placeholder="Topic 9: Geometry">') +
@@ -387,8 +410,6 @@
       '<div class="sect">Teacher only <small>never sent to students</small></div>' +
       field("Notes and lesson shape", '<textarea id="f-notes" class="mono" rows="10">' + esc(p.notes) + "</textarea>") +
       '<div class="field"><span class="lab">Prep</span><div class="stack" id="prepList"></div><div class="row"><button class="btn" id="addPrep">Add a prep item</button></div></div>' +
-      '<div class="toggles"><label><input type="checkbox" id="f-draft"' + (p.draft ? " checked" : "") + "> Draft</label>" +
-      '<label><input type="checkbox" id="f-hidden"' + (p.hidden ? " checked" : "") + "> Hide from students</label></div>" +
       "</div>");
 
     function bindText(id, fn) { document.getElementById(id).addEventListener("input", function (e) { fn(e.target.value); changed(l); }); }
@@ -399,8 +420,15 @@
     bindText("f-snote", function (v) { p.studentNote = v; });
     bindText("f-assess", function (v) { p.assess = v; });
     bindText("f-notes", function (v) { p.notes = v; });
-    document.getElementById("f-draft").addEventListener("change", function (e) { p.draft = e.target.checked; changed(l); });
-    document.getElementById("f-hidden").addEventListener("change", function (e) { p.hidden = e.target.checked; changed(l); });
+    function drawPub() {
+      var box = document.getElementById("pubbar");
+      box.className = "pubbar " + (p.published ? "on" : "off");
+      box.innerHTML = p.published
+        ? "<span><strong>Published.</strong> Students can see this lesson and open its resources.</span><button class=\"btn\" id=\"pubBtn\">Unpublish</button>"
+        : "<span><strong>Not published.</strong> Students see only the time and room.</span><button class=\"btn primary\" id=\"pubBtn\">Publish to students</button>";
+      document.getElementById("pubBtn").addEventListener("click", function () { p.published = !p.published; drawPub(); changed(l); });
+    }
+    drawPub();
     document.getElementById("toClass").addEventListener("click", function (e) { e.preventDefault(); openClass(l.classId); });
     if (fromClass) document.getElementById("back").addEventListener("click", function () { openClass(l.classId); });
     var rv = document.getElementById("revert");
