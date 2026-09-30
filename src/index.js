@@ -5,10 +5,11 @@
 
 import catalog from "../public/catalog.json";
 import y7Enrichment from "./plans/y7-enrichment.json";
+import y7Science from "./plans/y7-science.json";
 
 // Starting plans written in the repo. Anything saved from the teacher planner
 // is stored in D1 and replaces the starting plan for that lesson.
-const SEED_PLANS = { "y7-enrichment": y7Enrichment };
+const SEED_PLANS = { "y7-enrichment": y7Enrichment, "y7-science": y7Science };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const SESSION_COOKIE = "lh_session";
@@ -192,7 +193,8 @@ function forStudents(p) {
   return {
     published: true, unit: c.unit, topic: c.topic, objectives: c.objectives, bring: c.bring, studentNote: c.studentNote,
     assess: c.assess,
-    resources: c.resources.map(r => ({ ...r, url: safeUrl(r.url) })).filter(r => r.url),
+    // Links into the teacher area only open for the teacher, so students never see them.
+    resources: c.resources.map(r => ({ ...r, url: safeUrl(r.url) })).filter(r => r.url && !/^\/teacher(\/|$)/.test(r.url)),
   };
 }
 

@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Should We Bring Them Back?</title>
+<link rel="icon" href="img/mammoth.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #17233D;
+    --ink-soft: #4A5775;
+    --page: #F2F8F5;
+    --panel: #FFFFFF;
+    --line: #D6E4DD;
+    --focus: #FFB400;
+    --sci: #1FA971;
+    --sci-dark: #137A51;
+    --good: #15803D;
+    --bad: #BE123C;
+    --font: "Lexend", "Segoe UI", Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 20px; line-height: 1.5; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 4px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  a { color: var(--sci-dark); }
+  [hidden] { display: none !important; }
+
+  /* ---------- top bar ---------- */
+  .top { position: sticky; top: 0; z-index: 20; background: var(--sci); color: #fff; box-shadow: 0 3px 12px rgba(10,60,40,.18); }
+  .top-in { max-width: 1180px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .top a.home { color: #fff; font-size: 16px; text-decoration: none; opacity: .9; white-space: nowrap; }
+  .top h1 { font-size: 22px; margin: 0; font-weight: 800; white-space: nowrap; }
+  .partnav { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+  .partnav a { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.18);
+    color: #fff; text-decoration: none; font-weight: 800; font-size: 17px; position: relative; }
+  .partnav a:hover { background: rgba(255,255,255,.32); }
+  .partnav a.done { background: #fff; color: var(--sci-dark); }
+  .partnav a.done::after { content: "\2713"; position: absolute; right: -4px; top: -6px; font-size: 13px; background: var(--focus); color: var(--ink);
+    width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; }
+  .savebox { display: flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap; }
+  .savebox .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; opacity: .6; }
+  .savebox.ok .dot { background: #B9F6CF; opacity: 1; }
+  .savebox.err .dot { background: #FFB4B4; opacity: 1; }
+  .tbtn { border: 2px solid rgba(255,255,255,.7); background: transparent; color: #fff; border-radius: 10px; padding: 5px 12px; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .tbtn:hover { background: rgba(255,255,255,.18); }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 80px; }
+  .hello { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: var(--panel); border-radius: 20px; padding: 18px 22px; margin-bottom: 22px; }
+  .hello p { margin: 0; flex: 1 1 380px; font-size: 21px; }
+  .hello label { font-weight: 700; }
+  .hello input { border: 3px solid var(--line); border-radius: 12px; padding: 8px 12px; width: 220px; }
+
+  /* ---------- parts ---------- */
+  .part { background: var(--panel); border-radius: 24px; margin: 0 0 26px; box-shadow: 0 4px 18px rgba(20,60,45,.07); overflow: hidden; border-top: 10px solid var(--pc, var(--sci)); }
+  .phead { display: flex; align-items: center; gap: 16px; padding: 20px 26px 6px; }
+  .pnum { flex: none; width: 58px; height: 58px; border-radius: 16px; background: var(--pc, var(--sci)); color: #fff; display: grid; place-items: center; font-size: 30px; font-weight: 800; }
+  .phead h2 { font-size: 32px; line-height: 1.12; margin: 0; }
+  .phead .kind { margin-left: auto; font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px;
+    background: color-mix(in srgb, var(--pc, var(--sci)) 14%, #fff); color: color-mix(in srgb, var(--pc, var(--sci)) 75%, #000); white-space: nowrap; }
+  .pbody { padding: 12px 26px 26px; }
+  .pbody > p { margin: 0 0 14px; font-size: 21px; }
+  .lead { font-size: 23px !important; }
+  .story { display: grid; gap: 10px; margin: 0 0 18px; padding: 0; list-style: none; }
+  .story li { font-size: 22px; padding: 12px 18px; background: #F4FAF7; border-left: 8px solid var(--pc, var(--sci)); border-radius: 12px; }
+  .hl { background: #FFF1B8; border-radius: 6px; padding: 0 6px; font-weight: 700; }
+  .task { display: flex; align-items: center; gap: 12px; background: #FDECEF; color: #8A0F2C; border-radius: 14px; padding: 12px 18px; font-size: 22px; font-weight: 700; margin: 0 0 16px; }
+  .task::before { content: "\270E"; font-size: 28px; }
+  .btn { border: 0; border-radius: 14px; padding: 11px 20px; font-weight: 800; cursor: pointer; background: var(--pc, var(--sci)); color: #fff;
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--pc, var(--sci)) 65%, #000); font-size: 19px; }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 color-mix(in srgb, var(--pc, var(--sci)) 65%, #000); }
+  .btn.ghost { background: #fff; color: var(--ink); border: 3px solid var(--line); box-shadow: none; }
+  .btn.small { padding: 7px 14px; font-size: 16px; border-radius: 11px; }
+  .field { border: 3px solid var(--line); border-radius: 12px; padding: 10px 14px; width: 100%; background: #fff; font-size: 20px; }
+  .field:focus { border-color: var(--pc, var(--sci)); outline: none; }
+  textarea.field { resize: vertical; min-height: 90px; }
+
+  /* brainstorm */
+  .adder { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .adder .field { flex: 1 1 280px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; min-height: 48px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: color-mix(in srgb, var(--pc) 14%, #fff); border: 2px solid color-mix(in srgb, var(--pc) 40%, #fff);
+    border-radius: 999px; padding: 6px 8px 6px 16px; font-size: 20px; font-weight: 600; animation: pop .25s ease-out; }
+  .chip button { border: 0; background: rgba(0,0,0,.08); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; }
+  .count { font-size: 18px; color: var(--ink-soft); margin-top: 10px; }
+  .badge { display: inline-block; background: var(--focus); color: var(--ink); font-weight: 800; border-radius: 999px; padding: 2px 12px; margin-left: 8px; font-size: 16px; }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* storyboards */
+  .board { display: grid; gap: 16px; }
+  .board.n3 { grid-template-columns: repeat(3, 1fr); }
+  .board.n4 { grid-template-columns: repeat(2, 1fr); }
+  .panel { border: 3px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+  .panel .plab { font-weight: 800; font-size: 19px; padding: 8px 14px; background: color-mix(in srgb, var(--pc) 12%, #fff); color: color-mix(in srgb, var(--pc) 70%, #000); }
+  .panel canvas { display: block; width: 100%; aspect-ratio: 8 / 5; background: #fff; cursor: crosshair; touch-action: none;
+    background-image: radial-gradient(#E3EDE8 1.4px, transparent 1.5px); background-size: 24px 24px; }
+  .panel .cap { border: 0; border-top: 3px solid var(--line); border-radius: 0; font-size: 18px; padding: 10px 14px; }
+  .drawbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; background: #F4FAF7; border-radius: 14px; padding: 10px 14px; }
+  .drawbar .sw { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--line); cursor: pointer; padding: 0; }
+  .drawbar .sw[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--ink); }
+  .drawbar .tool { border: 3px solid var(--line); background: #fff; border-radius: 10px; padding: 4px 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .drawbar .tool[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .drawbar .sep { width: 2px; height: 28px; background: var(--line); margin: 0 4px; }
+  .drawbar .hint { font-size: 15px; color: var(--ink-soft); margin-left: auto; }
+
+  /* how it works */
+  .steps4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; counter-reset: s; }
+  .steps4 div { background: #F4FAF7; border-radius: 14px; padding: 14px; font-size: 19px; position: relative; padding-top: 50px; }
+  .steps4 div::before { counter-increment: s; content: counter(s); position: absolute; left: 14px; top: 12px; width: 32px; height: 32px; border-radius: 10px;
+    background: var(--pc); color: #fff; font-weight: 800; display: grid; place-items: center; }
+
+  /* matching game */
+  .match { display: grid; gap: 10px; }
+  .mrow { display: grid; grid-template-columns: 64px 1fr 300px 40px; gap: 14px; align-items: center; border: 3px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+  .mrow img { width: 56px; height: 56px; }
+  .mrow b { font-size: 22px; display: block; }
+  .mrow small { color: var(--ink-soft); font-size: 16px; }
+  .mrow select { border: 3px solid var(--line); border-radius: 12px; padding: 8px 10px; background: #fff; font-size: 19px; width: 100%; }
+  .mrow .mark { font-size: 30px; font-weight: 800; text-align: center; }
+  .mrow.right { border-color: var(--good); background: #EEFBF3; }
+  .mrow.wrong { border-color: var(--bad); background: #FFF1F3; }
+  .result { font-size: 22px; font-weight: 700; margin-top: 12px; min-height: 34px; }
+
+  /* gap fill */
+  .bank { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; align-items: center; }
+  .bank span { background: #FFF1B8; border-radius: 10px; padding: 4px 12px; font-weight: 700; }
+  .gaps { display: grid; gap: 12px; }
+  .gap { font-size: 21px; line-height: 2; }
+  .gap input { width: 170px; border: 0; border-bottom: 4px solid var(--pc); background: #F7F3FF; border-radius: 6px 6px 0 0; padding: 0 8px; font-weight: 700; text-align: center; }
+  .gap input.right { background: #E6F8EC; border-color: var(--good); }
+  .gap input.wrong { background: #FFE8EC; border-color: var(--bad); }
+
+  /* compare */
+  .facts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .fact { border: 3px solid var(--line); border-radius: 16px; padding: 14px 18px; display: grid; grid-template-columns: 80px 1fr; gap: 6px 14px; align-items: start; }
+  .fact img { width: 80px; height: 80px; grid-row: span 6; }
+  .fact h3 { margin: 0; font-size: 24px; }
+  .fact div { font-size: 18px; }
+  .fact div b { color: var(--ink-soft); font-weight: 700; }
+  .cmp { width: 100%; border-collapse: separate; border-spacing: 10px 8px; }
+  .cmp th { font-size: 20px; text-align: left; padding: 8px 12px; border-radius: 12px; color: #fff; }
+  .cmp th.s { background: var(--good); } .cmp th.d { background: #EA580C; }
+  .cmp td { padding: 0; }
+
+  /* four corners */
+  .rounds { display: grid; gap: 16px; }
+  .round { border: 3px solid var(--line); border-radius: 18px; padding: 14px 16px; }
+  .round h3 { margin: 0 0 10px; font-size: 22px; }
+  .cnr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+  .cnr button { border: 3px solid transparent; border-radius: 14px; padding: 10px 6px; font-weight: 800; font-size: 17px; color: #fff; cursor: pointer; opacity: .55; }
+  .cnr button[aria-pressed="true"] { opacity: 1; border-color: var(--ink); transform: scale(1.03); }
+  .cnr .a1 { background: #15803D; } .cnr .a2 { background: #65A30D; } .cnr .a3 { background: #EA580C; } .cnr .a4 { background: #BE123C; }
+
+  /* gallery */
+  .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .gcard { border: 3px solid var(--line); border-radius: 16px; padding: 12px; background: #fff; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+  .gcard:hover { border-color: var(--pc); transform: translateY(-2px); }
+  .gcard img { width: 64px; height: 64px; }
+  .gcard b { font-size: 20px; line-height: 1.15; }
+  .gcard small { font-size: 15px; color: var(--ink-soft); }
+  .gcard.sel { border-color: var(--pc); background: color-mix(in srgb, var(--pc) 10%, #fff); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pc) 30%, #fff); }
+  .grp { align-self: flex-start; font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #fff; padding: 2px 10px; border-radius: 999px; }
+  .g-mammal { background: #B45309; } .g-bird { background: #0E7490; } .g-reptile { background: #4D7C0F; } .g-fish { background: #1D4ED8; }
+  .detail { border: 3px solid var(--pc); border-radius: 20px; padding: 18px 22px; display: grid; grid-template-columns: 120px 1fr; gap: 6px 20px; background: color-mix(in srgb, var(--pc) 6%, #fff); }
+  .detail img { width: 120px; height: 120px; grid-row: span 8; }
+  .detail h3 { margin: 0; font-size: 30px; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: 210px 1fr; gap: 6px 14px; font-size: 19px; }
+  .detail dt { font-weight: 800; color: var(--ink-soft); }
+  .detail dd { margin: 0; }
+  .detail .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .own { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: 18px; }
+  .own .field { width: 280px; }
+
+  /* slideshow builder */
+  .showtop { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .themes { display: flex; gap: 8px; align-items: center; font-size: 17px; font-weight: 700; margin-right: auto; }
+  .themes button { width: 34px; height: 34px; border-radius: 10px; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--line); cursor: pointer; padding: 0; }
+  .themes button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--ink); }
+  .editor { display: grid; grid-template-columns: 220px 1fr; gap: 18px; }
+  .thumbs { display: flex; flex-direction: column; gap: 10px; }
+  .thumb { border: 3px solid var(--line); border-radius: 12px; background: #fff; cursor: pointer; padding: 0; overflow: hidden; text-align: left; }
+  .thumb.on { border-color: var(--pc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pc) 35%, #fff); }
+  .thumb .mini { aspect-ratio: 16 / 9; background: var(--th, #1FA971); color: #fff; padding: 8px 10px; font-size: 13px; font-weight: 800; line-height: 1.2; position: relative; overflow: hidden; }
+  .thumb .mini img { position: absolute; right: 6px; bottom: 6px; width: 45%; height: 60%; object-fit: cover; border-radius: 6px; }
+  .thumb .tn { font-size: 14px; padding: 4px 10px; color: var(--ink-soft); display: flex; justify-content: space-between; }
+  .thumb .tn .ok { color: var(--good); font-weight: 800; }
+  .slideedit { display: grid; gap: 12px; align-content: start; }
+  .slideedit label { font-weight: 700; font-size: 18px; }
+  .prompt { background: #F4FAF7; border-radius: 12px; padding: 10px 14px; font-size: 18px; color: var(--ink-soft); }
+  .picrow { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .picbox { width: 260px; aspect-ratio: 4 / 3; border: 3px dashed var(--line); border-radius: 14px; display: grid; place-items: center; overflow: hidden; background: #FAFCFB; font-size: 15px; color: var(--ink-soft); text-align: center; padding: 8px; }
+  .picbox img { width: 100%; height: 100%; object-fit: contain; }
+  .preview { aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; }
+
+  /* the slide itself (preview, present mode and download share this) */
+  .sl { width: 100%; height: 100%; background: var(--th, #1FA971); color: #fff; display: grid; grid-template-columns: 1.1fr .9fr; gap: 4%; padding: 5% 5% 6%; font-family: var(--font); container-type: inline-size; }
+  .sl.nopic { grid-template-columns: 1fr; }
+  .sl h3 { margin: 0 0 3cqw; font-size: 5.2cqw; line-height: 1.05; font-weight: 800; }
+  .sl .tx { font-size: 2.6cqw; line-height: 1.35; white-space: pre-wrap; }
+  .sl .pic { display: grid; place-items: center; min-height: 0; }
+  .sl .pic img { max-width: 100%; max-height: 100%; border-radius: 1.4cqw; background: #fff; box-shadow: 0 1cqw 3cqw rgba(0,0,0,.25); }
+  .sl .by { position: absolute; }
+  #present { position: fixed; inset: 0; background: #0B1420; z-index: 100; display: grid; place-items: center; }
+  #present .stagebox { width: min(100vw, calc(100vh * 16 / 9)); aspect-ratio: 16 / 9; position: relative; }
+  #present .pbar { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; color: #fff; font-size: 16px; }
+  #present .pbar button { background: rgba(255,255,255,.15); color: #fff; border: 2px solid rgba(255,255,255,.4); border-radius: 10px; padding: 6px 14px; cursor: pointer; font-weight: 700; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 14px;
+    font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 200; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
+  .confetti { position: fixed; top: -20px; width: 12px; height: 18px; z-index: 150; pointer-events: none; animation: fall 1.6s linear forwards; }
+  @keyframes fall { to { transform: translateY(105vh) rotate(540deg); } }
+
+  footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; font-size: 14px; color: var(--ink-soft); }
+  footer .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+
+  @media (max-width: 900px) {
+    .board.n3, .board.n4, .steps4, .facts2 { grid-template-columns: 1fr; }
+    .mrow { grid-template-columns: 48px 1fr; } .mrow select { grid-column: 1 / -1; } .mrow .mark { grid-column: 1 / -1; }
+    .editor { grid-template-columns: 1fr; } .thumbs { flex-direction: row; overflow-x: auto; } .thumb { min-width: 150px; }
+    .detail { grid-template-columns: 1fr; } .detail img { grid-row: auto; } .detail dl { grid-template-columns: 1fr; }
+    .cnr { grid-template-columns: 1fr 1fr; }
+    .partnav { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .chip, .confetti { animation: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="home" href="/y7-science">&#8592; Calendar</a>
+    <h1>Should we bring them back?</h1>
+    <nav class="partnav" id="partnav" aria-label="Parts of the lesson"></nav>
+    <span class="savebox" id="savebox"><span class="dot"></span><span id="savetext">Loading your work</span></span>
+    <button class="tbtn" id="saveFile" title="Download everything you have done as one file, to hand in">Save my work</button>
+  </div>
+</header>
+
+<main>
+  <div class="hello">
+    <p>Work through each part when your teacher gets to it. Everything saves on this computer as you go.</p>
+    <label for="name">Your first name</label>
+    <input id="name" autocomplete="given-name" maxlength="40">
+  </div>
+
+  <!-- 1 -->
+  <section class="part" id="p1" style="--pc:#1FA971">
+    <div class="phead"><span class="pnum">1</span><h2>The return of the dire wolf</h2><span class="kind">Read, then type</span></div>
+    <div class="pbody">
+      <ul class="story">
+        <li>The dire wolf was a large prehistoric wolf. It went <b>extinct</b> about 10,000 years ago. Only its fossils are left.</li>
+        <li>In April 2025, scientists said they had brought it back. They changed the DNA of the <b>grey wolf</b>, its closest living relative.</li>
+        <li>A dog gave birth to the puppies. The scientists called this <span class="hl">de-extinction</span>.</li>
+        <li>Next on their list: the woolly mammoth, the dodo and the Tasmanian tiger.</li>
+      </ul>
+      <p class="task">List every extinct animal you have ever heard of.</p>
+      <div class="adder">
+        <input class="field" id="bsIn" placeholder="Type an animal, then press Enter" maxlength="50">
+        <button class="btn" id="bsAdd">Add</button>
+      </div>
+      <div class="chips" id="bsChips"></div>
+      <div class="count" id="bsCount"></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="part" id="p2" style="--pc:#E0457B">
+    <div class="phead"><span class="pnum">2</span><h2>Storyboard: the dire wolf returns</h2><span class="kind">Draw and caption</span></div>
+    <div class="pbody">
+      <p class="task">Tell the story in three panels. Draw a picture and write one sentence in each.</p>
+      <div class="board n3" data-board="sb1" data-labels="1 &#183; Long ago|2 &#183; In the lab|3 &#183; The puppies"></div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="part" id="p3" style="--pc:#3474F5">
+    <div class="phead"><span class="pnum">3</span><h2>Find the closest living relative</h2><span class="kind">Game</span></div>
+    <div class="pbody">
+      <p class="lead">How could we bring an animal back? Scientists follow four steps.</p>
+      <div class="steps4">
+        <div>Study the extinct animal: its fossils, and DNA from its remains.</div>
+        <div>Compare its characteristics with animals alive today.</div>
+        <div>Find its <b>closest living relative</b>: the one that shares the most characteristics.</div>
+        <div>Change that relative's DNA to add the extinct animal's traits.</div>
+      </div>
+      <p class="task">Match each extinct bird to its closest living relative. Think about shape, beak, legs and colour.</p>
+      <div class="match" id="match"></div>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn" id="matchCheck">Check my matches</button>
+        <button class="btn ghost" id="matchReset">Try again</button>
+      </div>
+      <div class="result" id="matchResult" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="part" id="p4" style="--pc:#7B55E0">
+    <div class="phead"><span class="pnum">4</span><h2>Classification notes</h2><span class="kind">Fill the gaps</span></div>
+    <div class="pbody">
+      <p class="task">Type the missing word in each gap. Two words in the bank are not used.</p>
+      <div class="bank" id="bank"><b>Word bank:</b></div>
+      <div class="gaps" id="gaps"></div>
+      <div style="display:flex;gap:10px;margin-top:14px"><button class="btn" id="gapCheck">Check my notes</button></div>
+      <div class="result" id="gapResult" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="part" id="p5" style="--pc:#F29B1D">
+    <div class="phead"><span class="pnum">5</span><h2>Woolly mammoth vs Asian elephant</h2><span class="kind">Compare</span></div>
+    <div class="pbody">
+      <div class="facts2">
+        <div class="fact"><img src="img/mammoth.svg" alt=""><h3>Woolly mammoth</h3>
+          <div><b>Height:</b> about 3 to 3.5 m at the shoulder</div>
+          <div><b>Mass:</b> about 4 to 6 tonnes</div>
+          <div><b>Body:</b> thick shaggy fur, small ears, long curved tusks, a trunk</div>
+          <div><b>Home:</b> cold grasslands (tundra) of Europe, Asia and North America</div>
+          <div><b>Status:</b> extinct</div></div>
+        <div class="fact"><img src="img/elephant.svg" alt=""><h3>Asian elephant</h3>
+          <div><b>Height:</b> about 2 to 3 m at the shoulder</div>
+          <div><b>Mass:</b> about 3 to 5 tonnes</div>
+          <div><b>Body:</b> very little hair, tusks (mostly the males), a trunk</div>
+          <div><b>Home:</b> forests and grasslands of South and Southeast Asia</div>
+          <div><b>Status:</b> alive, but endangered</div></div>
+      </div>
+      <p class="task">With a partner, find at least 3 similarities and 3 differences.</p>
+      <table class="cmp" id="cmp"><thead><tr><th class="s">Similarities</th><th class="d">Differences</th></tr></thead><tbody></tbody></table>
+      <button class="btn ghost small" id="cmpAdd" style="margin-top:6px">+ Add a row</button>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="part" id="p6" style="--pc:#0E9AA7">
+    <div class="phead"><span class="pnum">6</span><h2>Storyboard: bring back the mammoth</h2><span class="kind">Draw and caption</span></div>
+    <div class="pbody">
+      <p class="task">You are the scientist. Draw and caption each step of your plan.</p>
+      <div class="board n4" data-board="sb2" data-labels="1 &#183; Find the evidence|2 &#183; The closest relative|3 &#183; Change the DNA|4 &#183; A calf is born"></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="part" id="p7" style="--pc:#BE123C">
+    <div class="phead"><span class="pnum">7</span><h2>What do you think?</h2><span class="kind">Your opinion</span></div>
+    <div class="pbody">
+      <p class="lead">&#8220;We should bring extinct animals back.&#8221; Pick your corner for each round, and say why.</p>
+      <div class="rounds" id="rounds"></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="part" id="p8" style="--pc:#B45309">
+    <div class="phead"><span class="pnum">8</span><h2>Meet the prehistoric animals</h2><span class="kind">Choose one</span></div>
+    <div class="pbody">
+      <p class="task">Click the cards to read about them. Choose one animal for your slideshow.</p>
+      <div class="gal" id="gal"></div>
+      <div id="detail" hidden></div>
+      <div class="own">
+        <span>Want a different extinct animal?</span>
+        <input class="field" id="ownName" placeholder="Its name" maxlength="40">
+        <button class="btn small" id="ownUse">Use my own</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="part" id="p9" style="--pc:#1FA971">
+    <div class="phead"><span class="pnum">9</span><h2>My slideshow</h2><span class="kind">Make it</span></div>
+    <div class="pbody">
+      <p class="task" id="showTask">Choose an animal in Part 8 first. Then build your slides here.</p>
+      <div class="showtop">
+        <div class="themes" id="themes">Colour:</div>
+        <button class="btn ghost small" id="addSlide">+ Add a slide</button>
+        <button class="btn small" id="presentBtn">&#9654; Present</button>
+        <button class="btn small" id="dlShow">Download slideshow</button>
+      </div>
+      <div class="editor">
+        <div class="thumbs" id="thumbs"></div>
+        <div class="slideedit" id="slideedit"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="row">
+    <button class="btn ghost small" id="recover" title="Load the last automatic backup of your work on this computer">Recover my last backup</button>
+    <button class="btn ghost small" id="clearAll">Start again</button>
+  </div>
+  Your work is saved in this browser on this computer only. Use Save my work to keep a copy or hand it in.
+  Animal pictures: <a href="https://github.com/jdecked/twemoji">Twemoji</a>, CC-BY 4.0.
+</footer>
+
+<div id="present" hidden>
+  <div class="stagebox" id="pstage"></div>
+  <div class="pbar"><button id="pPrev">&#8592;</button><span id="pNum"></span><button id="pNext">&#8594;</button><button id="pClose">Close</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<input type="file" id="picIn" accept="image/*" hidden>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "lh-y7sci-deextinction-v1";
+
+  /* ---------------- data ---------------- */
+  var BIRDS = [
+    { id: "cp", name: "Carolina parakeet", img: "parrot", note: "A colourful parrot from the USA. Extinct 1918.", ans: "Sun conure" },
+    { id: "pp", name: "Passenger pigeon", img: "dove", note: "Flocks of billions in North America. Extinct 1914.", ans: "Band-tailed pigeon" },
+    { id: "ga", name: "Great auk", img: "penguin", note: "A flightless seabird of the North Atlantic. Extinct 1844.", ans: "Razorbill" },
+    { id: "do", name: "Dodo", img: "dodo", note: "A flightless bird from Mauritius. Extinct in the late 1600s.", ans: "Nicobar pigeon" },
+    { id: "mo", name: "Moa", img: "bird", note: "A giant flightless bird from New Zealand. Extinct about 600 years ago.", ans: "Tinamou" }
+  ];
+  var LIVING = ["Razorbill", "Tinamou", "Nicobar pigeon", "Sun conure", "Band-tailed pigeon"];
+
+  var GAPS = [
+    { pre: "Classification is sorting living things into", post: "using their characteristics.", ans: ["groups", "group"] },
+    { pre: "The parakeet, the auk and the moa are all birds, because they all have", post: ".", ans: ["feathers", "feather"] },
+    { pre: "The more features two animals share, the more closely", post: "they are likely to be.", ans: ["related"] },
+    { pre: "Scientists also compare", post: ", because it shows which animals share a recent ancestor.", ans: ["dna"] }
+  ];
+  var BANK = ["fossils", "DNA", "groups", "fur", "related", "feathers"];
+
+  var ROUNDS = [
+    "Round 1: We should bring extinct animals back.",
+    "Round 2: What if it is the dodo, which people hunted to extinction?",
+    "Round 3: What about T. rex? It died out 66 million years ago.",
+    "Round 4: What if the money went to saving animals that are endangered today?"
+  ];
+  var CORNERS = ["Strongly agree", "Agree", "Disagree", "Strongly disagree"];
+
+  var ANIMALS = [
+    { id: "mammoth", name: "Woolly mammoth", img: "mammoth", group: "mammal", when: "Most died out about 10,000 years ago. The last ones lived on Wrangel Island until about 4,000 years ago.",
+      where: "Cold grasslands (tundra) of Europe, Asia and North America", rel: "Asian elephant",
+      back: "Frozen mammoths still hold DNA, and the Asian elephant is a close relative. Scientists are working on it now.",
+      fun: "Mammoths were still alive when the Great Pyramid of Egypt was built." },
+    { id: "direwolf", name: "Dire wolf", img: "wolf", group: "mammal", when: "About 10,000 years ago", where: "North and South America",
+      rel: "Grey wolf (used by the scientists in 2025)", back: "In 2025 scientists announced pups made by editing grey wolf DNA. Some scientists argue they are really changed grey wolves.",
+      fun: "Thousands of dire wolf fossils have been dug out of the La Brea Tar Pits in Los Angeles." },
+    { id: "dodo", name: "Dodo", img: "dodo", group: "bird", when: "In the late 1600s", where: "Mauritius, an island in the Indian Ocean",
+      rel: "Nicobar pigeon", back: "Scientists have read the dodo's DNA, and pigeons are its close relatives.",
+      fun: "The dodo could not fly. It was a giant pigeon that lived on the ground, about 1 m tall." },
+    { id: "thylacine", name: "Thylacine (Tasmanian tiger)", img: "tiger", group: "mammal", when: "1936, when the last known one died in Hobart Zoo",
+      where: "Tasmania, and mainland Australia thousands of years earlier", rel: "Numbat and Tasmanian devil (marsupial meat eaters)",
+      back: "Scientists plan to use a small marsupial called the fat-tailed dunnart.",
+      fun: "It was called a tiger because of its stripes, but it was a marsupial with a pouch." },
+    { id: "diprotodon", name: "Diprotodon", img: "bone", group: "mammal", when: "About 40,000 years ago", where: "All over Australia",
+      rel: "Wombats and koalas", back: "Very hard. No DNA has been recovered from it.",
+      fun: "The biggest marsupial that ever lived, heavier than a car." },
+    { id: "trex", name: "Tyrannosaurus rex", img: "t-rex", group: "reptile", when: "66 million years ago", where: "North America",
+      rel: "Birds, such as chickens and ostriches", back: "No. DNA breaks down long before 66 million years, so there is none to copy.",
+      fun: "Birds are living dinosaurs, so a chicken is a closer relative of T. rex than a crocodile is." },
+    { id: "megalodon", name: "Megalodon", img: "shark", group: "fish", when: "About 3.6 million years ago", where: "Oceans all over the world, including off Australia",
+      rel: "Distant cousins: the great white shark and mako sharks", back: "No. Its DNA is gone, and mostly only its teeth have been found.",
+      fun: "Its teeth could be as big as your hand." },
+    { id: "woollyrhino", name: "Woolly rhinoceros", img: "rhino", group: "mammal", when: "About 14,000 years ago", where: "Cold grasslands of Europe and Asia",
+      rel: "Sumatran rhinoceros", back: "Frozen remains with DNA exist, but the Sumatran rhino is critically endangered itself.",
+      fun: "Its front horn could be about 1 m long." },
+    { id: "smilodon", name: "Sabre-toothed cat", img: "leopard", group: "mammal", when: "About 10,000 years ago", where: "North and South America",
+      rel: "No close living relative. Its whole branch of the cat family died out, so all living cats are distant cousins.",
+      back: "Very hard, because there is no close living relative to use.",
+      fun: "Its two long canine teeth could be about 28 cm long, roots included." },
+    { id: "moa", name: "Moa", img: "bird", group: "bird", when: "About 600 years ago", where: "New Zealand",
+      rel: "Tinamou, a small bird from South America", back: "Moa DNA has been found in bones and eggshells.",
+      fun: "The tallest moa could reach about 3.6 m with its neck stretched up." },
+    { id: "haast", name: "Haast's eagle", img: "eagle", group: "bird", when: "About 600 years ago", where: "The South Island of New Zealand",
+      rel: "Small eagles, like Australia's little eagle", back: "Its DNA has been studied, but its food, the moa, is extinct too.",
+      fun: "The biggest eagle that ever lived. It hunted moa." },
+    { id: "megalania", name: "Megalania", img: "lizard", group: "reptile", when: "About 40,000 years ago", where: "Australia",
+      rel: "Goannas, like the perentie and the Komodo dragon", back: "Very hard. No DNA has been recovered from it.",
+      fun: "A giant goanna, much longer than a Komodo dragon." },
+    { id: "greatauk", name: "Great auk", img: "penguin", group: "bird", when: "1844", where: "Islands of the North Atlantic Ocean",
+      rel: "Razorbill", back: "DNA has been taken from museum specimens, and the razorbill is alive today.",
+      fun: "It could not fly. It was the first bird ever called a penguin." },
+    { id: "passenger", name: "Passenger pigeon", img: "dove", group: "bird", when: "1914, when Martha, the last one, died in Cincinnati Zoo",
+      where: "North America", rel: "Band-tailed pigeon", back: "Scientists are working on it, using band-tailed pigeons.",
+      fun: "Flocks once had billions of birds and took hours to fly past." },
+    { id: "seacow", name: "Steller's sea cow", img: "whale", group: "mammal", when: "1768", where: "The cold Bering Sea, near Alaska and Russia",
+      rel: "Dugong, which lives in northern Australian waters", back: "DNA has been read from its bones, and the dugong is its relative.",
+      fun: "It grew about 8 m long, and was hunted out only 27 years after Europeans found it." }
+  ];
+  var GROUP_LABEL = { mammal: "Mammal", bird: "Bird", reptile: "Reptile", fish: "Fish" };
+
+  var THEMES = ["#1FA971", "#3474F5", "#7B55E0", "#E0457B", "#EA580C", "#17233D"];
+  function defaultSlides(an) {
+    var n = an || "my animal";
+    return [
+      { t: "Meet the " + n, x: "", img: "", p: "What is it? What did it look like? One or two sentences." },
+      { t: "When and where it lived", x: "", img: "", p: "When did it go extinct? Where in the world did it live?" },
+      { t: "Its closest living relative", x: "", img: "", p: "Name its closest living relative. Silver: give 2 similarities and 2 differences." },
+      { t: "Could we bring it back?", x: "", img: "", p: "Is there DNA? Is there a close living relative? Is there anywhere left for it to live?" },
+      { t: "Should we?", x: "", img: "", p: "What do you think, and why? Give at least one reason." }
+    ];
+  }
+
+  /* ---------------- state + saving ---------------- */
+  function blank() {
+    return { v: 1, name: "", bs: [], sb1: [{}, {}, {}], sb2: [{}, {}, {}, {}], match: {}, matchDone: false, gaps: {}, cmp: { s: ["", "", ""], d: ["", "", ""] },
+      rounds: [{}, {}, {}, {}], animal: "", ownAnimal: "", theme: THEMES[0], slides: defaultSlides(""), cur: 0, savedAt: 0 };
+  }
+  var S = blank(), loaded = false, clearedNow = false, saveT = null;
+
+  function hasWork(s) {
+    if (!s) return false;
+    if ((s.bs || []).length || s.animal) return true;
+    var any = function (arr) { return (arr || []).some(function (p) { return p && (p.img || (p.cap || "").trim()); }); };
+    if (any(s.sb1) || any(s.sb2)) return true;
+    if (Object.keys(s.match || {}).length || Object.keys(s.gaps || {}).length) return true;
+    if (s.cmp && (s.cmp.s.concat(s.cmp.d)).some(function (x) { return (x || "").trim(); })) return true;
+    if ((s.rounds || []).some(function (r) { return r && (r.c != null || (r.why || "").trim()); })) return true;
+    return (s.slides || []).some(function (x) { return (x.x || "").trim() || x.img; });
+  }
+
+  function say(text, cls) {
+    var b = document.getElementById("savebox");
+    b.className = "savebox" + (cls ? " " + cls : "");
+    document.getElementById("savetext").textContent = text;
+  }
+  function hhmm(ts) {
+    var d = new Date(ts), h = d.getHours(), m = d.getMinutes();
+    return (h % 12 || 12) + ":" + (m < 10 ? "0" : "") + m + (h < 12 ? " am" : " pm");
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var got = JSON.parse(raw);
+        if (got && got.v === 1) { S = Object.assign(blank(), got); if (hasWork(got)) localStorage.setItem(KEY + "-prev", raw); }
+      }
+      say(S.savedAt ? "Saved " + hhmm(S.savedAt) : "Saves as you go", "ok");
+    } catch (e) { say("Saving is off in this browser", "err"); }
+    loaded = true;  // no write happens before the stored work has been read
+  }
+  function save() { clearTimeout(saveT); saveT = setTimeout(doSave, 500); say("Saving"); }
+  function doSave() {
+    if (!loaded) return;
+    try {
+      var prev = localStorage.getItem(KEY);
+      var prevHad = false;
+      try { prevHad = prev && hasWork(JSON.parse(prev)); } catch (e) {}
+      if (!hasWork(S) && prevHad && !clearedNow) { say("Saved " + hhmm(S.savedAt || Date.now()), "ok"); return; } // an empty page never overwrites saved work
+      S.savedAt = Date.now();
+      localStorage.setItem(KEY, JSON.stringify(S));
+      if (prevHad) localStorage.setItem(KEY + "-prev", prev);
+      clearedNow = false;
+      say("Saved " + hhmm(S.savedAt), "ok");
+      markNav();
+    } catch (e) {
+      say("Not saved: too full", "err");
+      toast("Your pictures take up too much room to save. Remove one, or use a smaller picture.");
+    }
+  }
+  addEventListener("beforeunload", function () { if (saveT) { clearTimeout(saveT); doSave(); } });
+  document.addEventListener("visibilitychange", function () { if (document.hidden && saveT) { clearTimeout(saveT); doSave(); } });
+
+  /* ---------------- helpers ---------------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 3200); }
+  function confetti() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cols = ["#1FA971", "#FFB400", "#E0457B", "#3474F5", "#7B55E0"];
+    for (var i = 0; i < 60; i++) {
+      var c = document.createElement("div"); c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw"; c.style.background = cols[i % cols.length];
+      c.style.animationDelay = Math.random() * .5 + "s"; c.style.animationDuration = 1.2 + Math.random() + "s";
+      document.body.appendChild(c); setTimeout(c.remove.bind(c), 2600);
+    }
+  }
+  function norm(s) { return String(s || "").trim().toLowerCase().replace(/[^a-z]/g, ""); }
+
+  /* ---------------- part nav ---------------- */
+  var PARTS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  function partDone(n) {
+    var some = function (arr) { return (arr || []).filter(function (p) { return p && (p.img || (p.cap || "").trim()); }).length; };
+    switch (n) {
+      case 1: return S.bs.length >= 3;
+      case 2: return some(S.sb1) >= 3;
+      case 3: return S.matchDone;
+      case 4: return GAPS.every(function (g, i) { return g.ans.indexOf(norm(S.gaps[i])) >= 0; });
+      case 5: return S.cmp.s.filter(function (x) { return x.trim(); }).length >= 3 && S.cmp.d.filter(function (x) { return x.trim(); }).length >= 3;
+      case 6: return some(S.sb2) >= 4;
+      case 7: return S.rounds.every(function (r) { return r.c != null && (r.why || "").trim(); });
+      case 8: return !!S.animal;
+      case 9: return S.slides.filter(function (x) { return (x.x || "").trim(); }).length >= 5;
+    }
+  }
+  function buildNav() {
+    $("partnav").innerHTML = PARTS.map(function (n) { return '<a href="#p' + n + '" data-n="' + n + '" title="Part ' + n + '">' + n + "</a>"; }).join("");
+  }
+  function markNav() {
+    Array.prototype.forEach.call($("partnav").children, function (a) { a.classList.toggle("done", !!partDone(+a.dataset.n)); });
+  }
+
+  /* ---------------- name ---------------- */
+  $("name").addEventListener("input", function () { S.name = this.value; save(); });
+
+  /* ---------------- 1 brainstorm ---------------- */
+  function drawBs() {
+    $("bsChips").innerHTML = S.bs.map(function (a, i) { return '<span class="chip">' + esc(a) + '<button data-i="' + i + '" aria-label="Remove ' + esc(a) + '">&#10005;</button></span>'; }).join("");
+    var n = S.bs.length;
+    $("bsCount").innerHTML = n ? "You have " + n + (n === 1 ? " animal." : " animals.") + (n >= 10 ? '<span class="badge">Legend!</span>' : n >= 5 ? '<span class="badge">Great list</span>' : "") : "";
+  }
+  function addBs() {
+    var v = $("bsIn").value.trim(); if (!v) return;
+    if (S.bs.some(function (x) { return norm(x) === norm(v); })) { toast("You already have that one"); return; }
+    S.bs.push(v); $("bsIn").value = ""; drawBs(); save(); $("bsIn").focus();
+  }
+  $("bsAdd").addEventListener("click", addBs);
+  $("bsIn").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); addBs(); } });
+  $("bsChips").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; S.bs.splice(+b.dataset.i, 1); drawBs(); save(); });
+
+  /* ---------------- storyboards ---------------- */
+  var INK = ["#17233D", "#E0457B", "#3474F5", "#1FA971", "#F29B1D", "#8B5A2B"];
+  function buildBoard(el) {
+    var key = el.dataset.board, labels = el.dataset.labels.split("|");
+    var tool = { c: INK[0], w: 5, er: false };
+    var bar = document.createElement("div");
+    bar.className = "drawbar";
+    bar.innerHTML = INK.map(function (c, i) { return '<button class="sw" data-c="' + c + '" style="background:' + c + '" aria-label="Colour" aria-pressed="' + (i === 0) + '"></button>'; }).join("") +
+      '<span class="sep"></span><button class="tool" data-w="3">Thin</button><button class="tool" data-w="5" aria-pressed="true">Medium</button><button class="tool" data-w="12">Thick</button>' +
+      '<span class="sep"></span><button class="tool" data-er="1">Eraser</button><span class="hint">Draw with your mouse. Type a sentence under each panel.</span>';
+    el.parentNode.insertBefore(bar, el);
+    bar.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.c) { tool.c = b.dataset.c; tool.er = false; }
+      if (b.dataset.w) tool.w = +b.dataset.w;
+      if (b.dataset.er) tool.er = !tool.er;
+      Array.prototype.forEach.call(bar.querySelectorAll(".sw"), function (s) { s.setAttribute("aria-pressed", String(!tool.er && s.dataset.c === tool.c)); });
+      Array.prototype.forEach.call(bar.querySelectorAll("[data-w]"), function (s) { s.setAttribute("aria-pressed", String(+s.dataset.w === tool.w)); });
+      bar.querySelector("[data-er]").setAttribute("aria-pressed", String(tool.er));
+    });
+    labels.forEach(function (lab, i) {
+      var p = document.createElement("div"); p.className = "panel";
+      p.innerHTML = '<div class="plab">' + lab + ' <button class="btn ghost small" style="float:right;padding:0 10px;font-size:14px" data-clear>Clear</button></div>' +
+        '<canvas width="800" height="500"></canvas><input class="field cap" maxlength="160" placeholder="One sentence for this panel">';
+      el.appendChild(p);
+      var cv = p.querySelector("canvas"), cx = cv.getContext("2d"), cap = p.querySelector(".cap");
+      var data = S[key][i] || (S[key][i] = {});
+      cap.value = data.cap || "";
+      if (data.img) { var im = new Image(); im.onload = function () { cx.drawImage(im, 0, 0); }; im.src = data.img; }
+      cap.addEventListener("input", function () { data.cap = cap.value; save(); });
+      p.querySelector("[data-clear]").addEventListener("click", function () {
+        if (!confirm("Clear this panel's drawing?")) return;
+        cx.clearRect(0, 0, 800, 500); data.img = ""; clearedNow = !hasWork(S); save();
+      });
+      var down = false, last = null;
+      function pt(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * 800 / r.width, (e.clientY - r.top) * 500 / r.height]; }
+      cv.addEventListener("pointerdown", function (e) { down = true; last = pt(e); cv.setPointerCapture(e.pointerId); dot(last); });
+      cv.addEventListener("pointermove", function (e) { if (!down) return; var q = pt(e); line(last, q); last = q; });
+      function end() { if (!down) return; down = false; data.img = cv.toDataURL("image/png"); save(); }
+      cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+      function style() {
+        cx.globalCompositeOperation = tool.er ? "destination-out" : "source-over";
+        cx.strokeStyle = cx.fillStyle = tool.c; cx.lineWidth = tool.er ? 28 : tool.w; cx.lineCap = cx.lineJoin = "round";
+      }
+      function dot(a) { style(); cx.beginPath(); cx.arc(a[0], a[1], cx.lineWidth / 2, 0, 7); cx.fill(); }
+      function line(a, b) { style(); cx.beginPath(); cx.moveTo(a[0], a[1]); cx.lineTo(b[0], b[1]); cx.stroke(); }
+    });
+  }
+
+  /* ---------------- 3 matching ---------------- */
+  function drawMatch() {
+    $("match").innerHTML = BIRDS.map(function (b) {
+      var v = S.match[b.id] || "";
+      var mark = S.matchDone || S.matchChecked ? (v === b.ans ? "right" : v ? "wrong" : "") : "";
+      return '<div class="mrow ' + mark + '"><img src="img/' + b.img + '.svg" alt=""><div><b>' + esc(b.name) + "</b><small>" + esc(b.note) + "</small></div>" +
+        '<select data-id="' + b.id + '" aria-label="Closest living relative of the ' + esc(b.name) + '"><option value="">Choose its relative</option>' +
+        LIVING.map(function (l) { return "<option" + (l === v ? " selected" : "") + ">" + esc(l) + "</option>"; }).join("") + "</select>" +
+        '<span class="mark">' + (mark === "right" ? "&#10003;" : mark === "wrong" ? "&#10007;" : "") + "</span></div>";
+    }).join("");
+  }
+  $("match").addEventListener("change", function (e) { var s = e.target.closest("select"); if (!s) return; S.match[s.dataset.id] = s.value; S.matchChecked = false; drawMatch(); save(); });
+  $("matchCheck").addEventListener("click", function () {
+    var right = BIRDS.filter(function (b) { return S.match[b.id] === b.ans; }).length;
+    S.matchChecked = true; if (right === 5) S.matchDone = true;
+    drawMatch(); save();
+    $("matchResult").textContent = right === 5 ? "5 out of 5. You found every relative!" : right + " out of 5. Change the red ones and check again.";
+    if (right === 5) confetti();
+  });
+  $("matchReset").addEventListener("click", function () { S.match = {}; S.matchChecked = false; S.matchDone = false; $("matchResult").textContent = ""; drawMatch(); save(); });
+
+  /* ---------------- 4 gaps ---------------- */
+  function drawGaps(check) {
+    $("bank").innerHTML = "<b>Word bank:</b>" + BANK.map(function (w) { return "<span>" + w + "</span>"; }).join("");
+    $("gaps").innerHTML = GAPS.map(function (g, i) {
+      var v = S.gaps[i] || "", cls = check && v ? (g.ans.indexOf(norm(v)) >= 0 ? "right" : "wrong") : "";
+      return '<div class="gap"><b>' + (i + 1) + ".</b> " + esc(g.pre) + ' <input data-i="' + i + '" class="' + cls + '" value="' + esc(v) + '" aria-label="Gap ' + (i + 1) + '" maxlength="20"> ' + esc(g.post) + "</div>";
+    }).join("");
+  }
+  $("gaps").addEventListener("input", function (e) { var t = e.target; if (t.dataset.i == null) return; S.gaps[t.dataset.i] = t.value; t.className = ""; save(); });
+  $("gapCheck").addEventListener("click", function () {
+    drawGaps(true);
+    var right = GAPS.filter(function (g, i) { return g.ans.indexOf(norm(S.gaps[i])) >= 0; }).length;
+    $("gapResult").textContent = right === 4 ? "All 4 correct. Great notes!" : right + " out of 4 correct. Fix the red ones.";
+    if (right === 4) confetti();
+    markNav();
+  });
+
+  /* ---------------- 5 compare ---------------- */
+  function drawCmp() {
+    var rows = Math.max(S.cmp.s.length, S.cmp.d.length), h = "";
+    for (var i = 0; i < rows; i++) {
+      h += '<tr><td><input class="field" data-k="s" data-i="' + i + '" value="' + esc(S.cmp.s[i] || "") + '" placeholder="Both of them..." maxlength="120"></td>' +
+           '<td><input class="field" data-k="d" data-i="' + i + '" value="' + esc(S.cmp.d[i] || "") + '" placeholder="The mammoth..., but the elephant..." maxlength="120"></td></tr>';
+    }
+    $("cmp").querySelector("tbody").innerHTML = h;
+  }
+  $("cmp").addEventListener("input", function (e) { var t = e.target; if (!t.dataset.k) return; S.cmp[t.dataset.k][+t.dataset.i] = t.value; save(); });
+  $("cmpAdd").addEventListener("click", function () { if (S.cmp.s.length >= 8) return; S.cmp.s.push(""); S.cmp.d.push(""); drawCmp(); save(); });
+
+  /* ---------------- 7 rounds ---------------- */
+  function drawRounds() {
+    $("rounds").innerHTML = ROUNDS.map(function (r, i) {
+      var st = S.rounds[i] || {};
+      return '<div class="round"><h3>' + esc(r) + '</h3><div class="cnr">' + CORNERS.map(function (c, j) {
+        return '<button class="a' + (j + 1) + '" data-r="' + i + '" data-c="' + j + '" aria-pressed="' + (st.c === j) + '">' + (j + 1) + ". " + c + "</button>";
+      }).join("") + '</div><input class="field" data-why="' + i + '" value="' + esc(st.why || "") + '" placeholder="Because..." maxlength="200"></div>';
+    }).join("");
+  }
+  $("rounds").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-r]"); if (!b) return;
+    var r = +b.dataset.r; S.rounds[r] = S.rounds[r] || {}; S.rounds[r].c = +b.dataset.c;
+    Array.prototype.forEach.call(b.parentNode.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    save();
+  });
+  $("rounds").addEventListener("input", function (e) { var t = e.target; if (t.dataset.why == null) return; var r = +t.dataset.why; S.rounds[r] = S.rounds[r] || {}; S.rounds[r].why = t.value; save(); });
+
+  /* ---------------- 8 gallery ---------------- */
+  var viewing = "";
+  function animalName() {
+    if (S.animal === "own") return S.ownAnimal || "my animal";
+    var a = ANIMALS.filter(function (x) { return x.id === S.animal; })[0];
+    return a ? a.name : "";
+  }
+  function drawGal() {
+    $("gal").innerHTML = ANIMALS.map(function (a) {
+      return '<button class="gcard' + (S.animal === a.id ? " sel" : "") + '" data-id="' + a.id + '"><img src="img/' + a.img + '.svg" alt=""><b>' + esc(a.name) + "</b>" +
+        '<span class="grp g-' + a.group + '">' + GROUP_LABEL[a.group] + "</span><small>Extinct: " + esc(a.when.split(".")[0]) + "</small></button>";
+    }).join("");
+    var d = $("detail"), a = ANIMALS.filter(function (x) { return x.id === viewing; })[0];
+    if (!a) { d.hidden = true; return; }
+    d.hidden = false; d.className = "detail";
+    d.innerHTML = '<img src="img/' + a.img + '.svg" alt=""><h3>' + esc(a.name) + '</h3><dl>' +
+      "<dt>Group</dt><dd>" + GROUP_LABEL[a.group] + "</dd><dt>Went extinct</dt><dd>" + esc(a.when) + "</dd><dt>Lived</dt><dd>" + esc(a.where) + "</dd>" +
+      "<dt>Closest living relative</dt><dd>" + esc(a.rel) + "</dd><dt>Could we bring it back?</dt><dd>" + esc(a.back) + "</dd><dt>Amazing fact</dt><dd>" + esc(a.fun) + "</dd></dl>" +
+      '<div class="row"><button class="btn" data-choose="' + a.id + '">' + (S.animal === a.id ? "&#10003; This is my animal" : "Choose the " + esc(a.name)) + "</button></div>";
+  }
+  $("gal").addEventListener("click", function (e) { var b = e.target.closest(".gcard"); if (!b) return; viewing = b.dataset.id; drawGal(); $("detail").scrollIntoView({ block: "nearest" }); });
+  $("detail").addEventListener("click", function (e) { var b = e.target.closest("[data-choose]"); if (!b) return; choose(b.dataset.choose); });
+  $("ownUse").addEventListener("click", function () {
+    var v = $("ownName").value.trim(); if (!v) { $("ownName").focus(); return; }
+    S.ownAnimal = v; choose("own");
+  });
+  function choose(id) {
+    var old = animalName();
+    S.animal = id;
+    var n = animalName();
+    var t0 = S.slides[0] && S.slides[0].t;
+    if (!t0 || t0 === "Meet the " + (old || "my animal") || t0 === "Meet the my animal") S.slides[0].t = "Meet the " + n;
+    drawGal(); drawShow(); save();
+    toast("Your slideshow is about the " + n + ". Build it in Part 9.");
+  }
+
+  /* ---------------- 9 slideshow ---------------- */
+  function slideHTML(sl, theme) {
+    var pic = sl.img ? '<div class="pic"><img src="' + sl.img + '" alt=""></div>' : "";
+    return '<div class="sl' + (sl.img ? "" : " nopic") + '" style="--th:' + theme + '"><div><h3>' + esc(sl.t) + '</h3><div class="tx">' + esc(sl.x) + "</div></div>" + pic + "</div>";
+  }
+  function drawShow() {
+    var name = animalName();
+    $("showTask").textContent = name ? "Your animal: the " + name + ". Fill in every slide and add a picture to each one." : "Choose an animal in Part 8 first. Then build your slides here.";
+    $("themes").innerHTML = "Colour:" + THEMES.map(function (c) { return '<button style="background:' + c + '" data-th="' + c + '" aria-label="Slide colour" aria-pressed="' + (S.theme === c) + '"></button>'; }).join("");
+    if (S.cur >= S.slides.length) S.cur = S.slides.length - 1;
+    $("thumbs").innerHTML = S.slides.map(function (sl, i) {
+      var done = (sl.x || "").trim() && sl.img;
+      return '<button class="thumb' + (i === S.cur ? " on" : "") + '" data-i="' + i + '"><div class="mini" style="--th:' + S.theme + '">' + esc(sl.t) + (sl.img ? '<img src="' + sl.img + '" alt="">' : "") + "</div>" +
+        '<div class="tn"><span>Slide ' + (i + 1) + "</span>" + (done ? '<span class="ok">&#10003;</span>' : "") + "</div></button>";
+    }).join("");
+    var sl = S.slides[S.cur];
+    $("slideedit").innerHTML =
+      '<div class="prompt">' + esc(sl.p || "Anything else you want to show.") + "</div>" +
+      '<label for="slT">Slide title</label><input class="field" id="slT" value="' + esc(sl.t) + '" maxlength="70">' +
+      '<label for="slX">What it says</label><textarea class="field" id="slX" rows="5" maxlength="600" placeholder="Write in full sentences.">' + esc(sl.x) + "</textarea>" +
+      '<label>Picture</label><div class="picrow"><div class="picbox" id="picbox">' + (sl.img ? '<img src="' + sl.img + '" alt="">' : "No picture yet. Add one from a file, or copy a picture and press Ctrl+V here.") + "</div>" +
+      '<div style="display:grid;gap:8px"><button class="btn small" id="picAdd">Add a picture</button>' + (sl.img ? '<button class="btn ghost small" id="picDel">Remove picture</button>' : "") +
+      (S.slides.length > 5 && S.cur >= 5 ? '<button class="btn ghost small" id="slDel">Delete this slide</button>' : "") + "</div></div>" +
+      '<label>Preview</label><div class="preview" id="pv">' + slideHTML(sl, S.theme) + "</div>";
+    $("slT").addEventListener("input", function () { sl.t = this.value; livePv(); });
+    $("slX").addEventListener("input", function () { sl.x = this.value; livePv(); });
+    $("picAdd").addEventListener("click", function () { $("picIn").click(); });
+    if ($("picDel")) $("picDel").addEventListener("click", function () { sl.img = ""; drawShow(); save(); });
+    if ($("slDel")) $("slDel").addEventListener("click", function () { if (!confirm("Delete this slide?")) return; S.slides.splice(S.cur, 1); S.cur = Math.max(0, S.cur - 1); drawShow(); save(); });
+    markNav();
+  }
+  function livePv() {
+    $("pv").innerHTML = slideHTML(S.slides[S.cur], S.theme);
+    var th = $("thumbs").children[S.cur]; if (th) th.querySelector(".mini").firstChild.textContent = S.slides[S.cur].t;
+    save();
+  }
+  $("thumbs").addEventListener("click", function (e) { var b = e.target.closest(".thumb"); if (!b) return; S.cur = +b.dataset.i; drawShow(); });
+  $("themes").addEventListener("click", function (e) { var b = e.target.closest("[data-th]"); if (!b) return; S.theme = b.dataset.th; drawShow(); save(); });
+  $("addSlide").addEventListener("click", function () {
+    if (S.slides.length >= 8) { toast("Eight slides is the most. Keep it short!"); return; }
+    S.slides.push({ t: S.slides.length === 5 ? "How it is classified" : "One more thing", x: "", img: "",
+      p: S.slides.length === 5 ? "Gold: which group is it in (mammal, bird, reptile, fish...)? Which features put it there? Why is it easier or harder to bring back than T. rex?" : "" });
+    S.cur = S.slides.length - 1; drawShow(); save();
+  });
+
+  // pictures are shrunk before saving, so a whole slideshow fits in the browser's storage
+  function takePicture(file) {
+    if (!file || !/^image\//.test(file.type)) { toast("That is not a picture file"); return; }
+    var url = URL.createObjectURL(file), im = new Image();
+    im.onload = function () {
+      var max = 900, w = im.width, h = im.height, k = Math.min(1, max / Math.max(w, h));
+      var cv = document.createElement("canvas"); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+      var cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      S.slides[S.cur].img = cv.toDataURL("image/jpeg", 0.8); URL.revokeObjectURL(url); drawShow(); save();
+    };
+    im.onerror = function () { toast("That picture could not be opened"); };
+    im.src = url;
+  }
+  $("picIn").addEventListener("change", function () { takePicture(this.files && this.files[0]); this.value = ""; });
+  document.addEventListener("paste", function (e) {
+    var p9 = $("p9").getBoundingClientRect(); if (p9.bottom < 0 || p9.top > innerHeight) return;
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    for (var i = 0; i < items.length; i++) if (items[i].type.indexOf("image/") === 0) { e.preventDefault(); takePicture(items[i].getAsFile()); toast("Picture added to slide " + (S.cur + 1)); return; }
+  });
+
+  /* present mode */
+  var pi = 0;
+  function paintPresent() { $("pstage").innerHTML = slideHTML(S.slides[pi], S.theme); $("pNum").textContent = (pi + 1) + " / " + S.slides.length; }
+  $("presentBtn").addEventListener("click", function () {
+    pi = 0; $("present").hidden = false; paintPresent();
+    try { document.documentElement.requestFullscreen(); } catch (e) {}
+  });
+  function closePresent() { $("present").hidden = true; if (document.fullscreenElement) document.exitFullscreen(); }
+  $("pPrev").addEventListener("click", function () { if (pi > 0) { pi--; paintPresent(); } });
+  $("pNext").addEventListener("click", function () { if (pi < S.slides.length - 1) { pi++; paintPresent(); } });
+  $("pClose").addEventListener("click", closePresent);
+  $("pstage").addEventListener("click", function () { $("pNext").click(); });
+  document.addEventListener("keydown", function (e) {
+    if ($("present").hidden) return;
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); $("pNext").click(); }
+    if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); $("pPrev").click(); }
+    if (e.key === "Escape") closePresent();
+  });
+  document.addEventListener("fullscreenchange", function () { if (!document.fullscreenElement && !$("present").hidden) $("present").hidden = true; });
+
+  /* ---------------- downloads ---------------- */
+  var CSS_SL = ".sl{width:100%;height:100%;background:var(--th);color:#fff;display:grid;grid-template-columns:1.1fr .9fr;gap:4%;padding:5% 5% 6%;box-sizing:border-box;font-family:Lexend,'Segoe UI',Arial,sans-serif;container-type:inline-size}" +
+    ".sl.nopic{grid-template-columns:1fr}.sl h3{margin:0 0 3cqw;font-size:5.2cqw;line-height:1.05;font-weight:800}.sl .tx{font-size:2.6cqw;line-height:1.35;white-space:pre-wrap}" +
+    ".sl .pic{display:grid;place-items:center;min-height:0}.sl .pic img{max-width:100%;max-height:100%;border-radius:1.4cqw;background:#fff}";
+  function download(name, html) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+  }
+  function fileName(what) { return ((S.name || "my") + "-" + what).toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html"; }
+  $("dlShow").addEventListener("click", function () {
+    var title = (S.name ? S.name + ": " : "") + "The " + (animalName() || "prehistoric animal");
+    var slides = S.slides.map(function (sl) { return '<section class="s">' + slideHTML(sl, S.theme) + "</section>"; }).join("");
+    download(fileName("slideshow"), "<!doctype html><html lang='en-AU'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>" + esc(title) + "</title>" +
+      "<link href='https://fonts.googleapis.com/css2?family=Lexend:wght@400;800&display=swap' rel='stylesheet'><style>html,body{margin:0;height:100%;background:#0B1420}" +
+      ".s{position:fixed;inset:0;margin:auto;width:min(100vw,calc(100vh*16/9));aspect-ratio:16/9;display:none}.s.on{display:block}" + CSS_SL +
+      ".nav{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);color:#fff;font:16px Lexend,sans-serif;opacity:.7}" +
+      "@media print{html,body{background:#fff;height:auto}.s{position:static;display:block;width:100%;page-break-after:always}.nav{display:none}}</style></head><body>" + slides +
+      "<div class='nav'>Arrow keys or click to move. Ctrl+P prints.</div><script>var s=document.querySelectorAll('.s'),i=0;function g(n){i=Math.max(0,Math.min(s.length-1,n));s.forEach(function(x,j){x.classList.toggle('on',j===i)})}" +
+      "g(0);document.onkeydown=function(e){if(/Right| |PageDown/.test(e.key))g(i+1);if(/Left|PageUp/.test(e.key))g(i-1)};document.onclick=function(){g(i+1)}<\/script></body></html>");
+    toast("Slideshow downloaded. Open it to present, or hand it in.");
+  });
+  $("saveFile").addEventListener("click", function () {
+    doSave();
+    var panels = function (arr, labels) {
+      return "<div class='pn'>" + arr.map(function (p, i) { return "<figure><figcaption>" + esc(labels[i]) + "</figcaption>" + (p.img ? "<img src='" + p.img + "' alt=''>" : "<div class='no'>No drawing</div>") + "<p>" + esc(p.cap || "") + "</p></figure>"; }).join("") + "</div>";
+    };
+    var gapsTxt = GAPS.map(function (g, i) { return "<li>" + esc(g.pre) + " <b>" + esc(S.gaps[i] || "____") + "</b> " + esc(g.post) + "</li>"; }).join("");
+    var cmpRows = S.cmp.s.map(function (s, i) { return "<tr><td>" + esc(s) + "</td><td>" + esc(S.cmp.d[i] || "") + "</td></tr>"; }).join("");
+    var rounds = ROUNDS.map(function (r, i) { var st = S.rounds[i] || {}; return "<li>" + esc(r) + "<br><b>" + (st.c != null ? CORNERS[st.c] : "No corner chosen") + "</b>. " + esc(st.why || "") + "</li>"; }).join("");
+    var slides = S.slides.map(function (sl) { return "<div class='sw'>" + slideHTML(sl, S.theme) + "</div>"; }).join("");
+    var right = BIRDS.filter(function (b) { return S.match[b.id] === b.ans; }).length;
+    var html = "<!doctype html><html lang='en-AU'><head><meta charset='utf-8'><title>" + esc((S.name || "My") + " work: Should we bring them back?") + "</title><style>" +
+      "body{font:17px/1.5 Lexend,'Segoe UI',Arial,sans-serif;color:#17233D;max-width:980px;margin:24px auto;padding:0 16px}h1{margin:0}h2{border-bottom:4px solid #1FA971;padding-bottom:4px;margin-top:30px}" +
+      ".pn{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}figure{margin:0;border:2px solid #D6E4DD;border-radius:10px;overflow:hidden}figcaption{font-weight:800;background:#EEF7F2;padding:4px 10px}" +
+      "figure img{width:100%;display:block}figure p{margin:0;padding:6px 10px}.no{padding:30px;color:#999;text-align:center}table{border-collapse:collapse;width:100%}td,th{border:2px solid #D6E4DD;padding:6px 10px;text-align:left}" +
+      ".sw{aspect-ratio:16/9;margin:0 0 12px;border-radius:10px;overflow:hidden}" + CSS_SL + "@media print{h2{break-after:avoid}figure,.sw{break-inside:avoid}}</style></head><body>" +
+      "<h1>Should we bring them back?</h1><p>" + esc(S.name || "") + " &#183; Year 7 Science &#183; " + new Date().toLocaleDateString("en-AU") + "</p>" +
+      "<h2>1. Extinct animals I know</h2><p>" + (S.bs.map(esc).join(", ") || "None yet") + "</p>" +
+      "<h2>2. Storyboard: the dire wolf returns</h2>" + panels(S.sb1, ["1 Long ago", "2 In the lab", "3 The puppies"]) +
+      "<h2>3. Closest relatives</h2><p>" + right + " out of 5 birds matched.</p>" +
+      "<h2>4. Classification notes</h2><ol>" + gapsTxt + "</ol>" +
+      "<h2>5. Woolly mammoth vs Asian elephant</h2><table><tr><th>Similarities</th><th>Differences</th></tr>" + cmpRows + "</table>" +
+      "<h2>6. Storyboard: bring back the mammoth</h2>" + panels(S.sb2, ["1 Find the evidence", "2 The closest relative", "3 Change the DNA", "4 A calf is born"]) +
+      "<h2>7. What I think</h2><ul>" + rounds + "</ul>" +
+      "<h2>8 and 9. My slideshow: " + esc(animalName() || "no animal chosen") + "</h2>" + slides + "</body></html>";
+    download(fileName("de-extinction-work"), html);
+    toast("Your work is downloaded. Hand in that file.");
+  });
+
+  /* ---------------- recover / restart ---------------- */
+  $("recover").addEventListener("click", function () {
+    var raw = null; try { raw = localStorage.getItem(KEY + "-prev"); } catch (e) {}
+    if (!raw) { toast("There is no backup on this computer yet"); return; }
+    if (!confirm("Load your last automatic backup? What is on the page now will be replaced.")) return;
+    try { S = Object.assign(blank(), JSON.parse(raw)); } catch (e) { toast("The backup could not be read"); return; }
+    clearedNow = true; renderAll(); doSave(); toast("Backup loaded");
+  });
+  $("clearAll").addEventListener("click", function () {
+    if (!confirm("Start again? This clears everything on this page. A backup is kept, so Recover can bring it back.")) return;
+    try { var cur = localStorage.getItem(KEY); if (cur) localStorage.setItem(KEY + "-prev", cur); } catch (e) {}
+    S = blank(); clearedNow = true; renderAll(); doSave();
+  });
+
+  /* ---------------- go ---------------- */
+  function renderAll() {
+    $("name").value = S.name || "";
+    Array.prototype.forEach.call(document.querySelectorAll(".drawbar"), function (b) { b.remove(); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-board]"), function (b) { b.innerHTML = ""; buildBoard(b); });
+    drawBs(); drawMatch(); drawGaps(false); drawCmp(); drawRounds(); drawGal(); drawShow(); markNav();
+  }
+  load();
+  buildNav();
+  renderAll();
+})();
+</script>
+</body>
+</html>
