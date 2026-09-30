@@ -13,7 +13,7 @@
       "Ruler",
       "Pencil"
     ],
-    "notes": "DRAFT. Opens Topic 9 (7A-7L). Rough shape, 80 minutes:\n0  teach 8   notation: point, line, ray, interval, angle ABC\n8  work 15   naming practice from diagrams\n23 teach 7   protractor technique, which scale to read\n30 work 20   measure then draw, partner checks\n50 teach 5   angle types including reflex\n55 work 15   Bronze/Silver/Gold classify and estimate\n70 close 5   estimate then measure one angle on the board",
+    "notes": "Booklet 1, section 7A. Deck and lesson page built. About 74 minutes:\n0  listen 2   title, I can, open the lesson page\n2  notes 14   key ideas in three slides, fill the gaps (G reveals)\n16 I do 5    Example 1 naming\n21 you do 6  Your turn Q1 to 3, then check (A shows answers)\n27 I do 6    Example 2 reading a protractor, which scale\n33 you do 6  Your turn Q4, measure\n39 I do 6    Example 3 drawing, including reflex\n45 you do 7  Your turn Q5, draw\n52 you do 18 Bronze Q7, 8 / Silver Q10, 11 / Gold Q12, 14, 16; early finishers play Protractor Pro\n70 check 4   exit check on the lesson page, Part 8\n\nThe deck link only opens for you (it sits behind the teacher password).",
     "prep": [
       {
         "t": "Class set of protractors in the room",
@@ -21,7 +21,22 @@
       },
       {
         "t": "Build the deck",
-        "d": false
+        "d": true
+      }
+    ],
+    "studentNote": "Bring Booklet 1 and a protractor. Open the lesson page below: it has the key ideas, the worked examples and a game.",
+    "resources": [
+      {
+        "title": "Lesson page: 7A Points, lines, intervals and angles",
+        "url": "/y7-enrichment/points-lines-angles",
+        "type": "app",
+        "for": "students"
+      },
+      {
+        "title": "Teacher deck (projector)",
+        "url": "/teacher/decks/y7-enrichment/points-lines-angles",
+        "type": "deck",
+        "for": "teacher"
       }
     ]
   },
@@ -37,8 +52,23 @@
       "Protractor",
       "Pencil"
     ],
-    "notes": "DRAFT. Single period, keep it to three short teach and work blocks.\nEvery answer states its reason in words. Start that habit here, it carries the parallel lines work.",
-    "prep": []
+    "notes": "Booklet 1, section 7B. Deck and lesson page built. About 65 minutes:\n0  listen 2   title, I can\n2  notes 10   adjacent angles, the four facts, perpendicular\n12 I do 5    Example 1 complementary and supplementary\n17 you do 5  Your turn Q1, 2\n22 I do 5    Example 2 vertically opposite and revolutions\n27 you do 5  Your turn Q3\n32 I do 5    Example 3 algebra\n37 you do 6  Your turn Q8\n43 you do 18 Bronze Q4 to 6 / Silver Q7, 9 / Gold Q10, 12, 13; early finishers play Angle Detective\n61 check 4   exit check on the lesson page\n\nEvery answer states its reason in words. Start that habit here, it carries the parallel lines work.",
+    "prep": [],
+    "studentNote": "Bring Booklet 1 and a protractor. Open the lesson page below: it has the key ideas, the worked examples and a game.",
+    "resources": [
+      {
+        "title": "Lesson page: 7B Adjacent and vertically opposite angles",
+        "url": "/y7-enrichment/adjacent-opposite-angles",
+        "type": "app",
+        "for": "students"
+      },
+      {
+        "title": "Teacher deck (projector)",
+        "url": "/teacher/decks/y7-enrichment/adjacent-opposite-angles",
+        "type": "deck",
+        "for": "teacher"
+      }
+    ]
   },
   "2026-10-16|P1": {
     "unit": "Topic 9: Geometry",

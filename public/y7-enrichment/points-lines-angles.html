@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7A Points, lines, intervals and angles</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232F5BEA'/%3E%3Cpath d='M6 25h20M6 25l16-15' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M13 25a7 7 0 0 0-2-5' stroke='%23FFB400' stroke-width='2.5' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#17233D;--ink-soft:#4A5775;--page:#F1F5FD;--panel:#fff;--line:#D5DEEF;--focus:#FFB400;
+  --acc:#2F5BEA;--acc-dark:#1D3FB0;--good:#15803D;--bad:#BE123C;--font:"Lexend","Segoe UI",Arial,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);font-size:20px;line-height:1.5}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--focus);outline-offset:2px;border-radius:6px}
+a{color:var(--acc-dark)}
+[hidden]{display:none!important}
+.top{position:sticky;top:0;z-index:20;background:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(20,40,110,.2)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top a.home{color:#fff;font-size:16px;text-decoration:none;opacity:.9;white-space:nowrap}
+.top h1{font-size:21px;margin:0;font-weight:800;line-height:1.2}
+.top h1 .code{background:#fff;color:var(--acc);border-radius:8px;padding:0 8px;margin-right:8px}
+.partnav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.partnav a{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;font-weight:800;font-size:17px;position:relative}
+.partnav a:hover{background:rgba(255,255,255,.32)}
+.partnav a.done{background:#fff;color:var(--acc-dark)}
+.partnav a.done::after{content:"\2713";position:absolute;right:-4px;top:-6px;font-size:13px;background:var(--focus);color:var(--ink);width:18px;height:18px;border-radius:50%;display:grid;place-items:center}
+.savebox{display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap}
+.savebox .dot{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.6}
+.savebox.ok .dot{background:#B9F6CF;opacity:1}
+.savebox.err .dot{background:#FFB4B4;opacity:1}
+.tbtn{border:2px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:10px;padding:5px 12px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tbtn:hover{background:rgba(255,255,255,.18)}
+main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+.hello{display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:var(--panel);border-radius:20px;padding:18px 22px;margin-bottom:22px}
+.hello p{margin:0;flex:1 1 380px;font-size:20px}
+.hello label{font-weight:700}
+.hello input{border:3px solid var(--line);border-radius:12px;padding:8px 12px;width:220px}
+.part{background:var(--panel);border-radius:24px;margin:0 0 26px;box-shadow:0 4px 18px rgba(20,40,110,.07);overflow:hidden;border-top:10px solid var(--pc,var(--acc))}
+.phead{display:flex;align-items:center;gap:16px;padding:20px 26px 6px;flex-wrap:wrap}
+.pnum{flex:none;width:58px;height:58px;border-radius:16px;background:var(--pc,var(--acc));color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800}
+.phead h2{font-size:30px;line-height:1.12;margin:0;flex:1 1 300px}
+.phead .kind{margin-left:auto;font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;
+  background:color-mix(in srgb,var(--pc,var(--acc)) 14%,#fff);color:color-mix(in srgb,var(--pc,var(--acc)) 75%,#000);white-space:nowrap}
+.pbody{padding:12px 26px 26px}
+.pbody>p{margin:0 0 14px}
+.ican{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:10px}
+.ican li{font-size:22px;padding:10px 16px;background:#F3F6FE;border-left:8px solid var(--pc,var(--acc));border-radius:12px}
+.task{display:flex;align-items:center;gap:12px;background:#FDECEF;color:#8A0F2C;border-radius:14px;padding:12px 18px;font-size:21px;font-weight:700;margin:16px 0 0}
+.task::before{content:"\270E";font-size:28px}
+.task label{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:17px;white-space:nowrap;cursor:pointer}
+.task input{width:22px;height:22px;accent-color:var(--good)}
+.btn{border:0;border-radius:14px;padding:11px 20px;font-weight:800;cursor:pointer;background:var(--pc,var(--acc));color:#fff;
+  box-shadow:0 4px 0 color-mix(in srgb,var(--pc,var(--acc)) 65%,#000);font-size:19px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--pc,var(--acc)) 65%,#000)}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none}
+.btn.small{padding:7px 14px;font-size:16px;border-radius:11px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.result{font-size:20px;font-weight:700;margin-top:10px;min-height:1.5em}
+.result.good{color:var(--good)}.result.bad{color:var(--bad)}
+.fig{display:inline-block;line-height:0;max-width:100%;vertical-align:middle}
+.fig svg{width:100%;height:100%;display:block;overflow:visible}
+/* notes */
+.notes{font-size:20px;line-height:1.45}
+.notes h4{font-size:24px;margin:22px 0 10px;color:var(--pc,var(--acc))}
+.notes h4:first-child{margin-top:4px}
+.ntab{border-collapse:collapse;width:100%}
+.ntab th,.ntab td{border:2px solid var(--line);padding:8px 12px;text-align:left;vertical-align:middle}
+.ntab th{background:#EEF2FD;font-size:17px}
+.ntab td.c{text-align:center;line-height:0}
+.nrow{display:grid;gap:12px;margin:12px 0}
+.nrow>*{min-width:0}
+.gi{max-width:100%}
+.ncell{text-align:center;background:#F7F9FF;border:2px solid var(--line);border-radius:14px;padding:10px 8px;font-size:18px}
+.ncell>.fig{display:block;margin:0 auto 6px}
+.ncell b{display:block;color:var(--pc,var(--acc));font-size:19px}
+.watch{background:#FFF4D6;border:3px solid #F29B1D;border-radius:14px;padding:12px 18px;margin-top:14px}
+.watch b{color:#9A5B00}
+.gi{border:0;border-bottom:3px solid var(--pc,var(--acc));background:#EEF2FD;border-radius:6px 6px 0 0;padding:1px 6px;width:7.5em;font-weight:700;text-align:center;font-size:19px}
+.gi.w5{width:10em}
+.gi.ok{background:#DCFCE7;border-color:var(--good)}
+.gi.no{background:#FFE4E6;border-color:var(--bad)}
+select.gi{width:4.2em;padding:0}
+@media (max-width:760px){.nrow{grid-template-columns:1fr 1fr!important}.ntab th:nth-child(2),.ntab td:nth-child(2){display:none}}
+/* examples */
+.ex{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media (max-width:860px){.ex{grid-template-columns:1fr}}
+.ex>*{min-width:0}
+.exfigs figure{max-width:100%}
+.exstem{font-size:21px;margin:0 0 10px}
+.exstem .howto{display:block;font-size:17px;color:var(--ink-soft);margin-top:8px}
+.exfigs{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:center;background:#F7F9FF;border-radius:16px;padding:14px}
+.exfigs figure{margin:0;text-align:center}
+.exfigs figcaption{font-weight:800;color:var(--pc,var(--acc))}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{border:3px solid var(--line);border-left:10px solid var(--pc,var(--acc));border-radius:14px;padding:8px 14px;background:#fff}
+.steps li.hid{border-top-style:dashed;border-right-style:dashed;border-bottom-style:dashed;background:#FAFBFF}
+.steps .sl{font-weight:700;color:var(--ink-soft);font-size:17px}
+.steps .sl i{font-style:normal;background:var(--pc,var(--acc));color:#fff;border-radius:8px;padding:0 8px;margin-right:8px}
+.steps .sa{font-size:20px;margin-top:2px}
+.steps li.hid .sa{visibility:hidden;height:0;overflow:hidden}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.05;font-size:.92em}
+.fr>span{padding:0 .3em}.fr .de{border-top:2px solid currentColor}
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:860px){.tiers{grid-template-columns:1fr}}
+.tier{border:3px solid var(--tc);border-radius:16px;padding:14px 18px;background:color-mix(in srgb,var(--tc) 7%,#fff)}
+.tier h3{margin:0 0 8px;color:var(--tc);text-transform:uppercase;letter-spacing:.06em;font-size:18px}
+.tier label{display:flex;gap:10px;align-items:flex-start;font-size:18px;margin:6px 0;cursor:pointer}
+.tier input{width:20px;height:20px;margin-top:4px;accent-color:var(--good);flex:none}
+.bronze{--tc:#A16207}.silver{--tc:#57687F}.gold{--tc:#B8860B}
+/* exit */
+.exit{display:grid;gap:12px}
+.exit .eq{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#F7F9FF;border-radius:14px;padding:12px 16px}
+.exit .eq b{font-size:22px;color:var(--pc,var(--acc))}
+.exit input{border:3px solid var(--line);border-radius:10px;padding:6px 10px;width:180px}
+.exit input.ok{border-color:var(--good);background:#DCFCE7}.exit input.no{border-color:var(--bad);background:#FFE4E6}
+@media (max-width:640px){.exit .eq{grid-template-columns:auto 1fr}.exit input{grid-column:1/-1;width:100%}}
+/* game */
+.game{background:linear-gradient(160deg,#EEF3FF,#FFF6E5);border-radius:20px;padding:18px;display:grid;gap:14px}
+.ghud{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{background:#fff;border-radius:999px;padding:6px 14px;font-weight:800;font-size:18px;box-shadow:0 2px 0 var(--line)}
+.pill b{color:var(--pc,var(--acc))}
+.levels{display:flex;gap:8px;flex-wrap:wrap}
+.levels button{border:3px solid var(--line);background:#fff;border-radius:12px;padding:6px 14px;font-weight:800;cursor:pointer;font-size:17px}
+.levels button[aria-pressed="true"]{background:var(--pc,var(--acc));color:#fff;border-color:var(--pc,var(--acc))}
+.levels button small{display:block;font-weight:500;font-size:13px}
+.gstage{background:#fff;border-radius:16px;padding:8px;display:flex;justify-content:center}
+.gstage svg{width:100%;max-width:760px;height:auto;display:block}
+.gin{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gin input{border:3px solid var(--line);border-radius:12px;padding:8px 12px;width:150px;font-size:24px;font-weight:800;text-align:center}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.choices button{border:3px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:17px}
+.choices button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.choices button kbd{font-family:inherit;font-size:12px;opacity:.7;margin-right:4px}
+.gfeed{font-size:20px;font-weight:700;min-height:1.6em}
+.gfeed.good{color:var(--good)}.gfeed.bad{color:var(--bad)}
+.gover{background:#fff;border-radius:16px;padding:20px;text-align:center}
+.gover h3{font-size:30px;margin:0}
+.gover .stars{font-size:44px;letter-spacing:6px;color:#F5B400}
+.pop{animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.foot{font-size:16px;color:var(--ink-soft);text-align:center;margin-top:10px}
+.foot button{background:none;border:0;color:var(--acc-dark);text-decoration:underline;cursor:pointer;font-size:16px}
+.toast{visibility:hidden;position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;border-radius:14px;padding:12px 20px;font-weight:700;transition:transform .25s;z-index:50}
+.toast.on{visibility:visible;transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Diagram Creator figures */
+.fig text{font-family: Georgia, "Times New Roman", "Nimbus Roman", serif;}
+.fig .shape-poly{stroke: #1a1a1a; stroke-width: calc(1.6px * var(--label-scale, 1)); stroke-linejoin: round;}
+.fig .shape-line{stroke: #1a1a1a; stroke-width: calc(1.6px * var(--label-scale, 1)); fill: none; stroke-linecap: round;}
+.fig .construction-line{stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1)); stroke-dasharray: calc(5px * var(--label-scale, 1)) calc(4px * var(--label-scale, 1)); fill: none;}
+.fig .hidden-edge{stroke: #1a1a1a; stroke-width: calc(1.2px * var(--label-scale, 1)); stroke-dasharray: calc(6px * var(--label-scale, 1)) calc(5px * var(--label-scale, 1)); fill: none; opacity: 0.75;}
+.fig .dimension-shaft{stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .dimension-head{fill: #1a1a1a; stroke: none;}
+.fig .vertex-label,.fig .side-label,.fig .angle-label{paint-order: stroke; stroke: #ffffff; stroke-width: calc(4px * var(--label-scale, 1)); stroke-linejoin: round;}
+.fig .vertex-label{font-size: calc(16px * var(--label-scale, 1)); font-style: italic; fill: #1a1a1a;}
+.fig .side-label,.fig .angle-label{font-size: calc(15px * var(--label-scale, 1)); fill: #1a1a1a;}
+.fig .angle-arc{fill: none; stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .right-angle-mark{fill: none; stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .parallel-chevron{stroke: #1a1a1a; stroke-width: calc(1.5px * var(--label-scale, 1)); fill: none;}
+.fig .equal-length-tick{stroke: #1a1a1a; stroke-width: calc(1.5px * var(--label-scale, 1));}
+.fig .answer{fill: #c8102e;}
+.fig .note-label{font-style: normal;}
+.fig .pronumeral{font-style: italic;}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="home" href="/">&#8592; Learning Home</a>
+  <h1><span class="code">7A</span>Points, lines, intervals and angles</h1>
+  <nav class="partnav" id="partnav" aria-label="Parts"></nav>
+  <span class="savebox" id="savebox"><span class="dot"></span><span id="saveText">Not saved yet</span></span>
+  <button class="tbtn" id="saveFile" title="Download everything you have done as one file, to hand in">Save my work</button>
+</div></header>
+<main>
+  <div class="hello"><p>Year 7 Enrichment &#183; Geometry &#183; Booklet 1, section 7A</p><label for="name">Your name</label><input id="name" autocomplete="off" maxlength="40"></div>
+
+  <section class="part" id="p1" style="--pc:#2F5BEA">
+    <div class="phead"><span class="pnum">1</span><h2>Today</h2><span class="kind">Read</span></div>
+    <div class="pbody"><ul class="ican"><li>I can name points, lines, rays, segments and angles.</li><li>I can classify an angle as acute, right, obtuse, straight, reflex or a revolution.</li><li>I can measure and draw angles with a protractor, including reflex angles.</li></ul>
+      <p>You need <b>Booklet 1</b> open at section <b>7A</b>, and a protractor, ruler, pencil. Work in your booklet. Use this page to check the key ideas, replay the examples, play the game and do the exit check.</p></div>
+  </section>
+
+  <section class="part" id="p2" style="--pc:#E0457B" data-done="gaps">
+    <div class="phead"><span class="pnum">2</span><h2>Key ideas</h2><span class="kind">Fill the gaps</span></div>
+    <div class="pbody"><p>Type the missing words. They match the gaps in your booklet. Use &#176; for degrees if you like (or just type the number). For the symbols, pick from the list.</p>
+      <div class="notes"><h4>The building blocks</h4>
+<table class="ntab"><tr><th>Object</th><th>Picture</th><th>How we write it</th></tr>
+<tr><td><b>Point</b> &nbsp;a position, no size</td><td class="c"><span class="fig" style="width:55px;height:62px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="271.00 429.07 69.84 79.91"><rect x="271.00" y="429.07" width="69.84" height="79.91" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-2" style="--label-scale: 1.56;"><circle cx="300" cy="480" r="4.99" fill="#c8102e"/><text x="314.58" y="457.98" class="vertex-label" text-anchor="middle" dominant-baseline="middle">P</text></g></g></svg></span></td><td>point <input class="gi" data-i="0" aria-label="Gap 1" autocomplete="off" spellcheck="false"></td></tr>
+<tr><td><b>Line</b> &nbsp;goes on forever both ways</td><td class="c"><span class="fig" style="width:140px;height:73px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="232.15 379.03 265.69 138.38"><rect x="232.15" y="379.03" width="265.69" height="138.38" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-4" style="--label-scale: 1.79;"><line x1="256.15" y1="490.11" x2="473.84" y2="439.88" class="shape-line"/><path d="M 256.15 490.11 L 271.88 478.78 L 275.25 493.41 Z" class="dimension-head"/><path d="M 473.84 439.88 L 458.11 451.21 L 454.74 436.58 Z" class="dimension-head"/><line x1="256.15" y1="490.11" x2="473.84" y2="439.88" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.72" fill="#c8102e"/><circle cx="430" cy="450" r="5.72" fill="#c8102e"/><text x="293.16" y="450.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="423.16" y="420.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text></g></g></svg></span></td><td>line <input class="gi" data-i="1" aria-label="Gap 2" autocomplete="off" spellcheck="false"> or line BA</td></tr>
+<tr><td><b>Ray</b> &nbsp;starts at a point, goes on forever one way</td><td class="c"><span class="fig" style="width:140px;height:77px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="237.79 379.34 260.05 142.98"><rect x="237.79" y="379.34" width="260.05" height="142.98" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-6" style="--label-scale: 1.79;"><line x1="300" y1="480" x2="473.84" y2="439.88" class="shape-line"/><path d="M 473.84 439.88 L 458.11 451.21 L 454.74 436.58 Z" class="dimension-head"/><line x1="300" y1="480" x2="473.84" y2="439.88" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.72" fill="#c8102e"/><circle cx="430" cy="450" r="5.72" fill="#c8102e"/><text x="270.39" y="486.83" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="423.16" y="420.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span></td><td>ray <input class="gi" data-i="2" aria-label="Gap 3" autocomplete="off" spellcheck="false"> &nbsp;(start letter first)</td></tr>
+<tr><td><b>Segment</b> (interval) &nbsp;has two end points</td><td class="c"><span class="fig" style="width:130px;height:59px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="236.37 401.69 267.21 120.84"><rect x="236.37" y="401.69" width="267.21" height="120.84" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-8" style="--label-scale: 1.87;"><line x1="300" y1="480" x2="440" y2="450" class="shape-line"/><line x1="300" y1="480" x2="440" y2="450" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.98" fill="#c8102e"/><circle cx="440" cy="450" r="5.98" fill="#c8102e"/><text x="268.93" y="486.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">E</text><text x="471.06" y="443.34" class="vertex-label" text-anchor="middle" dominant-baseline="middle">F</text></g></g></svg></span></td><td>segment <input class="gi" data-i="3" aria-label="Gap 4" autocomplete="off" spellcheck="false"> or segment FE</td></tr>
+<tr><td><b>Plane</b> &nbsp;a flat surface, forever in every direction</td><td class="c"><span class="fig" style="width:114px;height:52px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 391 248 113"><rect x="276" y="391" width="248" height="113" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-10" style="--label-scale: 2.36;"><polygon points="300,480 450,480 500,415 350,415" fill="#cbe2f3" stroke="none"/><polygon points="300,480 450,480 500,415 350,415" class="shape-line" fill="none"/></g></g></svg></span></td><td>a <input class="gi" data-i="4" aria-label="Gap 5" autocomplete="off" spellcheck="false"> surface</td></tr>
+</table><h4>Naming an angle</h4>
+<div class="nrow" style="grid-template-columns: 260px 1fr; align-items:center">
+<div class="ncell"><span class="fig" style="width:173px;height:156px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="249.36 291.61 279.63 252.35"><rect x="249.36" y="291.61" width="279.63" height="252.35" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-12" style="--label-scale: 1.49;"><line x1="300" y1="480" x2="327.39" y2="315.61" class="shape-line"/><path d="M 327.39 315.61 L 331.12 331.36 L 318.76 329.30 Z" class="dimension-head"/><line x1="300" y1="480" x2="505" y2="480" class="shape-line"/><path d="M 505 480 L 490.07 486.26 L 490.07 473.73 Z" class="dimension-head"/><line x1="300" y1="480" x2="327.39" y2="315.61" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="505" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 305.39 447.61 A 32.82 32.82 0 0 1 332.82 480" class="angle-arc"/><g class="removable-label"><text x="347.77" y="439.52" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><circle cx="320" cy="360" r="4.77" fill="#c8102e"/><circle cx="300" cy="480" r="4.77" fill="#c8102e"/><circle cx="460" cy="480" r="4.77" fill="#c8102e"/><text x="294.97" y="355.82" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="280.64" y="496.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="460" y="454.63" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="302.5" y="510" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">vertex</text><text x="415" y="462.5" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">arm</text><text x="342.5" y="400" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">arm</text></g></g></svg></span></div>
+<div>Two <input class="gi" data-i="5" aria-label="Gap 6" autocomplete="off" spellcheck="false"> meet at the <input class="gi" data-i="6" aria-label="Gap 7" autocomplete="off" spellcheck="false">. Name the angle with three letters, the vertex in the <input class="gi" data-i="7" aria-label="Gap 8" autocomplete="off" spellcheck="false">: &nbsp;∠ABC or ∠<input class="gi" data-i="8" aria-label="Gap 9" autocomplete="off" spellcheck="false">.<br>Its size is written with a lower-case letter: <i>a</i>°.</div>
+</div>
+<h4>Types of angle</h4>
+<div class="nrow" style="grid-template-columns: repeat(6, 1fr)">
+<div class="ncell"><span class="fig" style="width:114px;height:100px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 365.89 158 138.10"><rect x="276" y="365.89" width="158" height="138.10" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-14" style="--label-scale: 1.63;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="363.1" y2="389.9" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="363.1" y2="389.9" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 335.75 480 A 35.75 35.75 0 0 0 320.50 450.71" class="angle-arc"/></g></g></svg></span><b>Acute</b>between <input class="gi w5" data-i="9" aria-label="Gap 10" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:114px;height:107px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 356 158 148"><rect x="276" y="356" width="158" height="148" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-16" style="--label-scale: 1.63;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="300" y2="380" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="300" y2="380" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 321.12 480 L 321.12 458.87 L 300 458.87" class="right-angle-mark"/></g></g></svg></span><b>Right</b>exactly <input class="gi" data-i="10" aria-label="Gap 11" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:114px;height:66px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="205.30 371.75 228.69 132.25"><rect x="205.30" y="371.75" width="228.69" height="132.25" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-18" style="--label-scale: 2.20;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="229.3" y2="395.75" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="229.3" y2="395.75" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 348.38 480 A 48.38 48.38 0 0 0 268.89 442.93" class="angle-arc"/></g></g></svg></span><b>Obtuse</b>between <input class="gi w5" data-i="11" aria-label="Gap 12" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:135px;height:59px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="176 404.19 248 107.34"><rect x="176" y="404.19" width="248" height="107.34" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-20" style="--label-scale: 2.36;"><line x1="300" y1="480" x2="400" y2="480" class="shape-line"/><line x1="300" y1="480" x2="200" y2="480" class="shape-line"/><line x1="300" y1="480" x2="400" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="200" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 248.16 480 A 51.83 51.83 0 0 1 351.83 480" class="angle-arc"/><circle cx="300" cy="480" r="7.54" fill="#c8102e"/></g></g></svg></span><b>Straight</b>exactly <input class="gi" data-i="12" aria-label="Gap 13" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:114px;height:89px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="212.89 365.89 221.10 172.30"><rect x="212.89" y="365.89" width="221.10" height="172.30" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-22" style="--label-scale: 2.14;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="236.9" y2="389.9" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="236.9" y2="389.9" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 334.20 480 A 34.20 34.20 0 1 1 280.37 451.98" class="angle-arc"/></g></g></svg></span><b>Reflex</b>between <input class="gi w5" data-i="13" aria-label="Gap 14" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:114px;height:65px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="251.03 431.03 172.96 97.92"><rect x="251.03" y="431.03" width="172.96" height="97.92" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-24" style="--label-scale: 1.56;"><line x1="300" y1="480" x2="400" y2="480" class="shape-line"/><line x1="300" y1="480" x2="400" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 324.96 480 A 24.96 24.96 0 1 0 324.95 480.24" class="angle-arc"/><circle cx="300" cy="480" r="4.99" fill="#c8102e"/></g></g></svg></span><b>Revolution</b>exactly <input class="gi" data-i="14" aria-label="Gap 15" autocomplete="off" spellcheck="false"></div>
+</div><h4>More words</h4>
+<div class="nrow" style="grid-template-columns: repeat(4, 1fr)">
+<div class="ncell"><span class="fig" style="width:156px;height:83px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="234.22 376.95 281.15 150.03"><rect x="234.22" y="376.95" width="281.15" height="150.03" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-26" style="--label-scale: 1.95;"><line x1="300" y1="480" x2="450" y2="430" class="construction-line"/><line x1="300" y1="480" x2="450" y2="430" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="6.24" fill="#c8102e"/><circle cx="375" cy="455" r="6.24" fill="#c8102e"/><circle cx="450" cy="430" r="6.24" fill="#c8102e"/><text x="268.55" y="490.48" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="393.23" y="427.48" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="481.44" y="419.51" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span><b>Collinear</b>points on one <input class="gi w5" data-i="15" aria-label="Gap 16" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:109px;height:114px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="201 376 198 208"><rect x="201" y="376" width="198" height="208" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-28" style="--label-scale: 2.03;"><line x1="225" y1="530" x2="375" y2="430" class="shape-line"/><line x1="225" y1="435" x2="375" y2="525" class="shape-line"/><line x1="300" y1="560" x2="300" y2="400" class="shape-line"/><line x1="225" y1="530" x2="375" y2="430" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="225" y1="435" x2="375" y2="525" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="560" x2="300" y2="400" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="6.5" fill="#c8102e"/></g></g></svg></span><b>Concurrent</b>3 or more lines through <input class="gi" data-i="16" aria-label="Gap 17" autocomplete="off" spellcheck="false"></div>
+<div class="ncell"><span class="fig" style="width:166px;height:92px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="231 343.95 313 172.96"><rect x="231" y="343.95" width="313" height="172.96" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-30" style="--label-scale: 2.15;"><line x1="255" y1="480" x2="495" y2="480" class="shape-line"/><path d="M 255 480 L 276.53 470.95 L 276.53 489.04 Z" class="dimension-head"/><path d="M 495 480 L 473.46 489.04 L 473.46 470.95 Z" class="dimension-head"/><line x1="280" y1="425" x2="520" y2="425" class="shape-line"/><path d="M 280 425 L 301.53 415.95 L 301.53 434.04 Z" class="dimension-head"/><path d="M 520 425 L 498.46 434.04 L 498.46 415.95 Z" class="dimension-head"/><line x1="255" y1="480" x2="495" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="280" y1="425" x2="520" y2="425" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 362.08 492.91 L 375 480 L 362.08 467.08" class="parallel-chevron"/><path d="M 387.08 437.91 L 400 425 L 387.08 412.08" class="parallel-chevron"/><circle cx="300" cy="480" r="6.89" fill="#c8102e"/><circle cx="450" cy="480" r="6.89" fill="#c8102e"/><circle cx="325" cy="425" r="6.89" fill="#c8102e"/><circle cx="475" cy="425" r="6.89" fill="#c8102e"/><text x="300" y="443.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="450" y="443.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="325" y="388.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text><text x="475" y="388.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span><b>Parallel</b>never meet: &nbsp;AB <select class="gi" data-i="17" aria-label="Gap 18"><option></option><option>∥</option><option>⊥</option><option>=</option><option>∠</option></select> DC</div>
+<div class="ncell"><span class="fig" style="width:135px;height:132px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="232.46 339.16 283.31 275.56"><rect x="232.46" y="339.16" width="283.31" height="275.56" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-32" style="--label-scale: 1.95;"><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="375" y1="545" x2="375" y2="415" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="375" y1="545" x2="375" y2="415" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 400.35 480 L 400.35 454.65 L 375 454.65" class="right-angle-mark"/><circle cx="300" cy="480" r="6.24" fill="#c8102e"/><circle cx="450" cy="480" r="6.24" fill="#c8102e"/><circle cx="375" cy="545" r="6.24" fill="#c8102e"/><circle cx="375" cy="415" r="6.24" fill="#c8102e"/><text x="266.85" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="483.15" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="375" y="578.15" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="375" y="381.85" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span><b>Perpendicular</b>meet at <input class="gi" data-i="18" aria-label="Gap 19" autocomplete="off" spellcheck="false">: &nbsp;AB ⊥ CD</div>
+</div>
+<div class="watch"><b>Watch out.</b> A protractor has two scales. Put its centre on the vertex, line one arm up with 0°, and read the scale that <b>starts at 0 on that arm</b>. A reflex angle is 360° minus the angle on the other side.</div></div>
+      <div class="row"><button class="btn" id="gapCheck">Check my gaps</button><button class="btn ghost" id="gapShow" hidden>Show me the answers</button></div>
+      <div class="result" id="gapResult" aria-live="polite"></div></div>
+  </section>
+
+  <section class="part" id="p3" style="--pc:#0E9F6E" data-done="yt1">
+    <div class="phead"><span class="pnum">3</span><h2>Example 1: Naming lines, rays, segments and angles</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">Use the diagram to name:<br><b>a</b> the line &nbsp; <b>b</b> the ray &nbsp; <b>c</b> the segment &nbsp; <b>d</b> the angle marked with an arc.</p><div class="exfigs"><figure><span class="fig" style="width:384px;height:198px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="231 324.23 414.33 213.75"><rect x="231" y="324.23" width="414.33" height="213.75" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-34" style="--label-scale: 1.69;"><line x1="510" y1="385" x2="590" y2="455" class="shape-line"/><line x1="430" y1="480" x2="538.98" y2="350.57" class="shape-line"/><path d="M 538.98 350.57 L 533.54 368.03 L 522.70 358.91 Z" class="dimension-head"/><line x1="255" y1="480" x2="475" y2="480" class="shape-line"/><path d="M 255 480 L 271.86 472.91 L 271.86 487.08 Z" class="dimension-head"/><path d="M 475 480 L 458.13 487.08 L 458.13 472.91 Z" class="dimension-head"/><line x1="510" y1="385" x2="590" y2="455" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="430" y1="480" x2="538.98" y2="350.57" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="255" y1="480" x2="475" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 392.90 480 A 37.09 37.09 0 0 1 453.89 451.62" class="angle-arc"/><circle cx="300" cy="480" r="5.39" fill="#c8102e"/><circle cx="430" cy="480" r="5.39" fill="#c8102e"/><circle cx="510" cy="385" r="5.39" fill="#c8102e"/><circle cx="590" cy="455" r="5.39" fill="#c8102e"/><text x="300" y="451.33" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="411.53" y="501.92" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="488.42" y="366.12" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="611.57" y="473.87" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span></figure></div></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex1"><li class="hid"><div class="sl"><i>a</i>The line</div><div class="sa">line AB (or line BA): arrows at both ends</div></li><li class="hid"><div class="sl"><i>b</i>The ray</div><div class="sa">ray BC: it starts at B, so B comes first</div></li><li class="hid"><div class="sl"><i>c</i>The segment</div><div class="sa">segment CD (or DC): no arrows</div></li><li class="hid"><div class="sl"><i>d</i>The angle</div><div class="sa">∠ABC (or ∠CBA): vertex B in the middle</div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex1">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Questions 1, 2 and 3.<label><input type="checkbox" data-done="yt1" data-label="Your turn: Questions 1, 2 and 3 (after Example 1)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p4" style="--pc:#F08A00" data-done="yt2">
+    <div class="phead"><span class="pnum">4</span><h2>Example 2: Classifying and measuring an angle</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">The protractor has been placed on an angle.<br><b>a</b> What type of angle is it?<br><b>b</b> Which scale do you read, and what does it say?<br><b>c</b> Find the size of the reflex angle on the other side.</p><div class="exfigs"><figure><span class="fig" style="width:459px;height:234px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="207.60 176 536.39 273.64"><rect x="207.60" y="176" width="536.39" height="273.64" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="protractor-60" style="--label-scale: 1.88;"><path d="M 280 420 A 220 220 0 0 1 720 420 Z" fill="#eef4fb" stroke="#1a1a1a" stroke-width="2.63"/><path d="M 376.79 420 A 123.20 123.20 0 0 1 623.2 420" fill="none" stroke="#1a1a1a" stroke-width="1.69"/><line x1="720" y1="420" x2="698" y2="420" stroke="#1a1a1a" stroke-width="2.06"/><line x1="623.2" y1="420" x2="634.2" y2="420" stroke="#1a1a1a" stroke-width="1.69"/><line x1="719.96" y1="416.16" x2="712.26" y2="416.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.86" y1="412.32" x2="712.17" y2="412.59" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.69" y1="408.48" x2="712.00" y2="408.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.46" y1="404.65" x2="711.78" y2="405.19" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.16" y1="400.82" x2="704.91" y2="402.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="718.79" y1="397.00" x2="711.13" y2="397.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="718.36" y1="393.18" x2="710.71" y2="394.12" stroke="#1a1a1a" stroke-width="1.12"/><line x1="717.85" y1="389.38" x2="710.23" y2="390.45" stroke="#1a1a1a" stroke-width="1.12"/><line x1="717.29" y1="385.58" x2="709.68" y2="386.78" stroke="#1a1a1a" stroke-width="1.12"/><line x1="716.65" y1="381.79" x2="694.99" y2="385.61" stroke="#1a1a1a" stroke-width="2.06"/><line x1="621.32" y1="398.60" x2="632.16" y2="396.69" stroke="#1a1a1a" stroke-width="1.69"/><line x1="715.95" y1="378.02" x2="708.39" y2="379.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="715.19" y1="374.25" x2="707.66" y2="375.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="714.36" y1="370.51" x2="706.85" y2="372.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="713.46" y1="366.77" x2="705.99" y2="368.63" stroke="#1a1a1a" stroke-width="1.12"/><line x1="712.50" y1="363.05" x2="698.69" y2="366.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="711.47" y1="359.35" x2="704.07" y2="361.48" stroke="#1a1a1a" stroke-width="1.12"/><line x1="710.38" y1="355.67" x2="703.02" y2="357.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="709.23" y1="352.01" x2="701.90" y2="354.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="708.01" y1="348.37" x2="700.73" y2="350.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="706.73" y1="344.75" x2="686.05" y2="352.28" stroke="#1a1a1a" stroke-width="2.06"/><line x1="615.77" y1="377.86" x2="626.10" y2="374.10" stroke="#1a1a1a" stroke-width="1.69"/><line x1="705.38" y1="341.15" x2="698.19" y2="343.91" stroke="#1a1a1a" stroke-width="1.12"/><line x1="703.98" y1="337.58" x2="696.84" y2="340.47" stroke="#1a1a1a" stroke-width="1.12"/><line x1="702.51" y1="334.03" x2="695.42" y2="337.04" stroke="#1a1a1a" stroke-width="1.12"/><line x1="700.98" y1="330.51" x2="693.94" y2="333.64" stroke="#1a1a1a" stroke-width="1.12"/><line x1="699.38" y1="327.02" x2="686.42" y2="333.06" stroke="#1a1a1a" stroke-width="1.12"/><line x1="697.73" y1="323.55" x2="690.81" y2="326.93" stroke="#1a1a1a" stroke-width="1.12"/><line x1="696.02" y1="320.12" x2="689.16" y2="323.61" stroke="#1a1a1a" stroke-width="1.12"/><line x1="694.24" y1="316.71" x2="687.44" y2="320.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="692.41" y1="313.34" x2="685.68" y2="317.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="690.52" y1="310" x2="671.47" y2="321" stroke="#1a1a1a" stroke-width="2.06"/><line x1="606.69" y1="358.4" x2="616.22" y2="352.9" stroke="#1a1a1a" stroke-width="1.69"/><line x1="688.57" y1="306.69" x2="681.97" y2="310.65" stroke="#1a1a1a" stroke-width="1.12"/><line x1="686.57" y1="303.41" x2="680.04" y2="307.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="684.50" y1="300.17" x2="678.04" y2="304.37" stroke="#1a1a1a" stroke-width="1.12"/><line x1="682.38" y1="296.97" x2="676.00" y2="301.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="680.21" y1="293.81" x2="668.49" y2="302.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="677.98" y1="290.68" x2="671.75" y2="295.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="675.69" y1="287.60" x2="669.55" y2="292.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="673.36" y1="284.55" x2="667.29" y2="289.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="670.97" y1="281.54" x2="664.98" y2="286.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="668.52" y1="278.58" x2="651.67" y2="292.72" stroke="#1a1a1a" stroke-width="2.06"/><line x1="594.37" y1="340.80" x2="602.80" y2="333.73" stroke="#1a1a1a" stroke-width="1.69"/><line x1="666.03" y1="275.66" x2="660.22" y2="280.71" stroke="#1a1a1a" stroke-width="1.12"/><line x1="663.49" y1="272.79" x2="657.76" y2="277.94" stroke="#1a1a1a" stroke-width="1.12"/><line x1="660.89" y1="269.96" x2="655.26" y2="275.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="658.25" y1="267.17" x2="652.71" y2="272.52" stroke="#1a1a1a" stroke-width="1.12"/><line x1="655.56" y1="264.43" x2="645.45" y2="274.54" stroke="#1a1a1a" stroke-width="1.12"/><line x1="652.82" y1="261.74" x2="647.47" y2="267.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="650.03" y1="259.10" x2="644.78" y2="264.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="647.20" y1="256.50" x2="642.05" y2="262.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="644.33" y1="253.96" x2="639.28" y2="259.77" stroke="#1a1a1a" stroke-width="1.12"/><line x1="641.41" y1="251.47" x2="627.27" y2="268.32" stroke="#1a1a1a" stroke-width="2.06"/><line x1="579.19" y1="325.62" x2="586.26" y2="317.19" stroke="#1a1a1a" stroke-width="1.69"/><line x1="638.45" y1="249.02" x2="633.60" y2="255.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="635.44" y1="246.63" x2="630.70" y2="252.70" stroke="#1a1a1a" stroke-width="1.12"/><line x1="632.39" y1="244.30" x2="627.76" y2="250.44" stroke="#1a1a1a" stroke-width="1.12"/><line x1="629.31" y1="242.01" x2="624.78" y2="248.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="626.18" y1="239.78" x2="617.98" y2="251.50" stroke="#1a1a1a" stroke-width="1.12"/><line x1="623.02" y1="237.61" x2="618.71" y2="243.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="619.82" y1="235.49" x2="615.62" y2="241.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="616.58" y1="233.42" x2="612.50" y2="239.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="613.30" y1="231.42" x2="609.34" y2="238.02" stroke="#1a1a1a" stroke-width="1.12"/><line x1="610" y1="229.47" x2="599" y2="248.52" stroke="#1a1a1a" stroke-width="2.06"/><line x1="561.6" y1="313.30" x2="567.1" y2="303.77" stroke="#1a1a1a" stroke-width="1.69"/><line x1="606.65" y1="227.58" x2="602.92" y2="234.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="603.28" y1="225.75" x2="599.66" y2="232.55" stroke="#1a1a1a" stroke-width="1.12"/><line x1="599.87" y1="223.97" x2="596.38" y2="230.83" stroke="#1a1a1a" stroke-width="1.12"/><line x1="596.44" y1="222.26" x2="593.06" y2="229.18" stroke="#1a1a1a" stroke-width="1.12"/><line x1="592.97" y1="220.61" x2="586.93" y2="233.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="589.48" y1="219.01" x2="586.35" y2="226.05" stroke="#1a1a1a" stroke-width="1.12"/><line x1="585.96" y1="217.48" x2="582.95" y2="224.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="582.41" y1="216.01" x2="579.52" y2="223.15" stroke="#1a1a1a" stroke-width="1.12"/><line x1="578.84" y1="214.61" x2="576.08" y2="221.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="575.24" y1="213.26" x2="567.71" y2="233.94" stroke="#1a1a1a" stroke-width="2.06"/><line x1="542.13" y1="304.22" x2="545.89" y2="293.89" stroke="#1a1a1a" stroke-width="1.69"/><line x1="571.62" y1="211.98" x2="569.11" y2="219.26" stroke="#1a1a1a" stroke-width="1.12"/><line x1="567.98" y1="210.76" x2="565.60" y2="218.09" stroke="#1a1a1a" stroke-width="1.12"/><line x1="564.32" y1="209.61" x2="562.07" y2="216.97" stroke="#1a1a1a" stroke-width="1.12"/><line x1="560.64" y1="208.52" x2="558.51" y2="215.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="556.94" y1="207.49" x2="553.23" y2="221.30" stroke="#1a1a1a" stroke-width="1.12"/><line x1="553.22" y1="206.53" x2="551.36" y2="214.00" stroke="#1a1a1a" stroke-width="1.12"/><line x1="549.48" y1="205.63" x2="547.75" y2="213.14" stroke="#1a1a1a" stroke-width="1.12"/><line x1="545.74" y1="204.80" x2="544.13" y2="212.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="541.97" y1="204.04" x2="540.50" y2="211.60" stroke="#1a1a1a" stroke-width="1.12"/><line x1="538.20" y1="203.34" x2="534.38" y2="225.00" stroke="#1a1a1a" stroke-width="2.06"/><line x1="521.39" y1="298.67" x2="523.30" y2="287.83" stroke="#1a1a1a" stroke-width="1.69"/><line x1="534.41" y1="202.70" x2="533.21" y2="210.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="530.61" y1="202.14" x2="529.54" y2="209.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="526.81" y1="201.63" x2="525.87" y2="209.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="522.99" y1="201.20" x2="522.19" y2="208.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="519.17" y1="200.83" x2="517.92" y2="215.08" stroke="#1a1a1a" stroke-width="1.12"/><line x1="515.34" y1="200.53" x2="514.80" y2="208.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="511.51" y1="200.30" x2="511.11" y2="207.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="507.67" y1="200.13" x2="507.40" y2="207.82" stroke="#1a1a1a" stroke-width="1.12"/><line x1="503.83" y1="200.03" x2="503.70" y2="207.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="500" y1="200" x2="500" y2="222" stroke="#1a1a1a" stroke-width="2.06"/><line x1="500" y1="296.79" x2="500" y2="285.79" stroke="#1a1a1a" stroke-width="1.69"/><line x1="496.16" y1="200.03" x2="496.29" y2="207.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="492.32" y1="200.13" x2="492.59" y2="207.82" stroke="#1a1a1a" stroke-width="1.12"/><line x1="488.48" y1="200.30" x2="488.88" y2="207.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="484.65" y1="200.53" x2="485.19" y2="208.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="480.82" y1="200.83" x2="482.07" y2="215.08" stroke="#1a1a1a" stroke-width="1.12"/><line x1="477.00" y1="201.20" x2="477.80" y2="208.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="473.18" y1="201.63" x2="474.12" y2="209.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="469.38" y1="202.14" x2="470.45" y2="209.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="465.58" y1="202.70" x2="466.78" y2="210.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="461.79" y1="203.34" x2="465.61" y2="225.00" stroke="#1a1a1a" stroke-width="2.06"/><line x1="478.60" y1="298.67" x2="476.69" y2="287.83" stroke="#1a1a1a" stroke-width="1.69"/><line x1="458.02" y1="204.04" x2="459.49" y2="211.60" stroke="#1a1a1a" stroke-width="1.12"/><line x1="454.25" y1="204.80" x2="455.86" y2="212.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="450.51" y1="205.63" x2="452.24" y2="213.14" stroke="#1a1a1a" stroke-width="1.12"/><line x1="446.77" y1="206.53" x2="448.63" y2="214.00" stroke="#1a1a1a" stroke-width="1.12"/><line x1="443.05" y1="207.49" x2="446.76" y2="221.30" stroke="#1a1a1a" stroke-width="1.12"/><line x1="439.35" y1="208.52" x2="441.48" y2="215.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="435.67" y1="209.61" x2="437.92" y2="216.97" stroke="#1a1a1a" stroke-width="1.12"/><line x1="432.01" y1="210.76" x2="434.39" y2="218.09" stroke="#1a1a1a" stroke-width="1.12"/><line x1="428.37" y1="211.98" x2="430.88" y2="219.26" stroke="#1a1a1a" stroke-width="1.12"/><line x1="424.75" y1="213.26" x2="432.28" y2="233.94" stroke="#1a1a1a" stroke-width="2.06"/><line x1="457.86" y1="304.22" x2="454.10" y2="293.89" stroke="#1a1a1a" stroke-width="1.69"/><line x1="421.15" y1="214.61" x2="423.91" y2="221.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="417.58" y1="216.01" x2="420.47" y2="223.15" stroke="#1a1a1a" stroke-width="1.12"/><line x1="414.03" y1="217.48" x2="417.04" y2="224.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="410.51" y1="219.01" x2="413.64" y2="226.05" stroke="#1a1a1a" stroke-width="1.12"/><line x1="407.02" y1="220.61" x2="413.06" y2="233.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="403.55" y1="222.26" x2="406.93" y2="229.18" stroke="#1a1a1a" stroke-width="1.12"/><line x1="400.12" y1="223.97" x2="403.61" y2="230.83" stroke="#1a1a1a" stroke-width="1.12"/><line x1="396.71" y1="225.75" x2="400.33" y2="232.55" stroke="#1a1a1a" stroke-width="1.12"/><line x1="393.34" y1="227.58" x2="397.07" y2="234.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="390.00" y1="229.47" x2="401.00" y2="248.52" stroke="#1a1a1a" stroke-width="2.06"/><line x1="438.40" y1="313.30" x2="432.90" y2="303.77" stroke="#1a1a1a" stroke-width="1.69"/><line x1="386.69" y1="231.42" x2="390.65" y2="238.02" stroke="#1a1a1a" stroke-width="1.12"/><line x1="383.41" y1="233.42" x2="387.49" y2="239.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="380.17" y1="235.49" x2="384.37" y2="241.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="376.97" y1="237.61" x2="381.28" y2="243.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="373.81" y1="239.78" x2="382.01" y2="251.50" stroke="#1a1a1a" stroke-width="1.12"/><line x1="370.68" y1="242.01" x2="375.21" y2="248.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="367.60" y1="244.30" x2="372.23" y2="250.44" stroke="#1a1a1a" stroke-width="1.12"/><line x1="364.55" y1="246.63" x2="369.29" y2="252.70" stroke="#1a1a1a" stroke-width="1.12"/><line x1="361.54" y1="249.02" x2="366.39" y2="255.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="358.58" y1="251.47" x2="372.72" y2="268.32" stroke="#1a1a1a" stroke-width="2.06"/><line x1="420.80" y1="325.62" x2="413.73" y2="317.19" stroke="#1a1a1a" stroke-width="1.69"/><line x1="355.66" y1="253.96" x2="360.71" y2="259.77" stroke="#1a1a1a" stroke-width="1.12"/><line x1="352.79" y1="256.50" x2="357.94" y2="262.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="349.96" y1="259.10" x2="355.21" y2="264.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="347.17" y1="261.74" x2="352.52" y2="267.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="344.43" y1="264.43" x2="354.54" y2="274.54" stroke="#1a1a1a" stroke-width="1.12"/><line x1="341.74" y1="267.17" x2="347.28" y2="272.52" stroke="#1a1a1a" stroke-width="1.12"/><line x1="339.10" y1="269.96" x2="344.73" y2="275.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="336.50" y1="272.79" x2="342.23" y2="277.94" stroke="#1a1a1a" stroke-width="1.12"/><line x1="333.96" y1="275.66" x2="339.77" y2="280.71" stroke="#1a1a1a" stroke-width="1.12"/><line x1="331.47" y1="278.58" x2="348.32" y2="292.72" stroke="#1a1a1a" stroke-width="2.06"/><line x1="405.62" y1="340.80" x2="397.19" y2="333.73" stroke="#1a1a1a" stroke-width="1.69"/><line x1="329.02" y1="281.54" x2="335.01" y2="286.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="326.63" y1="284.55" x2="332.70" y2="289.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="324.30" y1="287.60" x2="330.44" y2="292.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="322.01" y1="290.68" x2="328.24" y2="295.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="319.78" y1="293.81" x2="331.50" y2="302.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="317.61" y1="296.97" x2="323.99" y2="301.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="315.49" y1="300.17" x2="321.95" y2="304.37" stroke="#1a1a1a" stroke-width="1.12"/><line x1="313.42" y1="303.41" x2="319.95" y2="307.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="311.42" y1="306.69" x2="318.02" y2="310.65" stroke="#1a1a1a" stroke-width="1.12"/><line x1="309.47" y1="310" x2="328.52" y2="321" stroke="#1a1a1a" stroke-width="2.06"/><line x1="393.30" y1="358.4" x2="383.77" y2="352.9" stroke="#1a1a1a" stroke-width="1.69"/><line x1="307.58" y1="313.34" x2="314.31" y2="317.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="305.75" y1="316.71" x2="312.55" y2="320.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="303.97" y1="320.12" x2="310.83" y2="323.61" stroke="#1a1a1a" stroke-width="1.12"/><line x1="302.26" y1="323.55" x2="309.18" y2="326.93" stroke="#1a1a1a" stroke-width="1.12"/><line x1="300.61" y1="327.02" x2="313.57" y2="333.06" stroke="#1a1a1a" stroke-width="1.12"/><line x1="299.01" y1="330.51" x2="306.05" y2="333.64" stroke="#1a1a1a" stroke-width="1.12"/><line x1="297.48" y1="334.03" x2="304.57" y2="337.04" stroke="#1a1a1a" stroke-width="1.12"/><line x1="296.01" y1="337.58" x2="303.15" y2="340.47" stroke="#1a1a1a" stroke-width="1.12"/><line x1="294.61" y1="341.15" x2="301.80" y2="343.91" stroke="#1a1a1a" stroke-width="1.12"/><line x1="293.26" y1="344.75" x2="313.94" y2="352.28" stroke="#1a1a1a" stroke-width="2.06"/><line x1="384.22" y1="377.86" x2="373.89" y2="374.10" stroke="#1a1a1a" stroke-width="1.69"/><line x1="291.98" y1="348.37" x2="299.26" y2="350.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="290.76" y1="352.01" x2="298.09" y2="354.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="289.61" y1="355.67" x2="296.97" y2="357.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="288.52" y1="359.35" x2="295.92" y2="361.48" stroke="#1a1a1a" stroke-width="1.12"/><line x1="287.49" y1="363.05" x2="301.30" y2="366.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="286.53" y1="366.77" x2="294.00" y2="368.63" stroke="#1a1a1a" stroke-width="1.12"/><line x1="285.63" y1="370.51" x2="293.14" y2="372.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="284.80" y1="374.25" x2="292.33" y2="375.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="284.04" y1="378.02" x2="291.60" y2="379.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="283.34" y1="381.79" x2="305.00" y2="385.61" stroke="#1a1a1a" stroke-width="2.06"/><line x1="378.67" y1="398.60" x2="367.83" y2="396.69" stroke="#1a1a1a" stroke-width="1.69"/><line x1="282.70" y1="385.58" x2="290.31" y2="386.78" stroke="#1a1a1a" stroke-width="1.12"/><line x1="282.14" y1="389.38" x2="289.76" y2="390.45" stroke="#1a1a1a" stroke-width="1.12"/><line x1="281.63" y1="393.18" x2="289.28" y2="394.12" stroke="#1a1a1a" stroke-width="1.12"/><line x1="281.20" y1="397.00" x2="288.86" y2="397.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.83" y1="400.82" x2="295.08" y2="402.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.53" y1="404.65" x2="288.21" y2="405.19" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.30" y1="408.48" x2="287.99" y2="408.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.13" y1="412.32" x2="287.82" y2="412.59" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.03" y1="416.16" x2="287.73" y2="416.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280" y1="420" x2="302" y2="420" stroke="#1a1a1a" stroke-width="2.06"/><line x1="376.79" y1="420" x2="365.79" y2="420" stroke="#1a1a1a" stroke-width="1.69"/><text x="682.31" y="409.80" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 682.31 409.80)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">0</text><text x="641.52" y="409.70" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 641.52 409.70)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">180</text><text x="679.82" y="388.29" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(80 679.82 388.29)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">10</text><text x="639.74" y="395.35" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(80 639.74 395.35)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">170</text><text x="671.58" y="357.54" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(70 671.58 357.54)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">20</text><text x="633.34" y="371.46" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(70 633.34 371.46)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">160</text><text x="658.13" y="328.70" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(60 658.13 328.70)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">30</text><text x="622.88" y="349.05" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(60 622.88 349.05)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">150</text><text x="639.87" y="302.62" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(50 639.87 302.62)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">40</text><text x="608.70" y="328.78" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(50 608.70 328.78)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">140</text><text x="617.37" y="280.12" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(40 617.37 280.12)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">50</text><text x="591.21" y="311.29" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(40 591.21 311.29)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">130</text><text x="591.3" y="261.86" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(30 591.3 261.86)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">60</text><text x="570.95" y="297.11" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(30 570.95 297.11)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">120</text><text x="562.45" y="248.41" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(20 562.45 248.41)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">70</text><text x="548.53" y="286.65" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(20 548.53 286.65)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">110</text><text x="531.70" y="240.17" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(10 531.70 240.17)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">80</text><text x="524.64" y="280.25" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(10 524.64 280.25)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">100</text><text x="500" y="237.4" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(0 500 237.4)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">90</text><text x="500" y="278.1" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(0 500 278.1)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">90</text><text x="468.29" y="240.17" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-10 468.29 240.17)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">100</text><text x="475.35" y="280.25" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-10 475.35 280.25)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">80</text><text x="437.54" y="248.41" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-20 437.54 248.41)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">110</text><text x="451.46" y="286.65" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-20 451.46 286.65)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">70</text><text x="408.70" y="261.86" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 408.70 261.86)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">120</text><text x="429.05" y="297.11" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 429.05 297.11)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">60</text><text x="382.62" y="280.12" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-40 382.62 280.12)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">130</text><text x="408.78" y="311.29" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-40 408.78 311.29)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">50</text><text x="360.12" y="302.62" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-50 360.12 302.62)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">140</text><text x="391.29" y="328.78" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-50 391.29 328.78)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">40</text><text x="341.86" y="328.70" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-60 341.86 328.70)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">150</text><text x="377.11" y="349.05" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-60 377.11 349.05)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">30</text><text x="328.41" y="357.54" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-70 328.41 357.54)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">160</text><text x="366.65" y="371.46" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-70 366.65 371.46)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">20</text><text x="320.17" y="388.29" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-80 320.17 388.29)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">170</text><text x="360.25" y="395.35" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-80 360.25 395.35)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">10</text><text x="317.68" y="409.80" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 317.68 409.80)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">180</text><text x="358.47" y="409.70" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 358.47 409.70)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">0</text><circle cx="500" cy="420" r="5.64" fill="#1a1a1a"/><line x1="500" y1="420" x2="231.60" y2="419.99" stroke="#1d4ed8" stroke-width="4.13" stroke-linecap="round"/><line x1="500" y1="420" x2="672.52" y2="214.39" stroke="#1d4ed8" stroke-width="4.13" stroke-linecap="round"/><path d="M 464.8 420 A 35.2 35.2 0 0 1 522.62 393.03" fill="none" stroke="#1d4ed8" stroke-width="2.44"/></g></g></svg></span></figure></div></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex2"><li class="hid"><div class="sl"><i>a</i>Type</div><div class="sa">obtuse: bigger than 90°, smaller than 180°</div></li><li class="hid"><div class="sl"><i>b</i>Which scale, and the size</div><div class="sa">The base arm points left, so read the scale with 0 on the left (the inner one): 130°</div></li><li class="hid"><div class="sl"><i>c</i>The reflex angle</div><div class="sa">360° − 130° = 230°</div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex2">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Question 4.<label><input type="checkbox" data-done="yt2" data-label="Your turn: Question 4 (after Example 2)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p5" style="--pc:#7C3AED" data-done="yt3">
+    <div class="phead"><span class="pnum">5</span><h2>Example 3: Drawing an angle</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">Draw <b>a</b> ∠XYZ = 115° &nbsp; <b>b</b> reflex ∠PQR = 250°<br><span class="howto"><b>1</b> Draw one arm. &nbsp;<b>2</b> Centre on the vertex, 0° on that arm. &nbsp;<b>3</b> Count round the scale that starts at 0 and put a dot at the size. &nbsp;<b>4</b> Join the vertex to the dot and mark the angle.</span></p></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex3"><li class="hid"><div class="sl"><i>a</i>∠XYZ = 115°</div><div class="sa"><span class="fig" style="width:200px;height:168px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="207.22 311.09 274.94 230.36"><rect x="207.22" y="311.09" width="274.94" height="230.36" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-73" style="--label-scale: 1.76;"><line x1="300" y1="480" x2="253.5" y2="380.3" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="253.5" y2="380.3" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 283.60 444.84 A 38.79 38.79 0 0 1 338.79 480" class="angle-arc"/><g class="removable-label"><text x="343.79" y="411.24" class="angle-label" text-anchor="middle" dominant-baseline="middle">115°</text></g><circle cx="300" cy="480" r="5.64" fill="#c8102e"/><circle cx="420" cy="480" r="5.64" fill="#c8102e"/><circle cx="253.5" cy="380.3" r="5.64" fill="#c8102e"/><text x="283.89" y="505.28" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Y</text><text x="449.97" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Z</text><text x="240.82" y="353.13" class="vertex-label" text-anchor="middle" dominant-baseline="middle">X</text></g></g></svg></span></div></li><li class="hid"><div class="sl"><i>b</i>reflex ∠PQR = 250°<br><span style='font-weight:500'>First: 360° − 250° = ?</span></div><div class="sa"><span class="fig" style="width:200px;height:196px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="212.16 307.87 268.89 264.06"><rect x="212.16" y="307.87" width="268.89" height="264.06" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-76" style="--label-scale: 1.70;"><line x1="300" y1="480" x2="262.4" y2="376.65" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="262.4" y2="376.65" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 290.68 454.40 A 27.23 27.23 0 1 0 327.23 480" class="angle-arc"/><g class="removable-label"><text x="260.38" y="536.56" class="angle-label" text-anchor="middle" dominant-baseline="middle">250°</text></g><circle cx="300" cy="480" r="5.44" fill="#c8102e"/><circle cx="420" cy="480" r="5.44" fill="#c8102e"/><circle cx="262.4" cy="376.65" r="5.44" fill="#c8102e"/><text x="283.40" y="503.70" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Q</text><text x="448.93" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">R</text><text x="252.50" y="349.45" class="vertex-label" text-anchor="middle" dominant-baseline="middle">P</text></g></g></svg></span></div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex3">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Question 5.<label><input type="checkbox" data-done="yt3" data-label="Your turn: Question 5 (after Example 3)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p6" style="--pc:#0891B2" data-done="bronze7,bronze8">
+    <div class="phead"><span class="pnum">6</span><h2>Practice: Bronze, Silver, Gold</h2><span class="kind">In your booklet</span></div>
+    <div class="pbody"><p>These are in your booklet after the examples. Start where you are ready: confident after Your turn? Start at Silver. Everyone tries at least one Gold. Tick each one off when you have marked it with the answers at the back of the booklet.</p>
+      <div class="tiers"><div class="tier bronze"><h3>Bronze &#183; Practise the skills</h3><label><input type="checkbox" data-done="bronze7" data-label="Bronze question 7"><span><b>Question 7</b></span></label><label><input type="checkbox" data-done="bronze8" data-label="Bronze question 8"><span><b>Question 8</b></span></label></div><div class="tier silver"><h3>Silver &#183; Problem-solving</h3><label><input type="checkbox" data-done="silver10" data-label="Silver question 10"><span><b>Question 10</b></span></label><label><input type="checkbox" data-done="silver11" data-label="Silver question 11"><span><b>Question 11</b></span></label></div><div class="tier gold"><h3>Gold &#183; Reasoning and enrichment</h3><label><input type="checkbox" data-done="gold12" data-label="Gold question 12"><span><b>Question 12</b></span></label><label><input type="checkbox" data-done="gold14" data-label="Gold question 14"><span><b>Question 14</b></span></label><label><input type="checkbox" data-done="gold16" data-label="Gold question 16"><span><b>Question 16</b></span></label></div></div></div>
+  </section>
+
+  <section class="part" id="p7" style="--pc:#DB2777" data-done="game">
+    <div class="phead"><span class="pnum">7</span><h2>Protractor Pro</h2><span class="kind">Game</span></div>
+    <div class="pbody"><p>Read the protractor like a pro. Each round has 10 angles. Watch which way the base arm points, so you read the right scale. Streaks earn bonus points. Keys: type your answer, press <b>Enter</b> to check and Enter again for the next one.</p>
+<div class="game" id="game">
+  <div class="ghud">
+    <div class="levels" id="gLevels"></div>
+    <span style="flex:1"></span>
+    <span class="pill">Question <b id="gQ">1</b> / 10</span>
+    <span class="pill">Score <b id="gScore">0</b></span>
+    <span class="pill">Streak <b id="gStreak">0</b></span>
+  </div>
+  <div class="gstage" id="gStage"></div>
+  <div id="gPlay">
+    <div class="gin">
+      <label for="gAns" style="font-weight:800">How big is the marked angle?</label>
+      <input id="gAns" inputmode="decimal" autocomplete="off" aria-label="How big is the marked angle?">
+      <span style="font-weight:800;font-size:22px">&#176;</span>
+    </div>
+    <p style="margin:10px 0 6px;font-weight:700" id="gChoiceLab">What type of angle is it?</p>
+    <div class="choices" id="gChoices"></div>
+    <div class="row">
+      <button class="btn" id="gGo">Check <small style="opacity:.8">(Enter)</small></button>
+      <button class="btn ghost" id="gNext" hidden>Next question <small>(Enter)</small></button>
+    </div>
+    <div class="gfeed" id="gFeed" aria-live="polite"></div>
+  </div>
+  <div class="gover" id="gOver" hidden></div>
+</div>
+</div>
+  </section>
+
+  <section class="part" id="p8" style="--pc:#15803D" data-done="exit">
+    <div class="phead"><span class="pnum">8</span><h2>Exit check</h2><span class="kind">Type, then show me</span></div>
+    <div class="pbody"><p>Three quick questions. Type your answers, press check, then show your teacher.</p>
+      <div class="exit"><div class="eq"><b>1</b><span>What type of angle is 205&#176;?</span><input aria-label="Answer 1" autocomplete="off"></div><div class="eq"><b>2</b><span>An angle is 48&#176;. How big is the reflex angle on the other side?</span><input aria-label="Answer 2" autocomplete="off"></div><div class="eq"><b>3</b><span>Name the angle at vertex Q between the arms QP and QR.</span><input aria-label="Answer 3" autocomplete="off"></div></div>
+      <div class="row"><button class="btn" id="exitCheck">Check</button></div>
+      <div class="result" id="exitResult" aria-live="polite"></div></div>
+  </section>
+
+  <p class="foot">Your work is saved in this browser on this computer only. Use Save my work to keep a copy or hand it in.
+    <button id="recover">Recover my last backup</button> &#183; <button id="clearAll">Start again</button></p>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(function () {
+  "use strict";
+  var KEY = "lh-y7enr-7a-v1";
+  var GAPS = [{"a": "P", "alt": []}, {"a": "AB", "alt": ["BA"]}, {"a": "CD", "alt": []}, {"a": "EF", "alt": ["FE"]}, {"a": "flat", "alt": ["flat surface", "plane"]}, {"a": "arms", "alt": ["arm"]}, {"a": "vertex", "alt": []}, {"a": "middle", "alt": []}, {"a": "CBA", "alt": []}, {"a": "0° and 90°", "alt": []}, {"a": "90°", "alt": []}, {"a": "90° and 180°", "alt": []}, {"a": "180°", "alt": []}, {"a": "180° and 360°", "alt": []}, {"a": "360°", "alt": []}, {"a": "straight line", "alt": ["line"]}, {"a": "one point", "alt": ["a point", "the same point", "1 point", "same point"]}, {"a": "∥", "sym": 1}, {"a": "90°", "alt": []}];
+  var EXIT = [{"q": "What type of angle is 205&#176;?", "kind": "word", "a": ["reflex"]}, {"q": "An angle is 48&#176;. How big is the reflex angle on the other side?", "kind": "num", "a": [312]}, {"q": "Name the angle at vertex Q between the arms QP and QR.", "kind": "angle", "a": ["PQR", "RQP"]}];
+  var TITLE = "Points, lines, intervals and angles", CODE = "7A";
+  function blank() { return { v: 1, name: "", gaps: {}, gapsChecked: false, steps: {}, done: {}, exit: ["", "", ""], game: {} }; }
+  var S = blank(), loaded = false, saveT = null, clearedNow = false;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function toast(m) { var t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 3000); }
+  function say(text, cls) { var b = $("savebox"); b.className = "savebox " + (cls || ""); $("saveText").textContent = text; }
+  function hasWork(s) {
+    if (!s) return false;
+    if ((s.name || "").trim()) return true;
+    if (Object.keys(s.gaps || {}).some(function (k) { return (s.gaps[k] || "").trim(); })) return true;
+    if ((s.exit || []).some(function (x) { return (x || "").trim(); })) return true;
+    if (Object.keys(s.done || {}).length || Object.keys(s.game || {}).length) return true;
+    return false;
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var got = JSON.parse(raw); if (got && got.v === 1) { S = Object.assign(blank(), got); if (hasWork(got)) localStorage.setItem(KEY + "-prev", raw); } }
+      say(raw ? "Saved on this computer" : "Not saved yet", raw ? "ok" : "");
+    } catch (e) { say("Saving is off in this browser", "err"); }
+    loaded = true;
+  }
+  function save() { if (!loaded) return; clearTimeout(saveT); saveT = setTimeout(doSave, 400); say("Saving"); }
+  function doSave() {
+    saveT = null;
+    if (!loaded) return;
+    try {
+      var prev = localStorage.getItem(KEY), prevHad = false;
+      try { prevHad = prev && hasWork(JSON.parse(prev)); } catch (e) {}
+      if (!hasWork(S) && prevHad && !clearedNow) { say("Saved on this computer", "ok"); return; }
+      localStorage.setItem(KEY, JSON.stringify(S));
+      if (prevHad) localStorage.setItem(KEY + "-prev", prev);
+      clearedNow = false;
+      var d = new Date(); say("Saved " + d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" }), "ok");
+    } catch (e) { say("Could not save", "err"); }
+  }
+  addEventListener("beforeunload", function () { if (saveT) { clearTimeout(saveT); doSave(); } });
+  document.addEventListener("visibilitychange", function () { if (document.hidden && saveT) { clearTimeout(saveT); doSave(); } });
+  window.LH = { S: function () { return S; }, save: save, toast: toast, esc: esc };
+
+  /* ---------- answer checking ---------- */
+  function nums(s) { return (String(s).match(/\d+(\.\d+)?/g) || []).map(Number); }
+  function letters(s) { return String(s).toLowerCase().replace(/degrees?|deg/g, "").replace(/[^a-z∥⊥=∠]/g, ""); }
+  function gapOK(g, v) {
+    if (!String(v || "").trim()) return false;
+    if (g.sym) return v === g.a;
+    var want = [g.a].concat(g.alt || []);
+    return want.some(function (a) {
+      var na = nums(a);
+      if (na.length) { var nv = nums(v); return nv.length === na.length && na.every(function (x, i) { return x === nv[i]; }); }
+      return letters(a) === letters(v);
+    });
+  }
+  window.LH.nums = nums; window.LH.letters = letters;
+
+  /* ---------- nav ---------- */
+  var PARTS = Array.prototype.map.call(document.querySelectorAll(".part"), function (p) { return p.id; });
+  function partDone(id) {
+    var el = $(id); if (!el) return false;
+    var k = el.dataset.done;
+    if (k === "gaps") return GAPS.length && GAPS.every(function (g, i) { return gapOK(g, S.gaps[i]); });
+    if (k === "exit") return EXIT.every(function (q, i) { return exitOK(q, S.exit[i]); });
+    if (k === "game") return !!(S.game && S.game.rounds);
+    if (k) return k.split(",").every(function (d) { return S.done[d]; });
+    return false;
+  }
+  function buildNav() {
+    $("partnav").innerHTML = PARTS.map(function (id, i) { return '<a href="#' + id + '" data-id="' + id + '" title="Part ' + (i + 1) + '">' + (i + 1) + "</a>"; }).join("");
+  }
+  function markNav() { Array.prototype.forEach.call($("partnav").children, function (a) { a.classList.toggle("done", !!partDone(a.dataset.id)); }); }
+  window.LH.markNav = function () { markNav(); };
+
+  /* ---------- name ---------- */
+  $("name").addEventListener("input", function () { S.name = this.value; save(); });
+
+  /* ---------- gaps ---------- */
+  var gapEls = Array.prototype.slice.call(document.querySelectorAll(".gi"));
+  gapEls.forEach(function (el) {
+    var i = +el.dataset.i;
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", function () { S.gaps[i] = el.value; el.classList.remove("ok", "no"); save(); markNav(); });
+  });
+  function drawGaps(mark) {
+    gapEls.forEach(function (el) {
+      var i = +el.dataset.i; el.value = S.gaps[i] || "";
+      el.classList.remove("ok", "no");
+      if (mark && (S.gaps[i] || "").trim()) el.classList.add(gapOK(GAPS[i], S.gaps[i]) ? "ok" : "no");
+    });
+  }
+  if ($("gapCheck")) $("gapCheck").addEventListener("click", function () {
+    S.gapsChecked = true; drawGaps(true); save(); markNav();
+    var right = GAPS.filter(function (g, i) { return gapOK(g, S.gaps[i]); }).length;
+    var r = $("gapResult");
+    r.className = "result " + (right === GAPS.length ? "good" : "bad");
+    r.textContent = right === GAPS.length ? "All " + right + " gaps right. Your notes are complete." : right + " out of " + GAPS.length + " right. Fix the red ones, then check again.";
+    if (right < GAPS.length) $("gapShow").hidden = false;
+  });
+  if ($("gapShow")) $("gapShow").addEventListener("click", function () {
+    gapEls.forEach(function (el) { var i = +el.dataset.i; if (!gapOK(GAPS[i], S.gaps[i])) { S.gaps[i] = GAPS[i].a; } });
+    drawGaps(true); save(); markNav(); toast("Answers filled in. Copy any you missed into your booklet.");
+  });
+
+  /* ---------- worked examples ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll(".exnext"), function (b) {
+    var id = b.dataset.ex, lis = Array.prototype.slice.call(document.querySelectorAll("#" + id + " li"));
+    function paint() {
+      var n = S.steps[id] || 0;
+      lis.forEach(function (li, i) { li.classList.toggle("hid", i >= n); });
+      b.textContent = n >= lis.length ? "Hide the steps" : "Show step " + (n + 1) + " of " + lis.length;
+    }
+    b.addEventListener("click", function () { var n = S.steps[id] || 0; S.steps[id] = n >= lis.length ? 0 : n + 1; paint(); save(); });
+    b._paint = paint;
+  });
+  function drawSteps() { Array.prototype.forEach.call(document.querySelectorAll(".exnext"), function (b) { b._paint(); }); }
+
+  /* ---------- done ticks ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll("input[data-done]"), function (c) {
+    c.addEventListener("change", function () { if (c.checked) S.done[c.dataset.done] = 1; else delete S.done[c.dataset.done]; save(); markNav(); });
+  });
+  function drawDone() { Array.prototype.forEach.call(document.querySelectorAll("input[data-done]"), function (c) { c.checked = !!S.done[c.dataset.done]; }); }
+
+  /* ---------- exit check ---------- */
+  function exitOK(q, v) {
+    if (!String(v || "").trim()) return false;
+    if (q.kind === "num") { var n = nums(v); return n.length >= 1 && n[n.length - 1] === q.a[0]; }
+    if (q.kind === "angle") { var l = letters(v).replace(/angle|∠/g, "").toUpperCase(); return q.a.indexOf(l) >= 0; }
+    return q.a.some(function (a) { return letters(v).indexOf(letters(a)) >= 0; });
+  }
+  var exitEls = Array.prototype.slice.call(document.querySelectorAll(".exit input"));
+  exitEls.forEach(function (el, i) { el.addEventListener("input", function () { S.exit[i] = el.value; el.classList.remove("ok", "no"); save(); markNav(); }); });
+  function drawExit(mark) {
+    exitEls.forEach(function (el, i) { el.value = S.exit[i] || ""; el.classList.remove("ok", "no"); if (mark && (S.exit[i] || "").trim()) el.classList.add(exitOK(EXIT[i], S.exit[i]) ? "ok" : "no"); });
+  }
+  $("exitCheck").addEventListener("click", function () {
+    drawExit(true); markNav(); doSave();
+    var right = EXIT.filter(function (q, i) { return exitOK(q, S.exit[i]); }).length, r = $("exitResult");
+    r.className = "result " + (right === EXIT.length ? "good" : "bad");
+    r.textContent = right + " out of " + EXIT.length + ". " + (right === EXIT.length ? "Show your teacher." : "Have another go at the red ones, then show your teacher.");
+  });
+
+  /* ---------- save my work ---------- */
+  function download(name, html) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+  }
+  $("saveFile").addEventListener("click", function () {
+    doSave();
+    var gl = GAPS.map(function (g, i) { var v = S.gaps[i] || ""; return "<li>" + (v ? esc(v) : "<i>blank</i>") + (v && gapOK(g, v) ? " &#10003;" : "") + "</li>"; }).join("");
+    var ex = EXIT.map(function (q, i) { var v = S.exit[i] || ""; return "<li>" + q.q + "<br><b>" + (v ? esc(v) : "no answer") + "</b>" + (exitOK(q, v) ? " &#10003;" : "") + "</li>"; }).join("");
+    var dn = Array.prototype.map.call(document.querySelectorAll("input[data-done]"), function (c) { return "<li>" + (c.checked ? "&#10003; " : "&#9744; ") + esc(c.dataset.label) + "</li>"; }).join("");
+    var gm = window.LH.gameSummary ? window.LH.gameSummary() : "";
+    var html = "<!doctype html><html lang='en-AU'><head><meta charset='utf-8'><title>" + esc((S.name || "My") + " work: " + CODE + " " + TITLE) + "</title><style>" +
+      "body{font:17px/1.5 Lexend,'Segoe UI',Arial,sans-serif;color:#17233D;max-width:900px;margin:24px auto;padding:0 16px}h1{margin:0}h2{border-bottom:4px solid #2F5BEA;padding-bottom:4px;margin-top:28px}</style></head><body>" +
+      "<h1>" + CODE + " " + esc(TITLE) + "</h1><p>" + esc(S.name || "") + " &#183; Year 7 Enrichment &#183; " + new Date().toLocaleDateString("en-AU") + "</p>" +
+      "<h2>Key ideas: my gap answers</h2><ol>" + gl + "</ol><h2>Booklet work I ticked off</h2><ul>" + dn + "</ul><h2>Game</h2>" + (gm || "<p>Not played yet.</p>") +
+      "<h2>Exit check</h2><ol>" + ex + "</ol></body></html>";
+    download(((S.name || "my") + "-" + CODE + "-work").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html", html);
+    toast("Your work is downloaded. Hand in that file.");
+  });
+
+  /* ---------- recover / restart ---------- */
+  $("recover").addEventListener("click", function () {
+    var raw = null; try { raw = localStorage.getItem(KEY + "-prev"); } catch (e) {}
+    if (!raw) { toast("There is no backup on this computer yet"); return; }
+    if (!confirm("Load your last automatic backup? What is on the page now will be replaced.")) return;
+    try { S = Object.assign(blank(), JSON.parse(raw)); } catch (e) { toast("The backup could not be read"); return; }
+    clearedNow = true; renderAll(); doSave(); toast("Backup loaded");
+  });
+  $("clearAll").addEventListener("click", function () {
+    if (!confirm("Start again? This clears everything on this page. A backup is kept, so Recover can bring it back.")) return;
+    try { var cur = localStorage.getItem(KEY); if (cur) localStorage.setItem(KEY + "-prev", cur); } catch (e) {}
+    S = blank(); clearedNow = true; renderAll(); doSave();
+  });
+
+  function renderAll() {
+    $("name").value = S.name || "";
+    drawGaps(S.gapsChecked); drawSteps(); drawDone(); drawExit(false);
+    if (window.LH.gameRender) window.LH.gameRender();
+    markNav();
+  }
+  window.LH.renderAll = renderAll;
+  load(); buildNav();
+  window.LH.ready = true;
+  document.addEventListener("DOMContentLoaded", renderAll);
+  if (document.readyState !== "loading") setTimeout(renderAll, 0);
+})();
+</script>
+<script>
+(function () {
+  var LH = window.LH;
+
+var TYPES = ["acute", "right", "obtuse", "straight", "reflex", "revolution"];
+function typeOf(d) { return d < 90 ? 0 : d === 90 ? 1 : d < 180 ? 2 : d === 180 ? 3 : d < 360 ? 4 : 5; }
+function MAKE(level) {
+  var th, reflex = level === 2;
+  if (level === 0) th = 5 * (2 + Math.floor(Math.random() * 33));
+  else if (level === 1) th = Math.random() < 0.08 ? 90 : 3 + Math.floor(Math.random() * 175);
+  else th = 15 + Math.floor(Math.random() * 151);
+  var baseLeft = Math.random() < 0.5, rot = level === 0 ? 0 : Math.round((Math.random() * 30) - 15);
+  var ans = reflex ? 360 - th : th;
+  return { th: th, baseLeft: baseLeft, ans: ans, type: typeOf(ans), reflex: reflex, svg: draw(th, baseLeft, rot, reflex, false), reveal: draw(th, baseLeft, rot, reflex, true) };
+}
+function draw(th, baseLeft, rot, reflex, show) {
+  var C = [380, 400], R = 290, o = [];
+  function P(r, deg) { var a = deg * Math.PI / 180; return [C[0] + r * Math.cos(a), C[1] - r * Math.sin(a)]; }
+  function f(p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }
+  o.push('<path d="M ' + f(P(R, 0)) + ' A ' + R + ' ' + R + ' 0 0 0 ' + f(P(R, 180)) + ' Z" fill="rgba(120,170,255,.16)" stroke="#5B7BD5" stroke-width="2"/>');
+  o.push('<path d="M ' + f(P(R - 78, 0)) + ' A ' + (R - 78) + ' ' + (R - 78) + ' 0 0 0 ' + f(P(R - 78, 180)) + '" fill="none" stroke="#9DB2E8" stroke-width="1.5"/>');
+  for (var d = 0; d <= 180; d++) {
+    var L = d % 10 === 0 ? 18 : d % 5 === 0 ? 12 : 6;
+    o.push('<line x1="' + P(R, d)[0].toFixed(1) + '" y1="' + P(R, d)[1].toFixed(1) + '" x2="' + P(R - L, d)[0].toFixed(1) + '" y2="' + P(R - L, d)[1].toFixed(1) + '" stroke="#34457A" stroke-width="' + (d % 10 ? 1 : 1.6) + '"/>');
+    if (d % 10 === 0) {
+      var a = P(R - 32, d), b = P(R - 58, d);
+      o.push('<text x="' + a[0].toFixed(1) + '" y="' + a[1].toFixed(1) + '" transform="rotate(' + (90 - d) + ' ' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ')" font-size="15" font-weight="700" fill="#1D2B55" text-anchor="middle" dominant-baseline="middle">' + d + '</text>');
+      o.push('<text x="' + b[0].toFixed(1) + '" y="' + b[1].toFixed(1) + '" transform="rotate(' + (90 - d) + ' ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1) + ')" font-size="12.5" fill="#5B6B98" text-anchor="middle" dominant-baseline="middle">' + (180 - d) + '</text>');
+    }
+  }
+  o.push('<line x1="' + (C[0] - R) + '" y1="' + C[1] + '" x2="' + (C[0] + R) + '" y2="' + C[1] + '" stroke="#5B7BD5" stroke-width="2"/>');
+  o.push('<circle cx="' + C[0] + '" cy="' + C[1] + '" r="5" fill="#5B7BD5"/>');
+  var b0 = baseLeft ? 180 : 0, b1 = baseLeft ? 180 - th : th;
+  var arm = "#E0115F";
+  o.push('<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + f(P(345, b0)).split(" ")[0] + '" y2="' + f(P(345, b0)).split(" ")[1] + '" stroke="' + arm + '" stroke-width="4" stroke-linecap="round"/>');
+  o.push('<line x1="' + C[0] + '" y1="' + C[1] + '" x2="' + f(P(345, b1)).split(" ")[0] + '" y2="' + f(P(345, b1)).split(" ")[1] + '" stroke="' + arm + '" stroke-width="4" stroke-linecap="round"/>');
+  var lo = Math.min(b0, b1), hi = Math.max(b0, b1);
+  if (reflex) {
+    o.push('<path d="M ' + f(P(46, hi)) + ' A 46 46 0 1 0 ' + f(P(46, lo)) + '" fill="rgba(224,17,95,.12)" stroke="' + arm + '" stroke-width="3"/>');
+  } else {
+    o.push('<path d="M ' + f(P(42, lo)) + ' A 42 42 0 0 0 ' + f(P(42, hi)) + '" fill="none" stroke="' + arm + '" stroke-width="3"/>');
+  }
+  if (show) {
+    var tip = P(R - (baseLeft ? 58 : 32), b1);
+    o.push('<circle cx="' + tip[0].toFixed(1) + '" cy="' + tip[1].toFixed(1) + '" r="17" fill="none" stroke="#15803D" stroke-width="4"/>');
+    var z = P(R - (baseLeft ? 58 : 32), b0);
+    o.push('<circle cx="' + z[0].toFixed(1) + '" cy="' + z[1].toFixed(1) + '" r="15" fill="none" stroke="#15803D" stroke-width="3" stroke-dasharray="5 4"/>');
+  }
+  return '<svg viewBox="-10 20 780 490" role="img" aria-label="An angle on a protractor"><g transform="rotate(' + rot + ' ' + C[0] + ' ' + C[1] + ')">' + o.join("") + '</g></svg>';
+}
+function JUDGE(c, v, ch, level) {
+  var tol = level === 0 ? 0 : 1, okN = Math.abs(v - c.ans) <= tol, okT = level === 0 || ch === c.type;
+  var side = c.baseLeft ? "left" : "right", scale = c.baseLeft ? "inner" : "outer";
+  var msg;
+  if (okN && okT) msg = pick(["Spot on!", "Nailed it.", "Perfect reading.", "Yes!"]) + " " + (c.reflex ? c.th + "&#176; inside, so 360 &#8722; " + c.th + " = " + c.ans + "&#176;." : c.ans + "&#176;.");
+  else {
+    msg = "It was <b>" + c.ans + "&#176;</b>" + (level ? ", " + TYPES[c.type] : "") + ". ";
+    if (!okN && Math.abs(v - (180 - c.th)) <= tol && !c.reflex) msg += "You read the wrong scale. The base arm points " + side + ", so use the " + scale + " scale: the one with 0 on the " + side + ". The green circles show 0 and the reading.";
+    else if (!okN && c.reflex && Math.abs(v - c.th) <= tol) msg += "That is the angle inside. The reflex angle goes the long way round: 360 &#8722; " + c.th + " = " + c.ans + ".";
+    else if (!okN && c.reflex && Math.abs(v - (360 - (180 - c.th))) <= tol) msg += "Wrong scale first: the inside angle is " + c.th + "&#176;, so the reflex angle is " + c.ans + "&#176;.";
+    else if (!okN) msg += "Start from the 0 on the " + side + " and count round. The green circles show where.";
+    else msg = "The size is right, but " + c.ans + "&#176; is " + TYPES[c.type] + ".";
+  }
+  return { full: okN && okT, pts: okN ? (okT ? 10 : 5) : 0, msg: msg };
+}
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  function $(id) { return document.getElementById(id); }
+  var G = { level: 0, q: 0, score: 0, streak: 0, cur: null, choice: null, answered: false, right: 0 };
+  var LEVELS = [{"name":"Read the scale","choice":false},{"name":"Measure and name","choice":true},{"name":"Reflex","choice":true}];
+  var CHOICES = ["Acute","Right","Obtuse","Straight","Reflex","Revolution"];
+  function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function state() { var S = LH.S(); S.game = S.game || {}; S.game.best = S.game.best || {}; return S.game; }
+  function drawLevels() {
+    var best = state().best;
+    $("gLevels").innerHTML = LEVELS.map(function (L, i) {
+      return '<button type="button" data-l="' + i + '" aria-pressed="' + (i === G.level) + '">' + L.name + '<small>Best: ' + (best[i] != null ? best[i] : "none") + '</small></button>';
+    }).join("");
+  }
+  $("gLevels").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; G.level = +b.dataset.l; start(); });
+  function drawChoices() {
+    var need = LEVELS[G.level].choice;
+    $("gChoiceLab").hidden = !need; $("gChoices").hidden = !need;
+    $("gChoices").innerHTML = CHOICES.map(function (c, i) { return '<button type="button" data-c="' + i + '" aria-pressed="' + (G.choice === i) + '"><kbd>' + (i + 1) + '</kbd>' + c + '</button>'; }).join("");
+  }
+  $("gChoices").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || G.answered) return; G.choice = +b.dataset.c; drawChoices(); });
+  function hud() { $("gQ").textContent = Math.min(G.q + 1, 10); $("gScore").textContent = G.score; $("gStreak").textContent = G.streak; }
+  function start() {
+    G.q = 0; G.score = 0; G.streak = 0; G.right = 0;
+    $("gOver").hidden = true; $("gPlay").hidden = false; $("gStage").hidden = false;
+    drawLevels(); next();
+  }
+  function next() {
+    G.cur = MAKE(G.level); G.choice = null; G.answered = false;
+    $("gStage").innerHTML = G.cur.svg; $("gStage").firstChild.classList.add("pop");
+    $("gAns").value = ""; $("gAns").disabled = false; $("gFeed").textContent = ""; $("gFeed").className = "gfeed";
+    $("gGo").hidden = false; $("gNext").hidden = true;
+    drawChoices(); hud();
+    if (G.started) { try { $("gAns").focus({ preventScroll: true }); } catch (e) {} }
+    G.started = true;
+  }
+  function check() {
+    if (G.answered) return;
+    var v = $("gAns").value.trim();
+    if (!v) { $("gFeed").className = "gfeed bad"; $("gFeed").textContent = "Type a number first."; return; }
+    if (LEVELS[G.level].choice && G.choice == null) { $("gFeed").className = "gfeed bad"; $("gFeed").textContent = "Now pick one of the buttons as well."; return; }
+    var r = JUDGE(G.cur, Number(v.replace(/[^0-9.\-]/g, "")), G.choice, G.level);
+    G.answered = true; $("gAns").disabled = true;
+    if (r.pts > 0) { G.streak = r.full ? G.streak + 1 : 0; G.score += r.pts + (r.full ? Math.min(10, 2 * (G.streak - 1)) : 0); if (r.full) G.right++; }
+    else G.streak = 0;
+    $("gFeed").className = "gfeed " + (r.full ? "good" : "bad");
+    $("gFeed").innerHTML = r.msg;
+    if (!r.full) { $("gStage").classList.remove("shake"); void $("gStage").offsetWidth; $("gStage").classList.add("shake"); }
+    if (G.cur.reveal) $("gStage").innerHTML = G.cur.reveal;
+    $("gGo").hidden = true; $("gNext").hidden = false; $("gNext").focus({ preventScroll: true });
+    hud();
+  }
+  function after() {
+    G.q++;
+    if (G.q < 10) { next(); return; }
+    var st = state(); st.rounds = (st.rounds || 0) + 1;
+    var best = st.best[G.level], nb = best == null || G.score > best;
+    if (nb) st.best[G.level] = G.score;
+    LH.save(); LH.markNav();
+    var stars = G.right >= 9 ? 3 : G.right >= 7 ? 2 : G.right >= 4 ? 1 : 0;
+    $("gPlay").hidden = true; $("gStage").hidden = true; $("gOver").hidden = false;
+    $("gOver").innerHTML = '<div class="stars pop">' + "&#9733;".repeat(stars) + "&#9734;".repeat(3 - stars) + '</div><h3>' + G.score + ' points</h3>' +
+      '<p>' + G.right + ' out of 10 fully right.' + (nb && G.score > 0 ? ' <b>New best on ' + LEVELS[G.level].name + '!</b>' : (best != null ? ' Best on this level: ' + best + '.' : '')) + '</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="gAgain">Play again</button>' +
+      (G.level < LEVELS.length - 1 ? '<button class="btn ghost" id="gUp">Next level: ' + LEVELS[G.level + 1].name + '</button>' : '') + '</div>';
+    drawLevels();
+    $("gAgain").onclick = start;
+    if ($("gUp")) $("gUp").onclick = function () { G.level++; start(); };
+  }
+  $("gGo").addEventListener("click", check);
+  $("gNext").addEventListener("click", after);
+  $("game").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); if (!G.answered) check(); else after(); return; }
+    var n = parseInt(e.key, 10);
+    if (LEVELS[G.level].choice && n >= 1 && n <= CHOICES.length && !G.answered && e.target.id !== "gAns") { G.choice = n - 1; drawChoices(); }
+    if (LEVELS[G.level].choice && n >= 1 && n <= CHOICES.length && !G.answered && e.target.id === "gAns" && e.altKey) { G.choice = n - 1; drawChoices(); }
+  });
+  LH.gameRender = function () { drawLevels(); };
+  LH.gameCur = function () { return G.cur; };
+  LH.gameSummary = function () {
+    var st = state(); if (!st.rounds) return "";
+    return "<p>Rounds played: " + st.rounds + "</p><ul>" + LEVELS.map(function (L, i) { return "<li>" + L.name + ": best " + (st.best[i] != null ? st.best[i] : "not played") + "</li>"; }).join("") + "</ul>";
+  };
+  start();
+})();
+</script>
+</body>
+</html>
