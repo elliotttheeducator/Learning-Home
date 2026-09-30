@@ -6,7 +6,25 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "not_found_handling": "404-page"
+    // No not_found_handling: a path that is not a file must reach the Worker
+    // (class calendars, sign-in, API). The Worker serves 404.html itself.
+    // The teacher area is static files, but the Worker checks the sign-in first.
+    "run_worker_first": ["/teacher", "/teacher/*"]
   },
+  "vars": {
+    // Google accounts allowed into the teacher area. Comma separated.
+    "TEACHER_EMAILS": "elliotttheeducator@gmail.com"
+    // Secrets (set with `npx wrangler secret put NAME`, never committed):
+    //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET
+  },
+  "d1_databases": [
+    {
+      // Lesson plans edited in the teacher planner.
+      "binding": "DB",
+      "database_name": "learning-home",
+      "database_id": "e427ab4f-2ff5-48d3-a9ee-6531437aa99d",
+      "migrations_dir": "migrations"
+    }
+  ],
   "preview_urls": true
 }

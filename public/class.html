@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class Calendar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #17233D;
+    --ink-soft: #4A5775;
+    --page: #F4F7FC;
+    --panel: #FFFFFF;
+    --line: #D9E1EE;
+    --focus: #FFB400;
+    --live: #1FA971;
+    --c: #3474F5;
+    --font: "Lexend", "Segoe UI", Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 20px; line-height: 1.45; }
+  a { color: inherit; }
+  :focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+  .tint { background: color-mix(in srgb, var(--c) 10%, #fff); }
+
+  header { background: var(--c); color: #fff; }
+  .top { max-width: 1280px; margin: 0 auto; padding: 18px 24px 22px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 24px; }
+  .back { display: inline-block; font-size: 18px; font-weight: 500; text-decoration: none; opacity: .92; margin-bottom: 6px; }
+  .back:hover { text-decoration: underline; }
+  h1 { font-size: clamp(34px, 4.6vw, 56px); font-weight: 800; letter-spacing: -0.02em; line-height: 1; margin: 0; }
+  .code { font-size: 18px; opacity: .9; margin-top: 6px; }
+  .clock { margin-left: auto; text-align: right; }
+  .clock .t { font-size: clamp(34px, 4vw, 52px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .clock .d { font-size: 18px; opacity: .92; }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 24px 64px; }
+
+  /* The lesson in focus: on now, next up, or one the student clicked */
+  .hero { background: var(--panel); border-radius: 24px; padding: 28px 32px 30px; border-top: 12px solid var(--c);
+    box-shadow: 0 6px 24px rgba(23,35,61,.08); }
+  .status { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; padding: 6px 16px;
+    border-radius: 999px; background: color-mix(in srgb, var(--c) 14%, #fff); color: color-mix(in srgb, var(--c) 75%, #000); }
+  .status.live { background: #E3F7EE; color: #0E6B45; }
+  .status.live::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--live);
+    animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
+  .when { font-size: 22px; color: var(--ink-soft); margin: 14px 0 2px; }
+  .hero h2 { font-size: clamp(32px, 3.4vw, 46px); line-height: 1.12; margin: 6px 0 4px; letter-spacing: -0.01em; }
+  .unit { font-size: 20px; color: var(--ink-soft); font-weight: 500; }
+  .assess { display: inline-block; margin-left: 10px; font-size: 17px; font-weight: 700; color: #fff; background: #E0457B;
+    padding: 3px 12px; border-radius: 999px; vertical-align: middle; }
+  .cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; margin-top: 22px; }
+  .hero h3 { font-size: 20px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin: 0 0 10px; }
+  ul.obj { margin: 0; padding-left: 26px; display: grid; gap: 8px; font-size: 24px; }
+  .bring { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bring span { font-size: 19px; padding: 5px 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--page); }
+  .snote { font-size: 22px; background: #FFF6DB; border-radius: 14px; padding: 14px 18px; margin-top: 18px; }
+  .launch { display: grid; gap: 12px; }
+  .launch a { display: flex; align-items: center; gap: 14px; text-decoration: none; padding: 16px 20px; border-radius: 16px;
+    background: var(--c); color: #fff; font-size: 24px; font-weight: 700; line-height: 1.2;
+    box-shadow: 0 5px 0 color-mix(in srgb, var(--c) 70%, #000); transition: transform .12s ease, box-shadow .12s ease; }
+  .launch a:hover { transform: translateY(-2px); box-shadow: 0 7px 0 color-mix(in srgb, var(--c) 70%, #000); }
+  .launch .kind { flex: none; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    background: rgba(255,255,255,.22); padding: 4px 10px; border-radius: 999px; }
+  .launch .go { margin-left: auto; font-size: 26px; }
+  .muted { color: var(--ink-soft); font-size: 22px; margin: 0; }
+  .to-now { all: unset; cursor: pointer; float: right; font-size: 18px; font-weight: 700; color: var(--c);
+    border: 2px solid currentColor; border-radius: 999px; padding: 6px 16px; }
+  .to-now:hover { background: color-mix(in srgb, var(--c) 8%, #fff); }
+
+  /* Term calendar */
+  .cal-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin: 44px 0 14px; }
+  .cal-head h2 { font-size: 34px; margin: 0; }
+  .cal-head p { margin: 0; color: var(--ink-soft); font-size: 19px; }
+  .cal { display: grid; grid-template-columns: 130px repeat(5, 1fr); gap: 6px; }
+  .cal .dh { font-size: 18px; font-weight: 700; color: var(--ink-soft); text-align: center; padding: 4px 0; }
+  .cal .wk { display: flex; flex-direction: column; justify-content: center; padding: 8px 10px; border-radius: 12px;
+    background: var(--panel); font-size: 17px; color: var(--ink-soft); line-height: 1.25; }
+  .cal .wk b { font-size: 20px; color: var(--ink); }
+  .cal .wk.now { background: var(--c); color: #fff; } .cal .wk.now b { color: #fff; }
+  .cell { min-height: 92px; border-radius: 12px; background: rgba(255,255,255,.55); border: 2px dashed transparent; padding: 6px;
+    display: flex; flex-direction: column; gap: 6px; }
+  .cell .dn { font-size: 15px; color: var(--ink-soft); padding-left: 4px; }
+  .cell.today { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
+  .cell.today .dn { color: var(--c); font-weight: 700; }
+  .les { all: unset; cursor: pointer; display: block; border-radius: 10px; padding: 8px 10px; background: var(--panel);
+    border-left: 6px solid var(--c); box-shadow: 0 2px 6px rgba(23,35,61,.08); font-size: 18px; line-height: 1.25; }
+  .les:hover { box-shadow: 0 4px 12px rgba(23,35,61,.16); }
+  .les .tm { display: block; font-size: 15px; color: var(--ink-soft); }
+  .les .tp { display: block; font-weight: 500; overflow-wrap: anywhere; }
+  .les.past { opacity: .55; }
+  .les.live { background: #E3F7EE; border-left-color: var(--live); }
+  .les.sel { outline: 4px solid var(--c); outline-offset: 1px; }
+  .les .tag { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; color: #fff; background: #E0457B;
+    padding: 1px 8px; border-radius: 999px; }
+
+  .library { margin-top: 44px; }
+  .library h2 { font-size: 34px; margin: 0 0 14px; }
+  .res { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .res a { display: flex; align-items: center; gap: 16px; text-decoration: none; padding: 14px 18px; background: var(--panel);
+    border: 2px solid var(--line); border-radius: 14px; font-size: 22px; font-weight: 500; }
+  .res a:hover { border-color: var(--c); }
+  .res .kind { flex: none; font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; background: var(--c); }
+  .msg { font-size: 24px; text-align: center; color: var(--ink-soft); padding: 60px 0; }
+
+  @media (max-width: 1000px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .top { padding: 14px 16px 18px; } main { padding: 18px 16px 48px; }
+    .clock { margin-left: 0; text-align: left; }
+    .hero { padding: 20px 18px 22px; }
+    ul.obj { font-size: 21px; } .launch a { font-size: 21px; }
+    .to-now { float: none; display: inline-block; margin-bottom: 10px; }
+    .cal { grid-template-columns: 1fr; }
+    .cal .dh, .cell.none { display: none; }
+    .cal .wk { margin-top: 10px; }
+    .cell { min-height: 0; background: none; padding: 0; }
+    .cell .dn { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .status.live::before { animation: none; } .launch a { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <a class="back" href="/">&#8592; All classes</a>
+      <h1 id="title">Class calendar</h1>
+      <div class="code" id="code"></div>
+    </div>
+    <div class="clock" aria-live="off"><div class="t" id="clockT"></div><div class="d" id="clockD"></div></div>
+  </div>
+</header>
+<main id="main"><p class="msg">Loading your calendar...</p></main>
+
+<script>
+(function () {
+  var TYPE = { deck: "Slides", app: "Practice app", sim: "Simulation", booklet: "Booklet", link: "Link" };
+  var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  var DAY_FULL = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday" };
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  // The class id comes from the address: /y7-enrichment, or /class?c=y7-enrichment
+  var classId = location.pathname.split("/").filter(Boolean)[0] || "";
+  if (!classId || classId === "class" || classId === "class.html") classId = new URLSearchParams(location.search).get("c") || "";
+
+  var data = null, selected = null, loadedAt = 0;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // School runs on Adelaide time, whatever the computer is set to.
+  // ?now=2026-10-13T13:50 previews the page as if it were that moment.
+  function now() {
+    var fake = new URLSearchParams(location.search).get("now");
+    if (fake && /^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(fake)) return { date: fake.slice(0, 10), hm: fake.slice(11) };
+    var p = {};
+    new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Adelaide", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    return { date: p.year + "-" + p.month + "-" + p.day, hm: (p.hour === "24" ? "00" : p.hour) + ":" + p.minute };
+  }
+  function time12(hm) {
+    var h = +hm.slice(0, 2), m = hm.slice(3);
+    return (h % 12 || 12) + ":" + m + (h < 12 ? " am" : " pm");
+  }
+  function dateObj(iso) { return new Date(iso + "T12:00:00Z"); }
+  function longDate(iso) {
+    var d = dateObj(iso);
+    return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][d.getUTCDay()] + " " +
+      d.getUTCDate() + " " + MONTHS[d.getUTCMonth()];
+  }
+  function shortDate(iso) { var d = dateObj(iso); return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()].slice(0, 3); }
+  function addDays(iso, n) { var d = dateObj(iso); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function periodLabel(l) {
+    return l.periods.length > 1 ? "Periods " + l.periods.map(function (p) { return p.slice(1); }).join(" and ") : "Period " + l.slot.slice(1);
+  }
+  function key(l) { return l.date + "|" + l.slot; }
+
+  function tickClock() {
+    var n = now();
+    document.getElementById("clockT").textContent = time12(n.hm);
+    document.getElementById("clockD").textContent = longDate(n.date);
+  }
+
+  // Where each lesson sits relative to right now.
+  function state(l, n) {
+    if (l.date < n.date || (l.date === n.date && l.end <= n.hm)) return "past";
+    if (l.date === n.date && l.start <= n.hm) return "live";
+    return "future";
+  }
+
+  function focusLesson(n) {
+    var ls = data.lessons, i;
+    for (i = 0; i < ls.length; i++) if (state(ls[i], n) === "live") return { l: ls[i], why: "live" };
+    for (i = 0; i < ls.length; i++) if (state(ls[i], n) === "future") return { l: ls[i], why: "next" };
+    return null;
+  }
+
+  function heroHTML(n) {
+    var f, why;
+    if (selected) {
+      var s = data.lessons.filter(function (l) { return key(l) === selected; })[0];
+      if (s) { f = s; why = state(s, n) === "live" ? "live" : "picked"; }
+    }
+    if (!f) { var got = focusLesson(n); if (got) { f = got.l; why = got.why; } }
+    if (!f) return '<section class="hero"><span class="status">No more lessons this term</span>' +
+      '<p class="muted" style="margin-top:14px">Enjoy the break. The calendar fills in again when the next term is added.</p></section>';
+
+    var p = f.plan || {};
+    var label = why === "live" ? "On now, until " + time12(f.end)
+      : why === "picked" ? (state(f, n) === "past" ? "Past lesson" : "Coming up")
+      : f.date === n.date ? "Next lesson, today" : "Next lesson";
+    var topic = p.hidden ? "Lesson" : (p.topic || "Lesson");
+    var back = selected ? '<button class="to-now" id="toNow">Back to now</button>' : "";
+
+    var left = "";
+    if (p.hidden) left = '<p class="muted">Details for this lesson are not posted yet.</p>';
+    else {
+      if ((p.objectives || []).length) left += "<h3>We will</h3><ul class=obj>" + p.objectives.map(function (o) { return "<li>" + esc(o) + "</li>"; }).join("") + "</ul>";
+      else left += '<p class="muted">' + esc(data.teacher) + " will post the details for this lesson soon.</p>";
+      if ((p.bring || []).length) left += '<h3 style="margin-top:22px">Bring</h3><div class="bring">' + p.bring.map(function (b) { return "<span>" + esc(b) + "</span>"; }).join("") + "</div>";
+      if (p.studentNote) left += '<div class="snote">' + esc(p.studentNote) + "</div>";
+    }
+    var res = (p.resources || []);
+    var right = "<h3>Open</h3>" + (res.length ? '<div class="launch">' + res.map(function (r) {
+      var ext = /^https?:/i.test(r.url);
+      return '<a href="' + esc(r.url) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">" +
+        '<span class="kind">' + esc(TYPE[r.type] || "Open") + "</span><span>" + esc(r.title || "Resource") + '</span><span class="go" aria-hidden="true">&#8594;</span></a>';
+    }).join("") + "</div>" : '<p class="muted">Slides, apps and booklets for this lesson appear here when they are posted.</p>');
+
+    return '<section class="hero">' + back +
+      '<span class="status' + (why === "live" ? " live" : "") + '">' + esc(label) + "</span>" +
+      '<p class="when">' + esc(longDate(f.date)) + " &middot; " + esc(time12(f.start)) + " to " + esc(time12(f.end)) +
+      " &middot; " + esc(periodLabel(f)) + (f.room ? " &middot; Room " + esc(f.room) : "") + "</p>" +
+      "<h2>" + esc(topic) + (p.assess ? '<span class="assess">' + esc(p.assess) + "</span>" : "") + "</h2>" +
+      (p.unit && !p.hidden ? '<div class="unit">' + esc(p.unit) + " &middot; " + esc(f.term) + ", Week " + f.week + "</div>" : '<div class="unit">' + esc(f.term) + ", Week " + f.week + "</div>") +
+      '<div class="cols"><div>' + left + "</div><div>" + right + "</div></div></section>";
+  }
+
+  function calendarHTML(n) {
+    var html = "";
+    data.terms.forEach(function (term) {
+      var inTerm = data.lessons.filter(function (l) { return l.term === term.name && l.year === term.year; });
+      html += '<div class="cal-head"><h2>' + esc(term.name) + " " + term.year + '</h2><p>Click any lesson to see what it covers.</p></div>';
+      html += '<div class="cal" role="grid"><div></div>' + DAYS.map(function (d) { return '<div class="dh">' + DAY_FULL[d] + "</div>"; }).join("");
+      for (var w = 0; w < term.weeks; w++) {
+        var mon = addDays(term.start, w * 7), fri = addDays(mon, 4);
+        var isNow = n.date >= mon && n.date <= addDays(mon, 6);
+        html += '<div class="wk' + (isNow ? " now" : "") + '"' + (isNow ? ' id="thisWeek"' : "") + "><b>Week " + (w + 1) + "</b>" +
+          esc(shortDate(mon)) + " to " + esc(shortDate(fri)) + "</div>";
+        DAYS.forEach(function (d, di) {
+          var date = addDays(mon, di);
+          var here = inTerm.filter(function (l) { return l.date === date; });
+          html += '<div class="cell' + (date === n.date ? " today" : "") + (here.length ? "" : " none") + '"><span class="dn">' + dateObj(date).getUTCDate() + "</span>" +
+            here.map(function (l) {
+              var st = state(l, n), p = l.plan || {};
+              return '<button class="les ' + st + (selected === key(l) ? " sel" : "") + '" data-k="' + esc(key(l)) + '">' +
+                '<span class="tm">' + esc(DAY_FULL[l.day].slice(0, 3)) + " " + esc(shortDate(l.date)) + " &middot; " + esc(time12(l.start)) + (st === "live" ? " &middot; now" : "") + "</span>" +
+                '<span class="tp">' + esc(p.hidden ? "Lesson" : (p.topic || "Lesson")) + "</span>" +
+                (p.assess ? '<span class="tag">' + esc(p.assess) + "</span>" : "") + "</button>";
+            }).join("") + "</div>";
+        });
+      }
+      html += "</div>";
+    });
+    return html;
+  }
+
+  function libraryHTML() {
+    var res = (data.class.resources || []);
+    if (!res.length) return "";
+    return '<section class="library"><h2>Class library</h2><ul class="res">' + res.map(function (r) {
+      return '<li><a href="' + esc(r.path) + '"><span class="kind">' + esc(TYPE[r.type] || "Link") + "</span><span>" + esc(r.title) + "</span></a></li>";
+    }).join("") + "</ul></section>";
+  }
+
+  var lastDraw = "";
+  function render(force) {
+    var n = now();
+    tickClock();
+    var sig = n.date + n.hm + selected + loadedAt;
+    if (!force && sig === lastDraw) return;
+    lastDraw = sig;
+    var y = scrollY;
+    document.getElementById("main").innerHTML = heroHTML(n) + calendarHTML(n) + libraryHTML();
+    scrollTo(0, y);
+  }
+
+  document.getElementById("main").addEventListener("click", function (e) {
+    var b = e.target.closest(".les");
+    if (b) {
+      selected = b.dataset.k;
+      render(true);
+      document.querySelector(".hero").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      return;
+    }
+    if (e.target.closest("#toNow")) { selected = null; render(true); }
+  });
+
+  function load(first) {
+    return fetch("/api/calendar/" + encodeURIComponent(classId), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (j) {
+        data = j; loadedAt = Date.now();
+        document.title = j.class.name + " Calendar";
+        document.documentElement.style.setProperty("--c", j.class.colour);
+        document.getElementById("title").textContent = j.class.name;
+        document.getElementById("code").textContent = j.class.code + " \u00b7 " + j.teacher;
+        render(true);
+        if (first) { var w = document.getElementById("thisWeek"); if (w && innerWidth > 760) w.scrollIntoView({ block: "center" }); scrollTo(0, 0); }
+      })
+      .catch(function (err) {
+        if (data) return; // keep showing the last good copy
+        document.getElementById("main").innerHTML = String(err.message) === "404"
+          ? '<p class="msg">That class is not on Learning Home. <a href="/">Pick your class</a>.</p>'
+          : '<p class="msg">The calendar did not load. Refresh the page to try again.</p>';
+      });
+  }
+
+  // Stay current: the clock and "on now" update every 15 seconds, and new
+  // lesson details are fetched every 5 minutes and whenever the tab comes back.
+  tickClock();
+  load(true);
+  setInterval(function () { if (data) render(false); else tickClock(); }, 15000);
+  setInterval(function () { if (!document.hidden) load(false); }, 300000);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && Date.now() - loadedAt > 60000) load(false);
+  });
+  try { if (classId) localStorage.setItem("lh-class", classId); } catch (e) {}
+})();
+</script>
+</body>
+</html>
