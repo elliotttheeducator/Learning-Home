@@ -182,18 +182,18 @@ function clean(p) {
     assess: str(p.assess, 100),
     notes: str(p.notes, 20000),
     prep: (Array.isArray(p.prep) ? p.prep : []).slice(0, 40).map(x => ({ t: str(x && x.t, 300), d: !!(x && x.d) })),
-    draft: !!p.draft,
-    hidden: !!p.hidden,
+    published: !!p.published,
     updatedAt: p.updatedAt || "",
   };
 }
 
-// What a student may see. Teacher notes and prep never leave the server.
+// What a student may see. Nothing but the time shows until the teacher
+// publishes the lesson, and teacher notes and prep never leave the server.
 function forStudents(p) {
   const c = clean(p);
-  if (c.hidden) return { hidden: true };
+  if (!c.published) return { published: false };
   return {
-    unit: c.unit, topic: c.topic, objectives: c.objectives, bring: c.bring, studentNote: c.studentNote,
+    published: true, unit: c.unit, topic: c.topic, objectives: c.objectives, bring: c.bring, studentNote: c.studentNote,
     assess: c.assess,
     resources: c.resources.map(r => ({ ...r, url: safeUrl(r.url) })).filter(r => r.url),
   };

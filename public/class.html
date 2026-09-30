@@ -97,13 +97,6 @@
   .les .tag { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; color: #fff; background: #E0457B;
     padding: 1px 8px; border-radius: 999px; }
 
-  .library { margin-top: 44px; }
-  .library h2 { font-size: 34px; margin: 0 0 14px; }
-  .res { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-  .res a { display: flex; align-items: center; gap: 16px; text-decoration: none; padding: 14px 18px; background: var(--panel);
-    border: 2px solid var(--line); border-radius: 14px; font-size: 22px; font-weight: 500; }
-  .res a:hover { border-color: var(--c); }
-  .res .kind { flex: none; font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; background: var(--c); }
   .msg { font-size: 24px; text-align: center; color: var(--ink-soft); padding: 60px 0; }
 
   @media (max-width: 1000px) {
@@ -217,11 +210,11 @@
     var label = why === "live" ? "On now, until " + time12(f.end)
       : why === "picked" ? (state(f, n) === "past" ? "Past lesson" : "Coming up")
       : f.date === n.date ? "Next lesson, today" : "Next lesson";
-    var topic = p.hidden ? "Lesson" : (p.topic || "Lesson");
+    var topic = p.published ? (p.topic || "Lesson") : "Lesson";
     var back = selected ? '<button class="to-now" id="toNow">Back to now</button>' : "";
 
     var left = "";
-    if (p.hidden) left = '<p class="muted">Details for this lesson are not posted yet.</p>';
+    if (!p.published) left = '<p class="muted">' + esc(data.teacher) + ' will post the details for this lesson soon.</p>';
     else {
       if ((p.objectives || []).length) left += "<h3>We will</h3><ul class=obj>" + p.objectives.map(function (o) { return "<li>" + esc(o) + "</li>"; }).join("") + "</ul>";
       else left += '<p class="muted">' + esc(data.teacher) + " will post the details for this lesson soon.</p>";
@@ -240,7 +233,7 @@
       '<p class="when">' + esc(longDate(f.date)) + " &middot; " + esc(time12(f.start)) + " to " + esc(time12(f.end)) +
       " &middot; " + esc(periodLabel(f)) + (f.room ? " &middot; Room " + esc(f.room) : "") + "</p>" +
       "<h2>" + esc(topic) + (p.assess ? '<span class="assess">' + esc(p.assess) + "</span>" : "") + "</h2>" +
-      (p.unit && !p.hidden ? '<div class="unit">' + esc(p.unit) + " &middot; " + esc(f.term) + ", Week " + f.week + "</div>" : '<div class="unit">' + esc(f.term) + ", Week " + f.week + "</div>") +
+      (p.unit && p.published ? '<div class="unit">' + esc(p.unit) + " &middot; " + esc(f.term) + ", Week " + f.week + "</div>" : '<div class="unit">' + esc(f.term) + ", Week " + f.week + "</div>") +
       '<div class="cols"><div>' + left + "</div><div>" + right + "</div></div></section>";
   }
 
@@ -263,7 +256,7 @@
               var st = state(l, n), p = l.plan || {};
               return '<button class="les ' + st + (selected === key(l) ? " sel" : "") + '" data-k="' + esc(key(l)) + '">' +
                 '<span class="tm">' + esc(DAY_FULL[l.day].slice(0, 3)) + " " + esc(shortDate(l.date)) + " &middot; " + esc(time12(l.start)) + (st === "live" ? " &middot; now" : "") + "</span>" +
-                '<span class="tp">' + esc(p.hidden ? "Lesson" : (p.topic || "Lesson")) + "</span>" +
+                '<span class="tp">' + esc(p.published ? (p.topic || "Lesson") : "Lesson") + "</span>" +
                 (p.assess ? '<span class="tag">' + esc(p.assess) + "</span>" : "") + "</button>";
             }).join("") + "</div>";
         });
@@ -271,14 +264,6 @@
       html += "</div>";
     });
     return html;
-  }
-
-  function libraryHTML() {
-    var res = (data.class.resources || []);
-    if (!res.length) return "";
-    return '<section class="library"><h2>Class library</h2><ul class="res">' + res.map(function (r) {
-      return '<li><a href="' + esc(r.path) + '"><span class="kind">' + esc(TYPE[r.type] || "Link") + "</span><span>" + esc(r.title) + "</span></a></li>";
-    }).join("") + "</ul></section>";
   }
 
   var lastDraw = "";
@@ -289,7 +274,7 @@
     if (!force && sig === lastDraw) return;
     lastDraw = sig;
     var y = scrollY;
-    document.getElementById("main").innerHTML = heroHTML(n) + calendarHTML(n) + libraryHTML();
+    document.getElementById("main").innerHTML = heroHTML(n) + calendarHTML(n);
     scrollTo(0, y);
   }
 

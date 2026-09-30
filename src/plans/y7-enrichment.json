@@ -8,10 +8,22 @@
       "Measure and draw angles with a protractor",
       "Classify angles: acute, right, obtuse, straight, reflex, revolution"
     ],
-    "bring": ["Protractor", "Ruler", "Pencil"],
+    "bring": [
+      "Protractor",
+      "Ruler",
+      "Pencil"
+    ],
     "notes": "DRAFT. Opens Topic 9 (7A-7L). Rough shape, 80 minutes:\n0  teach 8   notation: point, line, ray, interval, angle ABC\n8  work 15   naming practice from diagrams\n23 teach 7   protractor technique, which scale to read\n30 work 20   measure then draw, partner checks\n50 teach 5   angle types including reflex\n55 work 15   Bronze/Silver/Gold classify and estimate\n70 close 5   estimate then measure one angle on the board",
-    "prep": [{ "t": "Class set of protractors in the room", "d": false }, { "t": "Build the deck", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Class set of protractors in the room",
+        "d": false
+      },
+      {
+        "t": "Build the deck",
+        "d": false
+      }
+    ]
   },
   "2026-10-15|P3": {
     "unit": "Topic 9: Geometry",
@@ -21,10 +33,12 @@
       "Use angles at a point add to 360 degrees",
       "Know that vertically opposite angles are equal"
     ],
-    "bring": ["Protractor", "Pencil"],
+    "bring": [
+      "Protractor",
+      "Pencil"
+    ],
     "notes": "DRAFT. Single period, keep it to three short teach and work blocks.\nEvery answer states its reason in words. Start that habit here, it carries the parallel lines work.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-10-16|P1": {
     "unit": "Topic 9: Geometry",
@@ -34,10 +48,17 @@
       "Use the F, Z and C shapes to spot each pair",
       "Decide whether two lines are parallel from the angles"
     ],
-    "bring": ["Protractor", "Ruler"],
+    "bring": [
+      "Protractor",
+      "Ruler"
+    ],
     "notes": "DRAFT. Rough shape, 80 minutes:\n0  show 10   drag-the-transversal exploration, predict before revealing\n10 teach 8   the three pairs and their rules\n18 work 20   find the angle, name the reason\n38 teach 5   co-interior add to 180, the common trap\n43 work 20   mixed set\n63 work 12   Bronze/Silver/Gold: are these lines parallel?\n75 close 5   one diagram, hands up for each reason\nWorth building an interactive for the exploration.",
-    "prep": [{ "t": "Build the parallel lines interactive", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Build the parallel lines interactive",
+        "d": false
+      }
+    ]
   },
   "2026-10-20|P6": {
     "unit": "Topic 9: Geometry",
@@ -47,10 +68,12 @@
       "Give a reason for every step",
       "Add an extra parallel line when a diagram needs one"
     ],
-    "bring": ["Pencil", "Ruler"],
+    "bring": [
+      "Pencil",
+      "Ruler"
+    ],
     "notes": "DRAFT. Multi-step reasoning is the whole lesson. Set-out: angle, value, reason, one line each.\nEnd with a Bronze/Silver/Gold set where Gold needs a construction line.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-10-22|P3": {
     "unit": "Topic 9: Geometry",
@@ -59,10 +82,16 @@
       "Solve angle problems quickly and give the reason every time",
       "Check your own answers and fix your mistakes"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Single period consolidation, run it as a game: teams, rounds, points only count with a correct reason.\nGood slot for a practice app if one gets built.",
-    "prep": [{ "t": "Angle chase practice app (optional)", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Angle chase practice app (optional)",
+        "d": false
+      }
+    ]
   },
   "2026-10-23|P1": {
     "unit": "Topic 9: Geometry",
@@ -72,10 +101,17 @@
       "Name polygons by their number of sides",
       "Tell regular from irregular, and convex from non-convex"
     ],
-    "bring": ["Ruler", "Pencil"],
+    "bring": [
+      "Ruler",
+      "Pencil"
+    ],
     "notes": "DRAFT. Card sort to open: shapes on cards, groups invent their own categories, then compare with the real names.",
-    "prep": [{ "t": "Print shape cards, one set per group", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Print shape cards, one set per group",
+        "d": false
+      }
+    ]
   },
   "2026-10-27|P6": {
     "unit": "Topic 9: Geometry",
@@ -85,10 +121,19 @@
       "Construct a triangle from two sides and an angle",
       "Construct a regular hexagon inside a circle"
     ],
-    "bring": ["Compass", "Protractor", "Ruler", "Sharp pencil"],
+    "bring": [
+      "Compass",
+      "Protractor",
+      "Ruler",
+      "Sharp pencil"
+    ],
     "notes": "DRAFT. Hands-on double. Demo each construction under the visualiser, then they copy it.\nCheck compasses before the lesson, half of them will be missing.",
-    "prep": [{ "t": "Spare compasses", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Spare compasses",
+        "d": false
+      }
+    ]
   },
   "2026-10-29|P3": {
     "unit": "Topic 9: Geometry",
@@ -98,10 +143,12 @@
       "Find a missing angle in a triangle",
       "Use the exterior angle of a triangle"
     ],
-    "bring": ["Scissors", "Pencil"],
+    "bring": [
+      "Scissors",
+      "Pencil"
+    ],
     "notes": "DRAFT. Single. Tear the three corners off a paper triangle and line them up on a straight line. Then prove it with parallel lines for Gold.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-10-30|P1": {
     "unit": "Topic 9: Geometry",
@@ -111,11 +158,18 @@
       "Describe the properties of each special quadrilateral: sides, angles, diagonals",
       "Get ready for the quadrilateral investigation"
     ],
-    "bring": ["Ruler", "Protractor"],
+    "bring": [
+      "Ruler",
+      "Protractor"
+    ],
     "notes": "DRAFT. Second half launches the investigation so they arrive Tuesday knowing the task.\nProperties table: parallelogram, rectangle, rhombus, square, trapezium, kite.",
-    "prep": [{ "t": "Investigation task sheet and rubric", "d": false }],
-    "assess": "Investigation launch",
-    "draft": true
+    "prep": [
+      {
+        "t": "Investigation task sheet and rubric",
+        "d": false
+      }
+    ],
+    "assess": "Investigation launch"
   },
   "2026-11-03|P6": {
     "unit": "Topic 9: Geometry",
@@ -124,11 +178,18 @@
       "Design a flowchart of yes or no questions that sorts any quadrilateral",
       "Use the properties of sides, angles and diagonals in your questions"
     ],
-    "bring": ["Pencil", "Ruler"],
+    "bring": [
+      "Pencil",
+      "Ruler"
+    ],
     "notes": "DRAFT. In-class investigation, the Topic 9 assessment.\nStructure: 10 min model with a simpler algorithm (sorting triangles), then build time with check-ins.\nChallenge shapes ready for testing: a square that looks like a rhombus, a kite that looks like a rhombus.",
-    "prep": [{ "t": "Book laptops if the flowcharts are digital", "d": false }],
-    "assess": "Investigation",
-    "draft": true
+    "prep": [
+      {
+        "t": "Book laptops if the flowcharts are digital",
+        "d": false
+      }
+    ],
+    "assess": "Investigation"
   },
   "2026-11-05|P3": {
     "unit": "Topic 9: Geometry",
@@ -138,11 +199,12 @@
       "Fix the questions that sorted a shape wrongly",
       "Hand in your final algorithm"
     ],
-    "bring": ["Your investigation"],
+    "bring": [
+      "Your investigation"
+    ],
     "notes": "DRAFT. Swap algorithms, test on challenge shapes, fix, submit by the end.",
     "prep": [],
-    "assess": "Investigation due",
-    "draft": true
+    "assess": "Investigation due"
   },
   "2026-11-06|P1": {
     "unit": "Topic 9: Geometry",
@@ -152,10 +214,17 @@
       "Find the order of rotational symmetry",
       "Complete a shape so it has a given symmetry"
     ],
-    "bring": ["Ruler", "Tracing paper if you have it"],
+    "bring": [
+      "Ruler",
+      "Tracing paper if you have it"
+    ],
     "notes": "DRAFT. Tracing paper makes rotational symmetry obvious. Flags and logos as the hook.",
-    "prep": [{ "t": "Tracing paper", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Tracing paper",
+        "d": false
+      }
+    ]
   },
   "2026-11-10|P6": {
     "unit": "Topic 9: Geometry",
@@ -165,10 +234,12 @@
       "Describe a transformation precisely",
       "Combine two transformations"
     ],
-    "bring": ["Grid paper", "Pencil"],
+    "bring": [
+      "Grid paper",
+      "Pencil"
+    ],
     "notes": "DRAFT. Desmos or a built interactive for the second half, by hand first.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-11-12|P3": {
     "unit": "Topic 9: Geometry",
@@ -177,10 +248,21 @@
       "Draw a prism on isometric dot paper",
       "Draw the front, side and top views of a solid"
     ],
-    "bring": ["Pencil", "Ruler"],
+    "bring": [
+      "Pencil",
+      "Ruler"
+    ],
     "notes": "DRAFT. Single. Linking cubes on each desk, draw what you built.",
-    "prep": [{ "t": "Isometric dot paper", "d": false }, { "t": "Linking cubes", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Isometric dot paper",
+        "d": false
+      },
+      {
+        "t": "Linking cubes",
+        "d": false
+      }
+    ]
   },
   "2026-11-13|P1": {
     "unit": "Topic 9: Geometry",
@@ -190,10 +272,18 @@
       "Draw a net and fold it into a solid",
       "Check what you know across the whole geometry topic"
     ],
-    "bring": ["Scissors", "Glue", "Ruler"],
+    "bring": [
+      "Scissors",
+      "Glue",
+      "Ruler"
+    ],
     "notes": "DRAFT. First hour builds nets. Last 20 minutes: a geometry wrap-up quiz, game style, no test for this topic (the investigation is the assessment).",
-    "prep": [{ "t": "Card for nets", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Card for nets",
+        "d": false
+      }
+    ]
   },
   "2026-11-17|P6": {
     "unit": "Topic 10: Number and Probability",
@@ -203,10 +293,11 @@
       "Place events on a probability scale from 0 to 1",
       "List the sample space of an experiment"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Opens Topic 10 (8G-8I, 5G-5I). Human probability line to start: students stand where an event belongs on the 0 to 1 line.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-11-19|P3": {
     "unit": "Topic 10: Number and Probability",
@@ -215,10 +306,11 @@
       "Find a probability as the number of favourable outcomes over the total number of outcomes",
       "Write a probability as a fraction, a decimal and a percentage"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Single. Dice, spinners, a bag of counters on the board. Fraction written stacked every time.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-11-20|P1": {
     "unit": "Topic 10: Number and Probability",
@@ -228,10 +320,20 @@
       "Find the relative frequency of an outcome",
       "Compare experimental results with the theory, and explain why more trials help"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Dice and coins for 30 minutes, then a simulation of thousands of trials to show results settle towards the theory.\nA simulation here would be worth building.",
-    "prep": [{ "t": "Dice, coins, spinners", "d": false }, { "t": "Probability simulation", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Dice, coins, spinners",
+        "d": false
+      },
+      {
+        "t": "Probability simulation",
+        "d": false
+      }
+    ]
   },
   "2026-11-24|P6": {
     "unit": "Topic 10: Number and Probability",
@@ -240,10 +342,11 @@
       "Convert between fractions, decimals and percentages",
       "Order a mix of fractions, decimals and percentages"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Dominoes or a matching game for the practice half. Calculator-free.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-11-26|P3": {
     "unit": "Topic 10: Number and Probability",
@@ -252,10 +355,11 @@
       "Write a part of a whole as a fraction, a decimal and a percentage",
       "Compare two proportions to decide which is bigger"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. Single. Real data: class survey results, sport stats.",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-11-27|P1": {
     "unit": "Topic 10: Number and Probability",
@@ -264,10 +368,12 @@
       "Find a percentage of an amount",
       "Use percentages to predict results in a probability experiment"
     ],
-    "bring": ["Pencil", "Calculator"],
+    "bring": [
+      "Pencil",
+      "Calculator"
+    ],
     "notes": "DRAFT. Ties the number work back to probability: if P(six) is about 17 per cent, how many sixes in 300 rolls?",
-    "prep": [],
-    "draft": true
+    "prep": []
   },
   "2026-12-01|P6": {
     "unit": "Topic 10: Number and Probability",
@@ -276,10 +382,17 @@
       "Find out what you can and cannot do yet",
       "Fix the gaps before Thursday"
     ],
-    "bring": ["Pencil", "Calculator"],
+    "bring": [
+      "Pencil",
+      "Calculator"
+    ],
     "notes": "DRAFT. Short diagnostic first, then stations by weakness, Bronze/Silver/Gold at each.",
-    "prep": [{ "t": "Diagnostic and key", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Diagnostic and key",
+        "d": false
+      }
+    ]
   },
   "2026-12-03|P3": {
     "unit": "Topic 10: Number and Probability",
@@ -287,11 +400,23 @@
     "objectives": [
       "Show what you know about probability, fractions, decimals and percentages"
     ],
-    "bring": ["Pencil", "Calculator", "Eraser"],
+    "bring": [
+      "Pencil",
+      "Calculator",
+      "Eraser"
+    ],
     "notes": "DRAFT. Single period, test length about 35 minutes.",
-    "prep": [{ "t": "Write the test and marking key", "d": false }, { "t": "Print the test, one per student", "d": false }],
-    "assess": "Test",
-    "draft": true
+    "prep": [
+      {
+        "t": "Write the test and marking key",
+        "d": false
+      },
+      {
+        "t": "Print the test, one per student",
+        "d": false
+      }
+    ],
+    "assess": "Test"
   },
   "2026-12-04|P1": {
     "unit": "Topic 10: Number and Probability",
@@ -300,9 +425,15 @@
       "Play carnival games and decide if each one is fair",
       "Design your own game and work out the chance of winning"
     ],
-    "bring": ["Pencil"],
+    "bring": [
+      "Pencil"
+    ],
     "notes": "DRAFT. End of the teaching weeks. Fun but still maths: every game gets a probability worked out before it is played.",
-    "prep": [{ "t": "Carnival game materials", "d": false }],
-    "draft": true
+    "prep": [
+      {
+        "t": "Carnival game materials",
+        "d": false
+      }
+    ]
   }
 }
