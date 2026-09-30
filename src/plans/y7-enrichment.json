@@ -20,8 +20,22 @@
         "d": false
       },
       {
-        "t": "Build the deck",
+        "t": "Print Geometry Booklet 1, one per student (15 pages, 7A and 7B)",
         "d": false
+      }
+    ],
+    "resources": [
+      {
+        "title": "Geometry Booklet 1: Angles and shapes (student copy, 15 pages)",
+        "url": "/teacher/booklets/y7-enrichment/geometry-booklet-1",
+        "type": "booklet",
+        "for": "print"
+      },
+      {
+        "title": "Geometry Booklet 1: teacher copy (answers in red)",
+        "url": "/teacher/booklets/y7-enrichment/geometry-booklet-1-teacher",
+        "type": "key",
+        "for": "teacher"
       }
     ]
   },
@@ -34,11 +48,20 @@
       "Know that vertically opposite angles are equal"
     ],
     "bring": [
+      "Your geometry booklet",
       "Protractor",
       "Pencil"
     ],
     "notes": "DRAFT. Single period, keep it to three short teach and work blocks.\nEvery answer states its reason in words. Start that habit here, it carries the parallel lines work.",
-    "prep": []
+    "prep": [],
+    "resources": [
+      {
+        "title": "Geometry Booklet 1: teacher copy (answers in red)",
+        "url": "/teacher/booklets/y7-enrichment/geometry-booklet-1-teacher",
+        "type": "key",
+        "for": "teacher"
+      }
+    ]
   },
   "2026-10-16|P1": {
     "unit": "Topic 9: Geometry",
