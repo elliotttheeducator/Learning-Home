@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Learning Home</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #17233D;
+    --ink-soft: #4A5775;
+    --page: #F4F7FC;
+    --panel: #FFFFFF;
+    --line: #D9E1EE;
+    --focus: #FFB400;
+    --font: "Lexend", "Segoe UI", Arial, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 20px; line-height: 1.5; }
+  a { color: inherit; }
+  :focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 64px; }
+  h1 { font-size: clamp(44px, 7vw, 84px); font-weight: 800; letter-spacing: -0.02em; line-height: 1; margin: 0 0 12px; }
+  .lede { font-size: 24px; color: var(--ink-soft); margin: 0 0 40px; }
+
+  /* Class picker: each class is a coloured block led by its year number */
+  .classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+  .cls {
+    all: unset; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 200px; padding: 20px 22px; border-radius: 20px; color: #fff; background: var(--c);
+    box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 70%, #000);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cls:hover { transform: translateY(-3px); box-shadow: 0 9px 0 color-mix(in srgb, var(--c) 70%, #000); }
+  .cls:focus-visible { outline: 4px solid var(--focus); outline-offset: 4px; }
+  .cls[aria-pressed="true"] { transform: translateY(4px); box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 70%, #000); }
+  .cls .yr { font-size: 96px; font-weight: 800; line-height: .9; letter-spacing: -0.04em; }
+  .cls .nm { font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .cls .ct { font-size: 17px; opacity: .9; }
+
+  /* Selected class */
+  .room { margin-top: 44px; background: var(--panel); border-radius: 24px; padding: 32px; border-top: 12px solid var(--c, var(--line)); }
+  .room h2 { font-size: 40px; margin: 0 0 4px; }
+  .room .code { color: var(--ink-soft); margin: 0 0 24px; }
+  .unit { font-size: 22px; font-weight: 700; margin: 28px 0 10px; }
+  .res { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .res a {
+    display: flex; align-items: center; gap: 16px; text-decoration: none; padding: 14px 18px;
+    border: 2px solid var(--line); border-radius: 14px; font-size: 22px; font-weight: 500;
+  }
+  .res a:hover { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
+  .tag { flex: none; font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; background: var(--c); }
+  .date { margin-left: auto; font-size: 16px; color: var(--ink-soft); font-weight: 400; }
+  .empty { font-size: 22px; color: var(--ink-soft); padding: 24px 0 8px; }
+  .hint { font-size: 22px; color: var(--ink-soft); text-align: center; margin-top: 44px; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 28px 16px 48px; }
+    .cls { min-height: 150px; } .cls .yr { font-size: 72px; }
+    .room { padding: 22px 18px; } .room h2 { font-size: 30px; }
+    .res a { font-size: 19px; flex-wrap: wrap; } .date { margin-left: 0; width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cls { transition: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Learning Home</h1>
+  <p class="lede">Pick your class to find this term's slides, apps and booklets.</p>
+  <div class="classes" id="classes" role="group" aria-label="Classes"></div>
+  <section id="room" aria-live="polite"><p class="hint">Choose a class above.</p></section>
+</main>
+
+<script>
+const TYPE_LABEL = { deck: "Slides", app: "Practice app", sim: "Simulation", booklet: "Booklet", link: "Link" };
+let data = { classes: [] };
+
+function yearOf(name) { const m = name.match(/Year\s*(\d+)/i); return m ? m[1] : ""; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function niceDate(d) {
+  const t = new Date(d + "T00:00:00");
+  return isNaN(t) ? "" : t.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+}
+
+function renderClasses(active) {
+  document.getElementById("classes").innerHTML = data.classes.map(c => {
+    const n = c.resources.length;
+    return `<button class="cls" style="--c:${esc(c.colour)}" data-id="${esc(c.id)}" aria-pressed="${c.id === active}">
+      <span class="yr">${esc(yearOf(c.name))}</span>
+      <span><span class="nm">${esc(c.name.replace(/^Year\s*\d+\s*/i, ""))}</span><br>
+      <span class="ct">${n === 1 ? "1 resource" : n + " resources"}</span></span>
+    </button>`;
+  }).join("");
+}
+
+function renderRoom(id) {
+  const room = document.getElementById("room");
+  const c = data.classes.find(x => x.id === id);
+  if (!c) { room.innerHTML = '<p class="hint">Choose a class above.</p>'; return; }
+
+  const byUnit = {};
+  [...c.resources].sort((a, b) => (b.added || "").localeCompare(a.added || ""))
+    .forEach(r => (byUnit[r.unit || "Other"] ||= []).push(r));
+
+  const body = c.resources.length === 0
+    ? '<p class="empty">Nothing posted yet. Check back after your next lesson.</p>'
+    : Object.entries(byUnit).map(([unit, list]) => `
+        <h3 class="unit">${esc(unit)}</h3>
+        <ul class="res">${list.map(r => `
+          <li><a href="${esc(r.path)}">
+            <span class="tag">${esc(TYPE_LABEL[r.type] || "Link")}</span>
+            <span>${esc(r.title)}</span>
+            <span class="date">${esc(niceDate(r.added))}</span>
+          </a></li>`).join("")}
+        </ul>`).join("");
+
+  room.innerHTML = `<div class="room" style="--c:${esc(c.colour)}">
+    <h2>${esc(c.name)}</h2><p class="code">${esc(c.code)}</p>${body}</div>`;
+}
+
+function show(id) { renderClasses(id); renderRoom(id); }
+
+document.getElementById("classes").addEventListener("click", e => {
+  const b = e.target.closest(".cls"); if (!b) return;
+  history.replaceState(null, "", "#" + b.dataset.id);
+  show(b.dataset.id);
+  document.getElementById("room").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+fetch("/catalog.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(j => { data = j; show(location.hash.slice(1)); })
+  .catch(() => { document.getElementById("room").innerHTML = '<p class="hint">The class list did not load. Refresh the page to try again.</p>'; });
+</script>
+</body>
+</html>

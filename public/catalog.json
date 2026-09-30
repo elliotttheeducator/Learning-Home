@@ -1,0 +1,9 @@
+{
+  "classes": [
+    { "id": "y7-science",    "name": "Year 7 Science",          "code": "07EH_Science", "colour": "#1FA971", "resources": [] },
+    { "id": "y7-enrichment", "name": "Year 7 Enrichment Maths", "code": "07EnrMaths3",  "colour": "#F29B1D", "resources": [] },
+    { "id": "y9-maths",      "name": "Year 9 Maths",            "code": "09MATC202",    "colour": "#3474F5", "resources": [] },
+    { "id": "y10-science",   "name": "Year 10 Science",         "code": "10Science2B",  "colour": "#E0457B", "resources": [] },
+    { "id": "y10-ess-maths", "name": "Year 10 Essential Maths", "code": "10EssMt2A",    "colour": "#7B55E0", "resources": [] }
+  ]
+}
