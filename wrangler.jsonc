@@ -26,5 +26,19 @@
       "migrations_dir": "migrations"
     }
   ],
-  "preview_urls": true
+  "preview_urls": true,
+  // Settings for branch previews. Previews do not inherit vars or bindings,
+  // and they use their own database so testing never touches real lessons.
+  "previews": {
+    "vars": {
+      "TEACHER_EMAILS": "elliotttheeducator@gmail.com"
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "learning-home-preview",
+        "database_id": "0d96368a-7ea6-4ef1-8598-128efda17fe2"
+      }
+    ]
+  }
 }
