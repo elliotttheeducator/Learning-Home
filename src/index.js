@@ -125,9 +125,6 @@ async function db(env) {
       "CREATE TABLE IF NOT EXISTS lessons (class_id TEXT NOT NULL, date TEXT NOT NULL, slot TEXT NOT NULL, " +
       "data TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (class_id, date, slot))"
     ).run();
-    await env.DB.prepare(
-      "CREATE TABLE IF NOT EXISTS login_attempts (ip TEXT PRIMARY KEY, fails INTEGER NOT NULL, since INTEGER NOT NULL)"
-    ).run();
     tableReady = true;
   }
   return env.DB;
@@ -230,11 +227,8 @@ async function saveLesson(request, env) {
 }
 
 // ---------- Password sign-in ----------
-// One teacher password, kept as the TEACHER_PASSWORD secret. Five wrong tries
-// from one address locks that address out for 15 minutes.
-
-const MAX_TRIES = 5;
-const LOCK_MINUTES = 15;
+// One teacher password, kept as the TEACHER_PASSWORD secret. There is no
+// lockout, so students on the shared school connection cannot lock the teacher out.
 
 function signinReady(env) {
   return !!(env.TEACHER_PASSWORD && env.SESSION_SECRET);
@@ -259,33 +253,12 @@ async function login(request, env, url) {
 
   const form = await request.formData();
   const next = safeNext(form.get("next"));
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const d = await db(env);
-
-  let fails = 0;
-  if (d) {
-    const row = await d.prepare("SELECT fails, since FROM login_attempts WHERE ip = ?").bind(ip).first();
-    if (row && Date.now() - row.since < LOCK_MINUTES * 60000) fails = row.fails;
-  }
-  if (fails >= MAX_TRIES) {
-    return loginPage(next, `Too many wrong tries. Wait ${LOCK_MINUTES} minutes, then try again.`, 429);
-  }
-
   if (!(await samePassword(String(form.get("password") || ""), env.TEACHER_PASSWORD))) {
-    fails += 1;
-    if (d) {
-      await d.prepare(
-        "INSERT INTO login_attempts (ip, fails, since) VALUES (?, ?, ?) " +
-        "ON CONFLICT (ip) DO UPDATE SET fails = excluded.fails, since = CASE WHEN excluded.fails = 1 THEN excluded.since ELSE since END"
-      ).bind(ip, fails, Date.now()).run();
-    }
-    const left = MAX_TRIES - fails;
-    return loginPage(next, left > 0
-      ? `That password is not right. ${left === 1 ? "1 try" : left + " tries"} left.`
-      : `Too many wrong tries. Wait ${LOCK_MINUTES} minutes, then try again.`, 401);
+    // A short pause slows scripted guessing without ever locking anyone out.
+    await new Promise(r => setTimeout(r, 1000));
+    return loginPage(next, "That password is not right.", 401);
   }
 
-  if (d) await d.prepare("DELETE FROM login_attempts WHERE ip = ?").bind(ip).run();
   const exp = Date.now() + SESSION_DAYS * 86400000;
   const value = b64url(new TextEncoder().encode(JSON.stringify({ t: 1, x: exp })));
   const token = value + "." + (await sign(value, sessionKey(env)));

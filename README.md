@@ -34,6 +34,7 @@ The teacher area uses one password until Microsoft sign-in is set up. It needs t
 - `TEACHER_PASSWORD`: the password you type at `/teacher/`. Changing it signs every device out.
 - `SESSION_SECRET`: a long random string the site uses to sign its sign-in cookie. You never type it.
 
-Five wrong passwords from one address locks that address out for 15 minutes. A sign-in lasts 30 days.
+There is no lockout after wrong passwords (students share the school's connection and could lock
+the teacher out on purpose), so use a long password: four or more random words. A sign-in lasts 30 days.
 Branch previews do not share these secrets. To sign in on a preview, add the same two secrets to
 Previews (`npx wrangler preview secret`, or the Previews settings in the dashboard).
