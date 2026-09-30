@@ -411,6 +411,9 @@ math{font-family:"Cambria Math","STIX Two Math","Latin Modern Math","Cambria",se
 /* ---- De-extinction deck additions ---- */
 /* keep the 1600x900 stage centred at any window size: a grid item wider than its area is not centred by every browser */
 #stage{position:absolute;left:50%;top:50%;margin:-450px 0 0 -800px}
+/* never let a wide top bar stretch the layout past the window: the bar scrolls instead, like the bottom bar */
+#app{grid-template-columns:minmax(0,1fr)}
+#topbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
 .photo{display:block;max-width:100%;border-radius:18px;object-fit:cover;box-shadow:0 10px 30px rgba(16,28,58,.2)}
 .photo.flat{box-shadow:none;border-radius:12px;object-fit:contain;max-height:100%}
 .openpage{display:flex;flex-direction:column;gap:4px;background:#FFF4D6;border:3px solid #F29B1D;border-radius:16px;padding:14px 20px;font-size:26px;color:var(--ink-2)}
