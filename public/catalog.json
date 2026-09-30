@@ -19,7 +19,10 @@
         { "day": "Wed", "periods": ["P1", "P2"], "room": "27" },
         { "day": "Fri", "periods": ["P6", "P7"], "room": "Lab 34" }
       ],
-      "resources": [] },
+      "resources": [
+        { "title": "Should we bring them back? (lesson page)", "type": "app", "unit": "Classification", "path": "/y7-science/de-extinction", "added": "2026-09-30" },
+        { "title": "Should we bring them back? (teacher deck)", "type": "deck", "unit": "Classification", "path": "/teacher/decks/y7-science/de-extinction", "added": "2026-09-30" }
+      ] },
     { "id": "y7-enrichment", "name": "Year 7 Enrichment Maths", "code": "07EnrMaths3",  "colour": "#F29B1D",
       "timetable": [
         { "day": "Tue", "periods": ["P6", "P7"], "room": "27" },
