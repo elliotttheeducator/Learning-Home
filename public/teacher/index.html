@@ -8,14 +8,15 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗓️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   :root {
     --ground:#EEF3FA; --surface:#FFFFFF; --surface-2:#F6F9FD; --sunken:#E3EAF4;
     --ink:#17233D; --ink-2:#43506B; --muted:#6B7890;
     --line:#D9E1EE; --line-2:#C2CDDE;
     --accent:#3474F5; --accent-soft:#E8F0FF; --accent-line:#B9CFFB;
-    --warn:#C2410C; --ok:#0E7A4B;
+    --teach:#3474F5; --stu:#1FA971; --print:#E07A12;
+    --warn:#C2410C; --ok:#0E7A4B; --live:#16A34A;
     --shadow:0 1px 2px rgba(23,35,61,.06), 0 10px 28px rgba(23,35,61,.08);
     --shadow-lg:0 2px 8px rgba(23,35,61,.10), 0 30px 70px rgba(23,35,61,.20);
     --mono:"IBM Plex Mono", ui-monospace, monospace;
@@ -27,79 +28,135 @@
   button { font:inherit; color:inherit; }
   a { color:var(--accent); }
   :focus-visible { outline:3px solid #FFB400; outline-offset:2px; border-radius:4px; }
-  .eyebrow { font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); }
+  .eyebrow { font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); }
+  svg.i { width:16px; height:16px; flex:none; }
 
+  /* ---------- header ---------- */
   header.top { position:sticky; top:0; z-index:30; background:var(--surface); border-bottom:1px solid var(--line); }
-  .top-in { max-width:1500px; margin:0 auto; padding:14px 20px 12px; display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
-  .brand h1 { font-size:26px; line-height:1.05; }
-  .brand .sub { font-size:12.5px; color:var(--muted); margin-top:3px; }
+  .top-in { max-width:1500px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .brand h1 { font-size:24px; line-height:1.05; }
+  .brand .sub { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .clock { font-family:var(--mono); font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; padding:0 6px; }
   .bar { display:flex; align-items:center; gap:8px; margin-left:auto; flex-wrap:wrap; }
   .wk-nav { display:flex; align-items:center; gap:2px; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:2px; }
   .wk-nav button { background:none; border:0; cursor:pointer; padding:5px 10px; border-radius:7px; color:var(--ink-2); font-size:15px; line-height:1; }
   .wk-nav button:hover { background:var(--sunken); color:var(--ink); }
   .wk-label { padding:0 8px; font-family:var(--mono); font-size:12.5px; font-weight:500; white-space:nowrap; }
   .btn { border:1px solid var(--line-2); background:var(--surface); border-radius:9px; padding:7px 13px; font-size:13.5px;
-    font-weight:500; cursor:pointer; text-decoration:none; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+    font-weight:600; cursor:pointer; text-decoration:none; color:var(--ink); display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
   .btn:hover { background:var(--surface-2); }
-  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
   .btn.quiet { border-color:transparent; color:var(--muted); }
-  .savestate { font-size:12px; color:var(--muted); min-width:90px; }
+  .btn.small { padding:4px 10px; font-size:12.5px; }
+  .savestate { font-size:12px; color:var(--muted); min-width:80px; }
   .savestate.saving { color:var(--accent); } .savestate.failed { color:var(--warn); font-weight:600; }
 
   main { max-width:1500px; margin:0 auto; padding:18px 20px 60px; }
+
+  /* ---------- launch buttons (shared) ---------- */
+  .go { display:inline-flex; align-items:center; gap:8px; text-decoration:none; font-weight:700; border-radius:12px; padding:10px 16px; font-size:15px;
+    border:2px solid var(--gc); color:var(--gc); background:#fff; cursor:pointer; white-space:nowrap; max-width:100%; }
+  .go span { overflow:hidden; text-overflow:ellipsis; }
+  .go:hover { background:color-mix(in srgb, var(--gc) 8%, #fff); }
+  .go.teach { --gc:var(--teach); } .go.stu { --gc:var(--stu); } .go.print { --gc:var(--print); }
+  .go.big { background:var(--gc); color:#fff; font-size:18px; padding:14px 22px; box-shadow:0 4px 0 color-mix(in srgb, var(--gc) 60%, #000); }
+  .go.big:hover { filter:brightness(1.06); background:var(--gc); }
+  .go .k { font-family:var(--mono); font-size:11px; font-weight:600; background:rgba(255,255,255,.22); border-radius:6px; padding:1px 6px; }
+  .copy { border:0; background:none; color:var(--muted); font-size:12.5px; font-weight:600; cursor:pointer; text-decoration:underline; padding:2px 4px; }
+  .copy:hover { color:var(--ink); }
+
+  /* ---------- launchpad ---------- */
+  .pad { display:grid; grid-template-columns:minmax(0, 1.55fr) minmax(0, 1fr); gap:16px; margin-bottom:20px; }
+  .hero { background:var(--surface); border-radius:18px; box-shadow:var(--shadow); padding:20px 24px 22px; border-top:8px solid var(--c, var(--line-2));
+    display:flex; flex-direction:column; gap:12px; min-width:0; }
+  .hero .state { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:.1em;
+    text-transform:uppercase; color:color-mix(in srgb, var(--c) 70%, #000); }
+  .hero .state.live { color:var(--live); }
+  .hero .state.live::before { content:""; width:10px; height:10px; border-radius:50%; background:var(--live); animation:pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity:.3; } }
+  .hero h2 { font-size:30px; line-height:1.08; }
+  .hero .cls { font-weight:700; color:color-mix(in srgb, var(--c) 72%, #000); font-size:16px; }
+  .hero .meta { color:var(--ink-2); font-size:14px; }
+  .hero .groups { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .grp { display:grid; grid-template-columns:74px 1fr; gap:8px; align-items:start; }
+  .grp .gi { display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-width:0; }
+  .grp .gl { font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding-top:12px; }
+  .hero .foot { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:4px; padding-top:12px; border-top:1px solid var(--line); }
+  .hero .empty-res { color:var(--muted); font-size:14px; }
+  .pubchip { font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; border:1px solid; cursor:pointer; background:none; }
+  .pubchip.off { color:#7A4A00; border-color:#F5C77E; background:#FFF4E5; }
+  .pubchip.on { color:#0E5E3A; border-color:#9ED9BC; background:#E3F7EE; }
+  .day { background:var(--surface); border-radius:18px; box-shadow:var(--shadow); padding:16px 18px; display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .day h3 { font-size:18px; margin-bottom:2px; }
+  .dl { display:grid; grid-template-columns:64px 1fr auto; gap:10px; align-items:center; padding:9px 10px; border-radius:12px; border:1px solid var(--line);
+    border-left:5px solid var(--c); cursor:pointer; background:#fff; }
+  .dl:hover { background:var(--surface-2); }
+  .dl.sel { background:color-mix(in srgb, var(--c) 9%, #fff); border-color:color-mix(in srgb, var(--c) 40%, #fff); }
+  .dl.done { opacity:.55; }
+  .dl .tm { font-family:var(--mono); font-size:12px; color:var(--muted); line-height:1.25; }
+  .dl .tt { font-weight:700; font-size:14px; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dl .tp { font-size:12.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dl .mini { display:flex; gap:4px; }
+  .nolessons { color:var(--muted); font-size:14px; padding:10px 0; }
+
+  /* ---------- week grid ---------- */
+  .gridhead { display:flex; align-items:baseline; gap:12px; margin:6px 0 10px; flex-wrap:wrap; }
+  .gridhead h2 { font-size:20px; }
+  .gridhead .key { display:flex; gap:12px; font-size:12.5px; color:var(--muted); align-items:center; flex-wrap:wrap; }
+  .gridhead .key b { display:inline-flex; align-items:center; gap:4px; }
   .scroller { overflow-x:auto; padding-bottom:4px; }
-  .grid { display:grid; grid-template-columns:52px repeat(5, minmax(160px, 1fr));
-    grid-template-rows:auto 86px 86px 24px 86px 86px 86px 24px 86px 86px; gap:4px; min-width:900px; }
+  .grid { display:grid; grid-template-columns:52px repeat(5, minmax(170px, 1fr));
+    grid-template-rows:auto 104px 104px 24px 104px 104px 104px 24px 104px 104px; gap:5px; min-width:960px; }
   .dayhead { padding:2px 2px 6px 4px; }
-  .dayhead .d { font-family:"Fraunces", Georgia, serif; font-size:16px; font-weight:600; }
-  .dayhead .dt { font-family:var(--mono); font-size:10.5px; color:var(--muted); }
+  .dayhead .d { font-family:"Fraunces", Georgia, serif; font-size:17px; font-weight:600; }
+  .dayhead .dt { font-family:var(--mono); font-size:11px; color:var(--muted); }
   .dayhead.today .d, .dayhead.today .dt { color:var(--accent); }
   .col-today { background:var(--accent-soft); border-radius:12px; }
   .rowlab { display:flex; flex-direction:column; align-items:flex-end; padding:8px 6px 0 0; }
   .rowlab .n { font-family:var(--mono); font-size:15px; font-weight:600; color:var(--ink-2); }
-  .rowlab .t { font-family:var(--mono); font-size:9.5px; color:var(--muted); }
+  .rowlab .t { font-family:var(--mono); font-size:10px; color:var(--muted); }
   .band { display:flex; align-items:center; padding:0 12px; background:var(--sunken); border-radius:7px;
     font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
   .empty { border:1px dashed var(--line); border-radius:11px; }
-  .nolessons { grid-column:2 / -1; grid-row:2 / -1; display:grid; place-items:center; color:var(--muted); font-size:16px;
-    background:var(--surface-2); border-radius:12px; }
 
-  .card { position:relative; text-align:left; cursor:pointer; overflow:hidden;
+  .card { position:relative; text-align:left; cursor:pointer; overflow:hidden; min-width:0;
     background:color-mix(in srgb, var(--c) 11%, #fff); border:1px solid color-mix(in srgb, var(--c) 30%, #fff);
-    border-left:5px solid var(--c); border-radius:11px; padding:7px 9px 20px 10px; display:flex; flex-direction:column; gap:2px; }
-  .card:hover { box-shadow:var(--shadow); transform:translateY(-1px); }
-  .card .code { font-family:var(--mono); font-size:10px; font-weight:600; color:color-mix(in srgb, var(--c) 70%, #000);
+    border-left:6px solid var(--c); border-radius:12px; padding:8px 10px 8px 11px; display:flex; flex-direction:column; gap:3px; }
+  .card:hover { box-shadow:var(--shadow); }
+  .card .code { font-family:var(--mono); font-size:10.5px; font-weight:600; color:color-mix(in srgb, var(--c) 70%, #000);
     display:flex; justify-content:space-between; gap:6px; }
-  .card .room { font-weight:400; opacity:.75; }
-  .card .cname { font-size:13px; font-weight:600; line-height:1.2; }
-  .card .topic { font-size:12.5px; color:var(--ink-2); line-height:1.3; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .card .room { font-weight:400; opacity:.8; }
+  .card .cname { font-size:13.5px; font-weight:700; line-height:1.2; }
+  .card .topic { font-size:13px; color:var(--ink-2); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card.dbl .topic { -webkit-line-clamp:5; }
   .card .topic.blank { color:var(--muted); font-style:italic; }
-  .card .foot { position:absolute; left:10px; right:8px; bottom:5px; display:flex; gap:6px; align-items:center;
-    font-family:var(--mono); font-size:9px; letter-spacing:.06em; color:color-mix(in srgb, var(--c) 65%, #000); }
-  .card .foot .r { margin-left:auto; }
-  .pill { border:1px solid currentColor; border-radius:99px; padding:0 5px; opacity:.8; }
+  .card .foot { margin-top:auto; display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+  .lx { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; text-decoration:none; border-radius:7px; padding:2px 7px;
+    color:#fff; background:var(--gc); line-height:1.4; }
+  .lx:hover { filter:brightness(1.1); }
+  .lx.teach { --gc:var(--teach); } .lx.stu { --gc:var(--stu); } .lx.print { --gc:var(--print); }
+  .lx svg { width:12px; height:12px; }
+  .pill { font-family:var(--mono); font-size:9.5px; letter-spacing:.05em; border:1px solid currentColor; border-radius:99px; padding:0 6px;
+    color:color-mix(in srgb, var(--c) 65%, #000); opacity:.85; }
   .pill.assess { background:#E0457B; border-color:#E0457B; color:#fff; opacity:1; }
-  .card.past { opacity:.55; } .card.past:hover { opacity:.9; }
+  .pill.now { background:var(--live); border-color:var(--live); color:#fff; opacity:1; }
+  .card .flags { position:absolute; top:7px; right:8px; display:flex; gap:4px; }
+  .card.past { opacity:.55; } .card.past:hover { opacity:.95; }
+  .card.live { box-shadow:0 0 0 3px var(--live); }
   .card.unpub { background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 6%, #fff) 0 8px, #fff 8px 16px);
     border-style:dashed; border-left-style:solid; }
-  .pubbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-radius:12px; padding:12px 14px; font-size:13.5px; }
-  .pubbar.off { background:#FFF4E5; border:1px solid #F5C77E; color:#7A4A00; }
-  .pubbar.on { background:#E3F7EE; border:1px solid #9ED9BC; color:#0E5E3A; }
-  .pubbar strong { font-size:14.5px; }
-  .pubbar .btn { margin-left:auto; }
-  .wkh { display:flex; align-items:center; gap:10px; }
-  .wkh .btn { margin-left:auto; padding:3px 10px; font-size:11.5px; letter-spacing:0; text-transform:none; font-family:"Public Sans", sans-serif; }
 
   .legend { display:flex; flex-wrap:wrap; gap:6px; margin-top:18px; }
   .lg { display:flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--surface); border-radius:99px;
     padding:5px 12px 5px 8px; font-size:13px; cursor:pointer; }
   .lg:hover { border-color:var(--line-2); }
   .lg .dot { width:10px; height:10px; border-radius:3px; background:var(--c); }
-  .footnote { margin-top:22px; font-size:12.5px; color:var(--muted); max-width:75ch; }
+  .footnote { margin-top:22px; font-size:12.5px; color:var(--muted); max-width:80ch; }
 
+  /* ---------- drawer ---------- */
   .scrim { position:fixed; inset:0; background:rgba(15,25,45,.4); opacity:0; pointer-events:none; transition:opacity .2s; z-index:40; }
   .scrim.on { opacity:1; pointer-events:auto; }
-  .drawer { position:fixed; top:0; right:0; height:100%; width:min(560px, 100%); background:var(--surface);
+  .drawer { position:fixed; top:0; right:0; height:100%; width:min(600px, 100%); background:var(--surface);
     box-shadow:var(--shadow-lg); transform:translateX(102%); transition:transform .25s cubic-bezier(.32,.72,.3,1); z-index:41;
     display:flex; flex-direction:column; }
   .drawer.on { transform:none; }
@@ -111,6 +168,7 @@
   .dr-close { position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:8px; border:1px solid var(--line);
     background:var(--surface); cursor:pointer; color:var(--muted); }
   .dr-body { padding:18px 22px 40px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:18px; }
+  .launchbox { border:1px solid var(--line); border-radius:14px; padding:14px; background:var(--surface-2); display:flex; flex-direction:column; gap:10px; }
   .field { display:flex; flex-direction:column; gap:6px; }
   .field > label, .lab { font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
   .hint { font-size:11.5px; color:var(--muted); }
@@ -120,9 +178,13 @@
   textarea.mono { font-family:var(--mono); font-size:12.5px; line-height:1.5; }
   .sect { font-family:"Fraunces", Georgia, serif; font-size:15px; font-weight:600; padding-bottom:6px; border-bottom:1px solid var(--line); }
   .sect small { font-family:"Public Sans", sans-serif; font-weight:400; font-size:12px; color:var(--muted); margin-left:6px; }
-  .row { display:flex; gap:8px; align-items:center; }
-  .res-row { display:grid; grid-template-columns:110px 1fr 34px; gap:0; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .res-row { display:grid; grid-template-columns:118px 1fr 148px 34px; gap:0; background:var(--surface-2); border:1px solid var(--line);
+    border-left:5px solid var(--gc, var(--line)); border-radius:10px; overflow:hidden; }
+  .res-row.teach { --gc:var(--teach); } .res-row.stu { --gc:var(--stu); } .res-row.print { --gc:var(--print); }
   .res-row select, .res-row input { border:0; border-radius:0; background:none; }
+  .res-row select { padding-left:9px; padding-right:4px; }
+  .res-row select.au { font-weight:700; color:var(--gc); }
   .res-row input.u { grid-column:1 / -1; border-top:1px solid var(--line); font-family:var(--mono); font-size:12px; color:var(--accent); }
   .res-row .bad { color:var(--warn); }
   .icon-btn { border:0; background:none; cursor:pointer; color:var(--muted); font-size:16px; }
@@ -130,28 +192,40 @@
   .chk { display:flex; align-items:center; gap:9px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:6px 8px 6px 10px; }
   .chk input[type=text] { border:0; background:none; padding:2px 0; }
   .chk.done input[type=text] { color:var(--muted); text-decoration:line-through; }
-  .toggles { display:flex; gap:18px; flex-wrap:wrap; font-size:14px; }
-  .toggles label { display:flex; gap:7px; align-items:center; cursor:pointer; }
   .banner { border:1px dashed var(--accent-line); background:var(--accent-soft); border-radius:10px; padding:9px 12px; font-size:12.5px; color:var(--ink-2);
     display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
   .banner button { margin-left:auto; }
-  .lesson-row { display:flex; gap:12px; text-align:left; width:100%; background:var(--surface-2); border:1px solid var(--line);
-    border-radius:11px; padding:10px 13px; cursor:pointer; }
+  .pubbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-radius:12px; padding:12px 14px; font-size:13.5px; }
+  .pubbar.off { background:#FFF4E5; border:1px solid #F5C77E; color:#7A4A00; }
+  .pubbar.on { background:#E3F7EE; border:1px solid #9ED9BC; color:#0E5E3A; }
+  .pubbar strong { font-size:14.5px; }
+  .pubbar .btn { margin-left:auto; }
+  .lesson-row { display:grid; grid-template-columns:84px 1fr auto; gap:12px; text-align:left; width:100%; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:11px; padding:10px 13px; cursor:pointer; align-items:center; }
   .lesson-row:hover { border-color:var(--line-2); background:var(--surface); }
-  .lesson-row .when { font-family:var(--mono); font-size:11px; color:var(--muted); flex:none; width:84px; padding-top:2px; }
-  .lesson-row .tt { display:block; font-size:13.5px; font-weight:500; }
+  .lesson-row .when { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .lesson-row .tt { display:block; font-size:13.5px; font-weight:600; }
   .lesson-row .tt.blank { font-weight:400; color:var(--muted); font-style:italic; }
   .lesson-row .meta { display:block; font-size:11.5px; color:var(--muted); }
+  .lesson-row .mini { display:flex; gap:4px; }
   .lesson-row.past { opacity:.6; }
-  .wkh { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:8px 0 -8px; }
+  .wkh { display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:8px 0 -2px; }
+  .wkh .btn { margin-left:auto; padding:3px 10px; font-size:11.5px; letter-spacing:0; text-transform:none; font-family:"Public Sans", sans-serif; }
   .stack { display:flex; flex-direction:column; gap:8px; }
   .msg { text-align:center; padding:80px 20px; font-size:18px; color:var(--muted); }
+  #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(14px); background:var(--ink); color:#fff; padding:10px 18px; border-radius:12px;
+    font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:60; }
+  #toast.on { opacity:1; transform:translateX(-50%); }
+
+  @media (max-width:1000px) { .pad { grid-template-columns:1fr; } }
   @media (max-width:720px) {
-    .top-in { padding:12px 14px 10px; } main { padding:14px 14px 50px; }
+    .top-in { padding:10px 14px; } main { padding:14px 14px 50px; }
     .bar { margin-left:0; width:100%; } .brand h1 { font-size:21px; }
     .dr-body { padding:16px 16px 40px; } .dr-head { padding:16px 16px 13px; }
+    .res-row { grid-template-columns:1fr 1fr 34px; } .res-row .ty { grid-column:1 / -1; border-bottom:1px solid var(--line); }
+    .hero h2 { font-size:24px; }
   }
-  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
@@ -159,9 +233,10 @@
   <div class="top-in">
     <div class="brand">
       <div class="eyebrow" id="eyebrow">Learning Home</div>
-      <h1>Weekly Planner</h1>
+      <h1>Planner</h1>
       <div class="sub" id="sub"></div>
     </div>
+    <span class="clock" id="clock" aria-live="off"></span>
     <div class="bar">
       <div class="wk-nav">
         <button id="prevWk" title="Previous week" aria-label="Previous week">&#8249;</button>
@@ -177,47 +252,115 @@
 </header>
 
 <main>
-  <div class="scroller"><div class="grid" id="grid"><div class="msg" style="grid-column:1/-1">Loading the planner...</div></div></div>
+  <section class="pad" id="pad"><div class="hero"><div class="msg" style="padding:30px">Loading the planner...</div></div></section>
+
+  <div class="gridhead">
+    <h2>The week</h2>
+    <span class="key">
+      <b><span class="lx teach">&#9654; Teach</span> teacher only</b>
+      <b><span class="lx stu">Students</span> what students open</b>
+      <b><span class="lx print" id="keyPrint">Print</span> materials to print</b>
+      <span>Click a lesson to plan it.</span>
+    </span>
+  </div>
+  <div class="scroller"><div class="grid" id="grid"></div></div>
   <div class="legend" id="legend"></div>
-  <p class="footnote">Everything here saves as you type. Students see the topic, unit, objectives, bring list, note for students and the resources.
-    Teacher notes and prep never leave the teacher area. Nothing reaches students until you press Publish on a lesson, or Publish week in a class list.
-    Resource links can be a site path such as /y7-enrichment/angles.html or a full https:// address.</p>
+  <p class="footnote">Everything saves as you type. Press <b>L</b> to launch the lesson in the panel at the top.
+    Resources are tagged <b>Students</b> (on the student calendar once the lesson is published), <b>Teacher only</b> (decks, answer keys, teacher versions)
+    or <b>To print</b> (opens ready to print). Teacher notes, prep and anything not tagged Students never leave the teacher area.</p>
 </main>
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Lesson details"></aside>
+<div id="toast"></div>
 
 <script>
 (function () {
   var DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  var DAY_FULL = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday" };
   var MONTH = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var ROWS = [
     { id: "P1", n: "1" }, { id: "P2", n: "2" }, { band: "Recess" },
     { id: "P3", n: "3" }, { id: "P4", n: "4" }, { id: "P5", n: "5" }, { band: "Lunch" },
     { id: "P6", n: "6" }, { id: "P7", n: "7" }
   ];
-  var TYPES = [["deck", "Slides"], ["app", "App"], ["sim", "Sim"], ["booklet", "Booklet"], ["link", "Link"]];
+  var TYPES = [["deck", "Slides"], ["app", "App"], ["sim", "Sim"], ["booklet", "Booklet"], ["sheet", "Worksheet"], ["key", "Answers"], ["link", "Link"]];
+  var AUD = [["students", "Students"], ["teacher", "Teacher only"], ["print", "To print"]];
+  var AUD_CLASS = { students: "stu", teacher: "teach", print: "print" };
+  var PRINTER = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>';
+  var PLAY = '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>';
+  var PEOPLE = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.3 3.3 0 010 6.4M18.5 14.8c1.6.8 2.7 2.5 3 5.2"/></svg>';
 
-  var D = null, classes = {}, bells = {}, weeks = [], wi = 0;
+  var D = null, classes = {}, bells = {}, weeks = [], wi = 0, focusKey = null;
   var drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
 
+  function $(id) { return document.getElementById(id); }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
-  function today() {
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 2200); }
+  // The school runs on Adelaide time, whatever the computer is set to.
+  // ?now=2026-10-14T09:10 previews the planner as if it were that moment.
+  function now() {
+    var fake = new URLSearchParams(location.search).get("now");
+    if (fake && /^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(fake)) return { date: fake.slice(0, 10), hm: fake.slice(11) };
     var p = {};
-    new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Adelaide", year: "numeric", month: "2-digit", day: "2-digit" })
+    new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Adelaide", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })
       .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
-    return p.year + "-" + p.month + "-" + p.day;
+    return { date: p.year + "-" + p.month + "-" + p.day, hm: (p.hour === "24" ? "00" : p.hour) + ":" + p.minute };
   }
+  function today() { return now().date; }
   function addDays(iso, n) { var d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
   function fmt(iso) { var d = new Date(iso + "T12:00:00Z"); return d.getUTCDate() + " " + MONTH[d.getUTCMonth()]; }
   function t12(hm) { var h = +hm.slice(0, 2); return (h % 12 || 12) + ":" + hm.slice(3); }
+  function t12ap(hm) { var h = +hm.slice(0, 2); return t12(hm) + (h < 12 ? " am" : " pm"); }
   function key(l) { return l.classId + "|" + l.date + "|" + l.slot; }
   function lines(v) { return v.split("\n").map(function (x) { return x.trim(); }).filter(Boolean); }
   function okUrl(u) { return !u || /^https:\/\//i.test(u) || /^\/(?!\/)/.test(u); }
+
+  // ---------- resources ----------
+  // Who a resource is for. Old resources without a tag: anything in /teacher/ is teacher only.
+  function aud(r) {
+    if (r.for === "students" || r.for === "teacher" || r.for === "print") return r.for;
+    return /^\/teacher(\/|$)/.test(r.url || "") ? "teacher" : "students";
+  }
+  function usable(r) { return r.url && okUrl(r.url); }
+  function launchUrl(r) {
+    // Site pages to print open in the print helper, which brings up the print dialog straight away.
+    if (aud(r) === "print" && /^\/(?!\/)/.test(r.url)) return "/teacher/print?u=" + encodeURIComponent(r.url) + "&t=" + encodeURIComponent(r.title || "");
+    return r.url;
+  }
+  function byAud(p) {
+    var out = { teacher: [], students: [], print: [] };
+    (p.resources || []).forEach(function (r) { if (usable(r)) out[aud(r)].push(r); });
+    return out;
+  }
+  function goBtn(r, big, primaryKey) {
+    var a = aud(r), icon = a === "teacher" ? PLAY : a === "print" ? PRINTER : PEOPLE;
+    return '<a class="go ' + AUD_CLASS[a] + (big ? " big" : "") + '" href="' + esc(launchUrl(r)) + '" target="_blank" rel="noopener" title="' + esc(r.url) + '">' +
+      icon + "<span>" + esc(r.title || r.url) + "</span>" + (primaryKey ? '<span class="k">L</span>' : "") + "</a>";
+  }
+  function copyBtn(r) {
+    return '<button class="copy" data-copy="' + esc(r.url) + '">Copy link</button>';
+  }
+  // Small launch chips for grid cards and lists: one per kind, opening the first of that kind.
+  function chips(p) {
+    var g = byAud(p), h = "";
+    if (g.teacher.length) h += '<a class="lx teach" href="' + esc(launchUrl(g.teacher[0])) + '" target="_blank" rel="noopener" title="' + esc(g.teacher[0].title) + '">' + PLAY + "Teach</a>";
+    if (g.students.length) h += '<a class="lx stu" href="' + esc(launchUrl(g.students[0])) + '" target="_blank" rel="noopener" title="' + esc(g.students[0].title) + '">Students</a>';
+    if (g.print.length) h += '<a class="lx print" href="' + esc(launchUrl(g.print[0])) + '" target="_blank" rel="noopener" title="' + esc(g.print.map(function (r) { return r.title; }).join(", ")) + '">' + PRINTER + (g.print.length > 1 ? g.print.length : "") + "</a>";
+    return h;
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy]"); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    var u = b.dataset.copy; if (/^\//.test(u)) u = location.origin + u;
+    (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(function () { toast("Link copied: paste it into Teams"); }, function () { prompt("Copy this link:", u); });
+  });
+
+  $("keyPrint").innerHTML = PRINTER + "Print";
 
   // ---------- load ----------
   fetch("/api/teacher/plan", { cache: "no-store" })
@@ -237,14 +380,15 @@
         for (var w = 0; w < t.weeks; w++) weeks.push({ term: t, n: w + 1, mon: addDays(t.start, w * 7) });
       });
       wi = thisWeek();
-      document.getElementById("sub").textContent = D.teacher + " · " + D.school;
+      $("sub").textContent = D.teacher + " · " + D.school;
       renderAll();
       var m = location.hash.match(/^#class=([a-z0-9-]+)$/);
       if (m && classes[m[1]]) openClass(m[1]);
+      setInterval(tick, 20000);
     })
     .catch(function (e) {
       if (e.message === "signin") return;
-      document.getElementById("grid").innerHTML = '<div class="msg" style="grid-column:1/-1">The planner did not load. Refresh to try again.</div>';
+      $("pad").innerHTML = '<div class="hero"><div class="msg" style="padding:30px">The planner did not load. Refresh to try again.</div></div>';
     });
 
   function thisWeek() {
@@ -253,25 +397,98 @@
     return Math.max(0, weeks.length - 1);
   }
 
-  // ---------- grid ----------
-  function renderAll() { renderHeader(); renderGrid(); renderLegend(); }
+  function renderAll() { renderClock(); renderHeader(); renderPad(); renderGrid(); renderLegend(); }
+  var lastMinute = "";
+  function tick() {
+    renderClock();
+    var n = now(), m = n.date + n.hm;
+    if (m !== lastMinute) { lastMinute = m; renderPad(); renderGrid(); }
+  }
+  function renderClock() { var n = now(); $("clock").textContent = t12ap(n.hm); }
 
   function renderHeader() {
     var w = weeks[wi];
-    document.getElementById("wkLabel").textContent = w ? w.term.name + ", Week " + w.n + " · " + fmt(w.mon) + " to " + fmt(addDays(w.mon, 4)) : "No term";
-    document.getElementById("eyebrow").textContent = w ? w.term.name + " " + w.term.year : "Learning Home";
+    $("wkLabel").textContent = w ? w.term.name + ", Week " + w.n + " · " + fmt(w.mon) + " to " + fmt(addDays(w.mon, 4)) : "No term";
+    $("eyebrow").textContent = w ? w.term.name + " " + w.term.year : "Learning Home";
   }
 
+  // ---------- launchpad: the lesson on now, or up next ----------
+  function state(l, n) {
+    if (l.date < n.date || (l.date === n.date && l.end <= n.hm)) return "past";
+    if (l.date === n.date && l.start <= n.hm) return "live";
+    return "future";
+  }
+  function focusLesson(n) {
+    var ls = D.lessons, i;
+    for (i = 0; i < ls.length; i++) if (state(ls[i], n) === "live") return { l: ls[i], why: "live" };
+    for (i = 0; i < ls.length; i++) if (state(ls[i], n) === "future") return { l: ls[i], why: "next" };
+    return null;
+  }
+  var padLesson = null;
+  function renderPad() {
+    if (!D) return;
+    var n = now(), auto = focusLesson(n), l = null, why = "";
+    if (focusKey) { l = findLesson(focusKey); why = l ? state(l, n) : ""; }
+    if (!l && auto) { l = auto.l; why = auto.why; }
+    padLesson = l;
+    var hero;
+    if (!l) hero = '<div class="hero"><span class="state">Nothing left on the timetable</span><h2>Add the next term in catalog.json</h2></div>';
+    else {
+      var c = classes[l.classId] || {}, p = l.plan || {}, g = byAud(p);
+      var label = why === "live" ? "On now, until " + t12ap(l.end)
+        : why === "past" ? "Earlier lesson"
+        : (l.date === n.date ? "Up next, today at " + t12ap(l.start) : "Up next, " + DAY_FULL[l.day] + " " + fmt(l.date) + " at " + t12ap(l.start));
+      var groups = "";
+      if (g.teacher.length) groups += '<div class="grp"><span class="gl">Teach</span><span class="gi">' + g.teacher.map(function (r, i) { return goBtn(r, i === 0, i === 0); }).join("") + "</span></div>";
+      if (g.students.length) groups += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r, i) { return goBtn(r, !g.teacher.length && i === 0, !g.teacher.length && i === 0) + copyBtn(r); }).join("") + "</span></div>";
+      if (g.print.length) groups += '<div class="grp"><span class="gl">Print</span><span class="gi">' + g.print.map(function (r) { return goBtn(r, false); }).join("") + "</span></div>";
+      if (!groups) groups = '<p class="empty-res">No slides, apps or printouts on this lesson yet. Open the plan to add them.</p>';
+      hero = '<div class="hero" style="--c:' + esc(c.colour) + '">' +
+        '<span class="state' + (why === "live" ? " live" : "") + '">' + esc(label) + "</span>" +
+        '<div><div class="cls">' + esc(c.name) + "</div><h2>" + esc(p.topic || "Nothing planned yet") + "</h2></div>" +
+        '<div class="meta">' + esc(["Period" + (l.periods.length > 1 ? "s " : " ") + l.periods.map(function (x) { return x.slice(1); }).join(" and "),
+          t12ap(l.start) + " to " + t12ap(l.end), l.room ? "Room " + l.room : "", p.unit].filter(Boolean).join(" · ")) + "</div>" +
+        '<div class="groups">' + groups + "</div>" +
+        '<div class="foot"><button class="btn" data-open="' + esc(key(l)) + '">Open the plan</button>' +
+        '<a class="btn" href="/' + esc(l.classId) + '" target="_blank" rel="noopener">Student calendar</a>' +
+        '<button class="pubchip ' + (p.published ? "on" : "off") + '" data-pub="' + esc(key(l)) + '" title="Click to change">' + (p.published ? "Published to students" : "Not published: click to publish") + "</button>" +
+        (focusKey ? '<button class="btn quiet" id="padAuto">Back to now</button>' : "") + "</div></div>";
+    }
+    // the day list: today's lessons, or the next day that has any
+    var day = n.date, list = D.lessons.filter(function (x) { return x.date === day; });
+    if (!list.length && auto) { day = auto.l.date; list = D.lessons.filter(function (x) { return x.date === day; }); }
+    var dayTitle = day === n.date ? "Today" : (list.length ? DAY_FULL[list[0].day] + " " + fmt(day) : "No lessons coming up");
+    var dayHtml = '<div class="day"><h3>' + esc(dayTitle) + "</h3>" + (list.length ? list.map(function (x) {
+      var c = classes[x.classId] || {}, p = x.plan || {}, st = state(x, n);
+      return '<div class="dl' + (padLesson && key(x) === key(padLesson) ? " sel" : "") + (st === "past" ? " done" : "") + '" style="--c:' + esc(c.colour) + '" data-focus="' + esc(key(x)) + '" tabindex="0" role="button">' +
+        '<span class="tm">' + esc(t12(x.start)) + "<br>P" + x.periods.map(function (q) { return q.slice(1); }).join("-") + "</span>" +
+        '<span style="min-width:0"><span class="tt" style="display:block">' + esc(c.name) + (st === "live" ? ' <span class="pill now" style="--c:' + esc(c.colour) + '">NOW</span>' : "") + "</span>" +
+        '<span class="tp" style="display:block">' + esc(p.topic || "Nothing planned yet") + "</span></span>" +
+        '<span class="mini">' + chips(p) + "</span></div>";
+    }).join("") : '<p class="nolessons">Nothing on the timetable.</p>') + "</div>";
+    $("pad").innerHTML = hero + dayHtml;
+  }
+  $("pad").addEventListener("click", function (e) {
+    if (e.target.closest("a, [data-copy]")) return;
+    var o = e.target.closest("[data-open]"); if (o) { openLesson(o.dataset.open); return; }
+    var pb = e.target.closest("[data-pub]");
+    if (pb) { var l = findLesson(pb.dataset.pub); l.plan.published = !l.plan.published; changed(l); toast(l.plan.published ? "Published to students" : "Hidden from students"); return; }
+    if (e.target.closest("#padAuto")) { focusKey = null; renderPad(); return; }
+    var f = e.target.closest("[data-focus]"); if (f) { focusKey = f.dataset.focus; renderPad(); }
+  });
+  $("pad").addEventListener("keydown", function (e) { var f = e.target.closest("[data-focus]"); if (f && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); f.click(); } });
+
+  // ---------- grid ----------
   function rowIndex(pid) { for (var i = 0; i < ROWS.length; i++) if (ROWS[i].id === pid) return i + 2; return -1; }
 
   function renderGrid() {
-    var g = document.getElementById("grid"), w = weeks[wi], t = today(), h = "";
+    var g = $("grid"), w = weeks[wi], n = now(), h = "";
     if (!w) { g.innerHTML = '<div class="msg" style="grid-column:1/-1">No terms are set up in catalog.json.</div>'; return; }
     h += "<div></div>";
     DAYS.forEach(function (d, i) {
       var date = addDays(w.mon, i);
-      h += '<div class="dayhead' + (date === t ? " today" : "") + '" style="grid-column:' + (i + 2) + ';grid-row:1"><div class="d">' + d + '</div><div class="dt">' + fmt(date) + "</div></div>";
-      if (date === t) h += '<div class="col-today" style="grid-column:' + (i + 2) + ';grid-row:2 / -1"></div>';
+      h += '<div class="dayhead' + (date === n.date ? " today" : "") + '" style="grid-column:' + (i + 2) + ';grid-row:1"><div class="d">' + d + '</div><div class="dt">' + fmt(date) + "</div></div>";
+      if (date === n.date) h += '<div class="col-today" style="grid-column:' + (i + 2) + ';grid-row:2 / -1"></div>';
     });
     ROWS.forEach(function (r, ri) {
       if (r.band) { h += '<div class="band" style="grid-column:1 / -1;grid-row:' + (ri + 2) + '">' + r.band + "</div>"; return; }
@@ -282,7 +499,7 @@
     wk.forEach(function (l) {
       var col = DAYS.indexOf(l.day) + 2, r0 = rowIndex(l.periods[0]), r1 = rowIndex(l.periods[l.periods.length - 1]);
       for (var r = r0; r <= r1; r++) used[col + ":" + r] = 1;
-      h += cardHTML(l, "grid-column:" + col + ";grid-row:" + r0 + " / " + (r1 + 1), t);
+      h += cardHTML(l, "grid-column:" + col + ";grid-row:" + r0 + " / " + (r1 + 1), n);
     });
     DAYS.forEach(function (d, i) {
       ROWS.forEach(function (r, ri) {
@@ -298,34 +515,47 @@
     return list.length ? list.filter(function (x) { return x.d; }).length + "/" + list.length + " prep" : "";
   }
 
-  function cardHTML(l, style, t) {
-    var c = classes[l.classId] || {}, p = l.plan || {};
-    var past = l.date < t;
-    return '<button class="card' + (past ? " past" : "") + (p.published ? "" : " unpub") + '" style="--c:' + esc(c.colour) + ";" + style + '" data-k="' + esc(key(l)) + '">' +
+  function cardHTML(l, style, n) {
+    var c = classes[l.classId] || {}, p = l.plan || {}, st = state(l, n);
+    return '<div class="card' + (st === "past" ? " past" : "") + (st === "live" ? " live" : "") + (p.published ? "" : " unpub") + (l.periods.length > 1 ? " dbl" : "") +
+      '" style="--c:' + esc(c.colour) + ";" + style + '" data-k="' + esc(key(l)) + '" tabindex="0" role="button" aria-label="' + esc(c.name + ", " + (p.topic || "nothing planned")) + '">' +
       '<span class="code"><span>' + esc(c.code) + '</span><span class="room">' + esc(l.room ? "Rm " + l.room : "") + "</span></span>" +
       '<span class="cname">' + esc(c.name) + "</span>" +
       '<span class="topic' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
-      '<span class="foot">' + (p.assess ? '<span class="pill assess">' + esc(p.assess) + "</span>" : "") +
-      (p.published ? "" : '<span class="pill">NOT PUBLISHED</span>') +
-      '<span class="r">' + esc(prepCount(p)) + (l.periods.length > 1 ? " · DOUBLE" : "") + "</span></span></button>";
+      '<span class="foot">' + chips(p) + (st === "live" ? '<span class="pill now">NOW</span>' : "") + (p.assess ? '<span class="pill assess">' + esc(p.assess) + "</span>" : "") +
+      (p.published ? "" : '<span class="pill">NOT PUBLISHED</span>') + (prepCount(p) ? '<span class="pill">' + esc(prepCount(p)) + "</span>" : "") + "</span></div>";
   }
 
   function renderLegend() {
-    document.getElementById("legend").innerHTML = Object.keys(classes).map(function (id) {
+    $("legend").innerHTML = Object.keys(classes).map(function (id) {
       var c = classes[id];
       return '<button class="lg" style="--c:' + esc(c.colour) + '" data-class="' + esc(id) + '"><span class="dot"></span>' + esc(c.name) + "</button>";
     }).join("");
   }
 
-  document.getElementById("grid").addEventListener("click", function (e) {
+  $("grid").addEventListener("click", function (e) {
+    if (e.target.closest("a")) return;          // a launch chip: just open it
     var b = e.target.closest(".card"); if (b) openLesson(b.dataset.k);
   });
-  document.getElementById("legend").addEventListener("click", function (e) {
-    var b = e.target.closest(".lg"); if (b) openClass(b.dataset.class);
+  $("grid").addEventListener("keydown", function (e) {
+    var b = e.target.closest(".card"); if (b && e.target === b && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openLesson(b.dataset.k); }
   });
-  document.getElementById("prevWk").addEventListener("click", function () { if (wi > 0) { wi--; renderAll(); } });
-  document.getElementById("nextWk").addEventListener("click", function () { if (wi < weeks.length - 1) { wi++; renderAll(); } });
-  document.getElementById("todayBtn").addEventListener("click", function () { wi = thisWeek(); renderAll(); });
+  $("legend").addEventListener("click", function (e) { var b = e.target.closest(".lg"); if (b) openClass(b.dataset.class); });
+  $("prevWk").addEventListener("click", function () { if (wi > 0) { wi--; renderHeader(); renderGrid(); } });
+  $("nextWk").addEventListener("click", function () { if (wi < weeks.length - 1) { wi++; renderHeader(); renderGrid(); } });
+  $("todayBtn").addEventListener("click", function () { wi = thisWeek(); focusKey = null; renderAll(); });
+
+  // L launches the lesson in the panel at the top: its first teacher resource, else its first student one.
+  document.addEventListener("keydown", function (e) {
+    var t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if ((e.key === "l" || e.key === "L") && padLesson && !drawer.classList.contains("on")) {
+      var g = byAud(padLesson.plan || {}), r = g.teacher[0] || g.students[0];
+      if (r) { window.open(launchUrl(r), "_blank", "noopener"); } else toast("Nothing to launch on this lesson yet");
+    }
+    if (e.key === "Escape") closeDrawer();
+  });
 
   // ---------- drawer ----------
   function openDrawer(colour, html) {
@@ -340,7 +570,6 @@
     if (location.hash) history.replaceState(null, "", location.pathname);
   }
   scrim.addEventListener("click", closeDrawer);
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDrawer(); });
 
   function openClass(id) {
     var c = classes[id], t = today();
@@ -357,18 +586,20 @@
         lastWk = wk;
       }
       var p = l.plan || {};
-      body += '<button class="lesson-row' + (l.date < t ? " past" : "") + '" data-k="' + esc(key(l)) + '"><span class="when">' + esc(l.day + " " + fmt(l.date)) + "<br>" +
+      body += '<div class="lesson-row' + (l.date < t ? " past" : "") + '" data-k="' + esc(key(l)) + '" role="button" tabindex="0"><span class="when">' + esc(l.day + " " + fmt(l.date)) + "<br>" +
         esc(l.periods.length > 1 ? "Double" : "Single") + '</span><span><span class="tt' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
-        '<span class="meta">' + esc([p.unit, p.assess, p.published ? "Published" : "Not published", prepCount(p)].filter(Boolean).join(" · ")) + "</span></span></button>";
+        '<span class="meta">' + esc([p.unit, p.assess, p.published ? "Published" : "Not published", prepCount(p)].filter(Boolean).join(" · ")) + "</span></span>" +
+        '<span class="mini">' + chips(p) + "</span></div>";
     });
     var tt = (c.timetable || []).map(function (s) { return s.day + " " + s.periods.map(function (p) { return p.slice(1); }).join("/"); }).join(", ");
     openDrawer(c.colour,
       '<div class="dr-head"><div class="eyebrow">' + esc(c.code) + " · " + esc(tt) + "</div><h2>" + esc(c.name) + "</h2>" +
-      '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a></div>' +
+      '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a><button class="copy" data-copy="/' + esc(id) + '">Copy the calendar link</button></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
       '<div class="dr-body"><div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
     Array.prototype.forEach.call(drawer.querySelectorAll(".lesson-row"), function (b) {
-      b.addEventListener("click", function () { openLesson(b.dataset.k, true); });
+      b.addEventListener("click", function (e) { if (e.target.closest("a")) return; openLesson(b.dataset.k, true); });
+      b.addEventListener("keydown", function (e) { if (e.target === b && e.key === "Enter") openLesson(b.dataset.k, true); });
     });
     Array.prototype.forEach.call(drawer.querySelectorAll("[data-wk]"), function (b) {
       b.addEventListener("click", function () {
@@ -383,6 +614,14 @@
 
   function findLesson(k) { return D.lessons.filter(function (l) { return key(l) === k; })[0]; }
 
+  function launchHTML(p) {
+    var g = byAud(p), h = "";
+    if (g.teacher.length) h += '<div class="grp"><span class="gl">Teach</span><span class="gi">' + g.teacher.map(function (r, i) { return goBtn(r, i === 0); }).join("") + "</span></div>";
+    if (g.students.length) h += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r) { return goBtn(r, false) + copyBtn(r); }).join("") + "</span></div>";
+    if (g.print.length) h += '<div class="grp"><span class="gl">Print</span><span class="gi">' + g.print.map(function (r) { return goBtn(r, false); }).join("") + "</span></div>";
+    return h || '<p class="hint" style="margin:0">Nothing to launch yet. Add slides, apps, teacher versions and printouts under Resources below.</p>';
+  }
+
   function openLesson(k, fromClass) {
     var l = findLesson(k); if (!l) return;
     var c = classes[l.classId], p = l.plan;
@@ -395,24 +634,26 @@
     openDrawer(c.colour,
       '<div class="dr-head">' + (fromClass ? '<button class="back" id="back">&#8249; ' + esc(c.name) + "</button>" : "") +
       '<div class="eyebrow">' + esc(c.code + " · " + l.term + ", Week " + l.week) + "</div><h2>" + esc(when) + "</h2>" +
-      '<div class="links"><a href="#" id="toClass">All ' + esc(c.name) + ' lessons</a><a href="/' + esc(l.classId) + '" target="_blank" rel="noopener">Student view</a></div>' +
+      '<div class="links"><a href="#" id="toClass">All ' + esc(c.name) + ' lessons</a><a href="/' + esc(l.classId) + '" target="_blank" rel="noopener">Student calendar</a><a href="#" id="toPad">Show at the top</a></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
-      '<div class="dr-body"><div id="pubbar"></div>' + banner +
-      '<div class="sect">For students <small>shown on the class calendar</small></div>' +
+      '<div class="dr-body"><div class="launchbox" id="launchbox"></div><div id="pubbar"></div>' + banner +
+      '<div class="sect">For students <small>shown on the class calendar once published</small></div>' +
       field("Topic", '<input type="text" id="f-topic" value="' + esc(p.topic) + '" placeholder="What the lesson is about">') +
       field("Unit", '<input type="text" id="f-unit" value="' + esc(p.unit) + '" placeholder="Topic 9: Geometry">') +
       field("We will (one per line)", '<textarea id="f-obj" rows="4">' + esc(p.objectives.join("\n")) + "</textarea>") +
       field("Bring (one per line)", '<textarea id="f-bring" rows="3">' + esc(p.bring.join("\n")) + "</textarea>") +
       field("Note for students", '<textarea id="f-snote" rows="2" placeholder="Optional, for example: homework, or where to start">' + esc(p.studentNote) + "</textarea>") +
       field("Assessment tag", '<input type="text" id="f-assess" value="' + esc(p.assess) + '" placeholder="Leave blank, or Test, Investigation due...">') +
-      '<div class="field"><span class="lab">Resources students launch</span><div class="stack" id="resList"></div>' +
-      '<div class="row"><button class="btn" id="addRes">Add a resource</button>' + libraryPicker(c) + "</div></div>" +
+      '<div class="sect">Resources <small>tag each one: for students, teacher only, or to print</small></div>' +
+      '<div class="stack" id="resList"></div>' +
+      '<div class="row"><button class="btn" data-add="students">+ Student resource</button><button class="btn" data-add="teacher">+ Teacher only</button><button class="btn" data-add="print">+ To print</button>' + libraryPicker(c) + "</div>" +
       '<div class="sect">Teacher only <small>never sent to students</small></div>' +
       field("Notes and lesson shape", '<textarea id="f-notes" class="mono" rows="10">' + esc(p.notes) + "</textarea>") +
       '<div class="field"><span class="lab">Prep</span><div class="stack" id="prepList"></div><div class="row"><button class="btn" id="addPrep">Add a prep item</button></div></div>' +
       "</div>");
 
-    function bindText(id, fn) { document.getElementById(id).addEventListener("input", function (e) { fn(e.target.value); changed(l); }); }
+    function drawLaunch() { $("launchbox").innerHTML = '<span class="lab">Launch</span>' + launchHTML(p); }
+    function bindText(id, fn) { $(id).addEventListener("input", function (e) { fn(e.target.value); changed(l); }); }
     bindText("f-topic", function (v) { p.topic = v; });
     bindText("f-unit", function (v) { p.unit = v; });
     bindText("f-obj", function (v) { p.objectives = lines(v); });
@@ -421,30 +662,36 @@
     bindText("f-assess", function (v) { p.assess = v; });
     bindText("f-notes", function (v) { p.notes = v; });
     function drawPub() {
-      var box = document.getElementById("pubbar");
+      var box = $("pubbar");
       box.className = "pubbar " + (p.published ? "on" : "off");
       box.innerHTML = p.published
-        ? "<span><strong>Published.</strong> Students can see this lesson and open its resources.</span><button class=\"btn\" id=\"pubBtn\">Unpublish</button>"
+        ? "<span><strong>Published.</strong> Students can see this lesson and open its student resources.</span><button class=\"btn\" id=\"pubBtn\">Unpublish</button>"
         : "<span><strong>Not published.</strong> Students see only the time and room.</span><button class=\"btn primary\" id=\"pubBtn\">Publish to students</button>";
-      document.getElementById("pubBtn").addEventListener("click", function () { p.published = !p.published; drawPub(); changed(l); });
+      $("pubBtn").addEventListener("click", function () { p.published = !p.published; drawPub(); changed(l); });
     }
-    drawPub();
-    document.getElementById("toClass").addEventListener("click", function (e) { e.preventDefault(); openClass(l.classId); });
-    if (fromClass) document.getElementById("back").addEventListener("click", function () { openClass(l.classId); });
-    var rv = document.getElementById("revert");
+    drawLaunch(); drawPub();
+    $("toClass").addEventListener("click", function (e) { e.preventDefault(); openClass(l.classId); });
+    $("toPad").addEventListener("click", function (e) { e.preventDefault(); focusKey = key(l); closeDrawer(); renderPad(); scrollTo({ top: 0, behavior: "smooth" }); });
+    if (fromClass) $("back").addEventListener("click", function () { openClass(l.classId); });
+    var rv = $("revert");
     if (rv) rv.addEventListener("click", function () { revert(l, fromClass); });
 
-    drawRes(l); drawPrep(l);
-    document.getElementById("addRes").addEventListener("click", function () {
-      p.resources.push({ title: "", url: "", type: "deck" }); drawRes(l);
-      var ins = drawer.querySelectorAll("#resList input.t"); if (ins.length) ins[ins.length - 1].focus();
+    drawRes(l, drawLaunch); drawPrep(l);
+    Array.prototype.forEach.call(drawer.querySelectorAll("[data-add]"), function (b) {
+      b.addEventListener("click", function () {
+        var a = b.dataset.add;
+        p.resources.push({ title: "", url: "", type: a === "print" ? "sheet" : a === "teacher" ? "deck" : "app", for: a });
+        drawRes(l, drawLaunch);
+        var ins = drawer.querySelectorAll("#resList input.t"); if (ins.length) ins[ins.length - 1].focus();
+      });
     });
-    var pick = document.getElementById("libPick");
+    var pick = $("libPick");
     if (pick) pick.addEventListener("change", function () {
       var r = (c.resources || [])[+pick.value]; if (!r) return;
-      p.resources.push({ title: r.title, url: r.path, type: r.type || "link" }); pick.value = ""; drawRes(l); changed(l);
+      var nr = { title: r.title, url: r.path, type: r.type || "link" }; nr.for = r.for || aud(nr);
+      p.resources.push(nr); pick.value = ""; drawRes(l, drawLaunch); drawLaunch(); changed(l);
     });
-    document.getElementById("addPrep").addEventListener("click", function () {
+    $("addPrep").addEventListener("click", function () {
       p.prep.push({ t: "", d: false }); drawPrep(l);
       var ins = drawer.querySelectorAll("#prepList input[type=text]"); if (ins.length) ins[ins.length - 1].focus();
     });
@@ -455,32 +702,37 @@
   function libraryPicker(c) {
     var res = c.resources || [];
     if (!res.length) return "";
-    return '<select id="libPick" style="width:auto;flex:1"><option value="">Add from the class library...</option>' +
+    return '<select id="libPick" style="width:auto;flex:1;min-width:200px"><option value="">Add from the class library...</option>' +
       res.map(function (r, i) { return '<option value="' + i + '">' + esc(r.title) + "</option>"; }).join("") + "</select>";
   }
 
-  function drawRes(l) {
-    var p = l.plan, box = document.getElementById("resList");
-    box.innerHTML = p.resources.map(function (r, i) {
-      return '<div class="res-row" data-i="' + i + '"><select class="ty">' + TYPES.map(function (t) {
+  function drawRes(l, after) {
+    var p = l.plan, box = $("resList");
+    box.innerHTML = p.resources.length ? p.resources.map(function (r, i) {
+      var a = aud(r);
+      return '<div class="res-row ' + AUD_CLASS[a] + '" data-i="' + i + '"><select class="ty" aria-label="Kind">' + TYPES.map(function (t) {
         return '<option value="' + t[0] + '"' + (r.type === t[0] ? " selected" : "") + ">" + t[1] + "</option>";
-      }).join("") + '</select><input type="text" class="t" value="' + esc(r.title) + '" placeholder="Title students see">' +
+      }).join("") + '</select><input type="text" class="t" value="' + esc(r.title) + '" placeholder="Title">' +
+        '<select class="au" aria-label="Who it is for">' + AUD.map(function (x) { return '<option value="' + x[0] + '"' + (a === x[0] ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select>" +
         '<button class="icon-btn" title="Remove" aria-label="Remove resource">&#10005;</button>' +
-        '<input type="text" class="u' + (okUrl(r.url) ? "" : " bad") + '" value="' + esc(r.url) + '" placeholder="/y7-enrichment/file.html or https://..."></div>';
-    }).join("");
+        '<input type="text" class="u' + (okUrl(r.url) ? "" : " bad") + '" value="' + esc(r.url) + '" placeholder="/y7-science/booklet.html or https://..."></div>';
+    }).join("") : '<p class="hint" style="margin:0">No resources yet.</p>';
     Array.prototype.forEach.call(box.querySelectorAll(".res-row"), function (row) {
       var i = +row.dataset.i;
       row.querySelector(".ty").addEventListener("change", function (e) { p.resources[i].type = e.target.value; changed(l); });
-      row.querySelector(".t").addEventListener("input", function (e) { p.resources[i].title = e.target.value; changed(l); });
-      row.querySelector(".u").addEventListener("input", function (e) {
-        p.resources[i].url = e.target.value.trim(); e.target.classList.toggle("bad", !okUrl(p.resources[i].url)); changed(l);
+      row.querySelector(".au").addEventListener("change", function (e) {
+        p.resources[i].for = e.target.value; row.className = "res-row " + AUD_CLASS[e.target.value]; changed(l); if (after) after();
       });
-      row.querySelector(".icon-btn").addEventListener("click", function () { p.resources.splice(i, 1); drawRes(l); changed(l); });
+      row.querySelector(".t").addEventListener("input", function (e) { p.resources[i].title = e.target.value; changed(l); if (after) after(); });
+      row.querySelector(".u").addEventListener("input", function (e) {
+        p.resources[i].url = e.target.value.trim(); e.target.classList.toggle("bad", !okUrl(p.resources[i].url)); changed(l); if (after) after();
+      });
+      row.querySelector(".icon-btn").addEventListener("click", function () { p.resources.splice(i, 1); drawRes(l, after); changed(l); if (after) after(); });
     });
   }
 
   function drawPrep(l) {
-    var p = l.plan, box = document.getElementById("prepList");
+    var p = l.plan, box = $("prepList");
     box.innerHTML = p.prep.map(function (x, i) {
       return '<div class="chk' + (x.d ? " done" : "") + '" data-i="' + i + '"><input type="checkbox"' + (x.d ? " checked" : "") + ' aria-label="Done">' +
         '<input type="text" value="' + esc(x.t) + '" placeholder="Something to get ready"><button class="icon-btn" title="Remove" aria-label="Remove">&#10005;</button></div>';
@@ -496,15 +748,15 @@
   }
 
   // ---------- saving ----------
-  var pending = {}, timer = null, inFlight = false;
+  var pending = {}, timer = null, inFlight = false, redrawT = null;
 
-  function say(text, cls) { var el = document.getElementById("saveState"); el.textContent = text; el.className = "savestate" + (cls ? " " + cls : ""); }
+  function say(text, cls) { var el = $("saveState"); el.textContent = text; el.className = "savestate" + (cls ? " " + cls : ""); }
 
   function changed(l) {
     pending[key(l)] = l;
     say("Unsaved", "saving");
     clearTimeout(timer); timer = setTimeout(flush, 700);
-    renderGrid();
+    clearTimeout(redrawT); redrawT = setTimeout(function () { renderGrid(); renderPad(); }, 150);
   }
 
   function flush() {
@@ -538,7 +790,7 @@
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j.ok) throw new Error(j.error);
       l.plan = j.plan; l.source = j.source; l.hasOutline = false;
-      renderGrid(); openLesson(key(l), fromClass); say("Back to the outline", "");
+      renderGrid(); renderPad(); openLesson(key(l), fromClass); say("Back to the outline", "");
     }).catch(function (e) { say(e.message || "Could not revert", "failed"); });
   }
 

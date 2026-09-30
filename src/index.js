@@ -157,6 +157,14 @@ async function allLessons(env, classIds, forTeacher) {
   });
 }
 
+// Who a resource is for: students, teacher (decks, answer keys, teacher versions) or print.
+// Untagged ones default by path: anything in the teacher area is teacher only.
+const AUDIENCES = ["students", "teacher", "print"];
+function audience(r) {
+  if (AUDIENCES.includes(r.for)) return r.for;
+  return /^\/teacher(\/|$)/.test(r.url || "") ? "teacher" : "students";
+}
+
 function safeUrl(u) {
   u = String(u || "").trim();
   return /^https:\/\//i.test(u) || /^\/(?!\/)/.test(u) ? u : "";
@@ -175,6 +183,7 @@ function clean(p) {
     bring: strList(p.bring, 100),
     resources: (Array.isArray(p.resources) ? p.resources : []).slice(0, 30).map(r => ({
       title: str(r && r.title, 200), url: str(r && r.url, 1000), type: str(r && r.type, 20),
+      for: AUDIENCES.includes(r && r.for) ? r.for : "",
     })).filter(r => r.title || r.url),
     studentNote: str(p.studentNote, 2000),
     assess: str(p.assess, 100),
@@ -193,8 +202,9 @@ function forStudents(p) {
   return {
     published: true, unit: c.unit, topic: c.topic, objectives: c.objectives, bring: c.bring, studentNote: c.studentNote,
     assess: c.assess,
-    // Links into the teacher area only open for the teacher, so students never see them.
-    resources: c.resources.map(r => ({ ...r, url: safeUrl(r.url) })).filter(r => r.url && !/^\/teacher(\/|$)/.test(r.url)),
+    // Only resources tagged for students go out. Teacher versions and printouts never do.
+    resources: c.resources.filter(r => audience(r) === "students")
+      .map(r => ({ title: r.title, url: safeUrl(r.url), type: r.type })).filter(r => r.url),
   };
 }
 
