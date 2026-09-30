@@ -411,9 +411,6 @@ math{font-family:"Cambria Math","STIX Two Math","Latin Modern Math","Cambria",se
 /* ---- Deck additions ---- */
 /* keep the 1600x900 stage centred at any window size: a grid item wider than its area is not centred by every browser */
 #stage{position:absolute;left:50%;top:50%;margin:-450px 0 0 -800px}
-/* never let a wide top bar stretch the layout past the window: the bar scrolls instead, like the bottom bar */
-#app{grid-template-columns:minmax(0,1fr)}
-#topbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
 .photo{display:block;max-width:100%;border-radius:18px;object-fit:cover;box-shadow:0 10px 30px rgba(16,28,58,.2)}
 .photo.flat{box-shadow:none;border-radius:12px;object-fit:contain;max-height:100%}
 .openpage{display:flex;flex-direction:column;gap:4px;background:#FFF4D6;border:3px solid #F29B1D;border-radius:16px;padding:14px 20px;font-size:26px;color:var(--ink-2)}
@@ -545,6 +542,149 @@ table.cmp td{height:96px}
 #proto .arm .k{stroke:#15803D}
 #proto .arm text{fill:#15803D}
 
+/* ============ INTEGRATED CHROME (replaces the black bars) ============ */
+#app{grid-template-rows:1fr!important;background:#E9EEF8}
+body{background:#E9EEF8}
+#stagewrap{padding:0}
+#stage{position:absolute;left:50%;top:50%;margin:-450px 0 0 -800px}
+#stage{box-shadow:0 8px 30px rgba(30,50,110,.14)}
+#dock{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:120;display:flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid #D5DEEF;border-radius:18px;
+  padding:5px 8px;box-shadow:0 8px 26px rgba(30,50,110,.18);transition:transform .28s cubic-bezier(.2,.9,.3,1),opacity .28s}
+#dock.away{transform:translate(-50%,calc(100% + 16px));opacity:0;pointer-events:none}
+#app.bare #dock,#app.bare #dockTab{display:none}
+#dockTab{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:120px;height:14px;z-index:119;border-radius:10px 10px 0 0;background:rgba(47,91,234,.35);display:none;cursor:pointer}
+#dock.away + #dockTab{display:block}
+.dk{width:42px;height:42px;border-radius:12px;border:0;background:transparent;color:#27345A;display:grid;place-items:center;padding:0;flex:none;cursor:pointer}
+.dk svg{width:22px;height:22px}
+.dk:hover{background:#EEF2FD}
+.dk[aria-pressed="true"]{background:#2F5BEA;color:#fff}
+.dk:disabled{opacity:.3;cursor:default;background:transparent}
+.dk.ctr{width:auto;padding:0 10px;font:700 15px Figtree,sans-serif;font-variant-numeric:tabular-nums;color:#27345A}
+.dsep{width:1px;height:26px;background:#D5DEEF;margin:0 4px;flex:none}
+.colwrap{position:relative;display:inline-flex}
+.cdot{width:22px;height:22px;border-radius:50%;background:#15192c;box-shadow:0 0 0 3px #fff,0 0 0 4px #C5D0E8}
+.pop{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #D5DEEF;border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 30px rgba(30,50,110,.2)}
+.pop[hidden]{display:none!important}
+.toolpop{flex-direction:column;gap:4px;padding:8px;min-width:210px}
+.tl{display:flex;align-items:center;gap:12px;border:0;background:transparent;border-radius:11px;padding:9px 12px;font:700 16px Figtree,sans-serif;color:#27345A;cursor:pointer;text-align:left}
+.tl svg{width:22px;height:22px;flex:none}
+.tl span{flex:1}
+.tl kbd{font:600 12px "JetBrains Mono",monospace;color:#8494b0}
+.tl:hover{background:#EEF2FD}
+.tl[aria-pressed="true"]{background:#2F5BEA;color:#fff}
+.tl[aria-pressed="true"] kbd{color:#DCE5FF}
+.swatches{display:flex;gap:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #C5D0E8;padding:0;cursor:pointer}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px #2F5BEA}
+.widths{display:flex;gap:8px;justify-content:center}
+.wd{width:40px;height:34px;border-radius:10px;background:#F1F4FB;border:1px solid #D5DEEF;display:grid;place-items:center;padding:0;cursor:pointer}
+.wd i{display:block;background:#27345A;border-radius:99px}
+.wd[aria-pressed="true"]{background:#2F5BEA;border-color:#2F5BEA}
+.wd[aria-pressed="true"] i{background:#fff}
+#menu{position:fixed;right:14px;bottom:66px;z-index:130;background:#fff;border:1px solid #D5DEEF;border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:4px;width:320px;
+  box-shadow:0 16px 40px rgba(30,50,110,.22);font-family:Figtree,sans-serif}
+#menu[hidden]{display:none!important}
+.mb{background:transparent;border:0;border-radius:10px;padding:9px 12px;text-align:left;font:600 15px Figtree,sans-serif;color:#27345A;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.mb:hover{background:#EEF2FD}
+.mb[aria-pressed="true"]{background:#EEF2FD;color:#2F5BEA}
+.mb kbd{font:600 12px "JetBrains Mono",monospace;color:#8494b0}
+.mb.small{padding:6px 10px;background:#EEF2FD}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 4px 4px 12px}
+.mrow .lesson{font:600 14px Figtree,sans-serif;color:#4d5872}
+#menu .savestate{font:600 13px Figtree,sans-serif;color:#4d5872;display:flex;align-items:center;gap:6px}
+#menu .savestate .dot{width:9px;height:9px;border-radius:50%;background:#C5D0E8}
+#menu .savestate.ok .dot{background:#16A34A}
+#menu .savestate.busy .dot{background:#F59E0B}
+.mnote{margin:0 12px 6px;font:13px Figtree,sans-serif;color:#8494b0}
+:fullscreen #btnMenu,:fullscreen .menusep{display:none}
+body.isfull #btnMenu,body.isfull .menusep,body.isfull #menu{display:none!important}
+#toast{bottom:74px}
+#editbar{bottom:72px}
+
+/* clock chip on every slide */
+.sclock{flex:none;width:max-content;min-width:150px;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:0;background:#fff;border:3px solid color-mix(in srgb,var(--m) 35%,#fff);
+  border-radius:14px;padding:5px 12px 6px;cursor:pointer;font-family:Figtree,sans-serif;line-height:1.1}
+.sclock:hover{border-color:var(--m)}
+.sclock .sct{display:block;font:800 30px "JetBrains Mono",monospace;color:var(--ink);letter-spacing:-.02em}
+.sclock .scl{display:block;font-style:normal;font-size:14px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+.sclock.run .scl{color:var(--m)}
+.sclock.warn .scl{color:#D97706}.sclock.over .scl{color:#BE123C}
+.slide>.sclock.corner{position:absolute;top:24px;right:30px;z-index:3}
+.startlesson{display:inline-flex;align-items:center;gap:14px;background:var(--m);color:#fff;border:0;border-radius:18px;padding:16px 30px;font:800 30px "Bricolage Grotesque",Figtree,sans-serif;
+  box-shadow:0 6px 0 color-mix(in srgb,var(--m) 60%,#000);cursor:pointer;align-self:flex-start}
+.startlesson svg{width:28px;height:28px}
+.startlesson.on{background:#fff;color:var(--m);box-shadow:0 0 0 3px var(--m)}
+
+/* stylus replay */
+#replayBar{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:45;display:flex;align-items:center;gap:10px;background:rgba(21,25,44,.88);color:#fff;
+  border-radius:16px;padding:8px 10px 8px 18px;font:700 20px Figtree,sans-serif}
+#replayBar[hidden]{display:none!important}
+#replayBar button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:11px;padding:8px 16px;font:800 19px Figtree,sans-serif;cursor:pointer}
+#replayBar button.go{background:#2F5BEA}
+#replayBar .rstate{min-width:190px}
+
+/* ---- calculator ---- */
+#calc{position:absolute;left:1130px;top:90px;width:410px;z-index:38;background:linear-gradient(170deg,#34406A,#232C4D);border-radius:30px 30px 44px 44px;
+  padding:14px 16px 20px;box-shadow:0 18px 40px rgba(12,20,50,.35),inset 0 1px 0 rgba(255,255,255,.18);font-family:Figtree,sans-serif;user-select:none;touch-action:none}
+#calc[hidden]{display:none!important}
+#calc .cgrip{display:flex;align-items:center;justify-content:space-between;cursor:grab;padding:0 6px 8px;color:#C8D3F5}
+#calc .cgrip:active{cursor:grabbing}
+#calc .cname{font:800 17px "Bricolage Grotesque",Figtree,sans-serif;letter-spacing:.06em}
+#calc .cname small{font-weight:600;opacity:.7;letter-spacing:0;margin-left:6px}
+#calc .cx{background:rgba(255,255,255,.14);border:0;color:#fff;width:34px;height:30px;border-radius:9px;font-size:18px;cursor:pointer}
+#calc .lcd{background:linear-gradient(180deg,#DDE5D3,#CAD5BE);border-radius:12px;height:176px;padding:6px 12px 8px;color:#1E2A1A;position:relative;overflow:hidden;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.28);font-family:"Cambria Math",Cambria,"Times New Roman",serif}
+#calc .ind{position:absolute;top:4px;right:12px;display:flex;gap:10px;font:800 12px Figtree,sans-serif;letter-spacing:.05em}
+#calc .ind .on2{background:#1E2A1A;color:#DDE5D3;border-radius:4px;padding:0 4px}
+#calc .hist{position:absolute;left:12px;right:12px;top:20px;display:flex;flex-direction:column;gap:2px}
+#calc .chl{display:flex;flex-direction:column;font-size:19px;line-height:1.15;cursor:pointer}
+#calc .chl .he{align-self:flex-start;opacity:.8}
+#calc .chl .hr{align-self:flex-end;font-weight:700}
+#calc .chl.sel{background:rgba(30,42,26,.14);border-radius:6px}
+#calc .entry{position:absolute;left:12px;right:12px;bottom:8px;min-height:44px;font-size:25px;display:flex;align-items:center;flex-wrap:nowrap;overflow:hidden;justify-content:flex-start}
+#calc .entry.over{justify-content:flex-end}
+#calc .menu{position:absolute;inset:18px 8px 8px;background:#CAD5BE;display:flex;flex-direction:column;gap:3px;font:700 18px Figtree,sans-serif;padding:4px 6px}
+#calc .menu .mt{font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+#calc .menu .mi{display:flex;gap:8px;cursor:pointer;border-radius:6px;padding:1px 6px}
+#calc .menu .mi:hover,#calc .menu .mi.sel{background:#1E2A1A;color:#DDE5D3}
+#calc .menu .mi b{min-width:18px}
+/* MathPrint pieces */
+#calc .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px;font-size:.86em;line-height:1.05}
+#calc .fr>span{padding:0 3px;min-width:12px;text-align:center;display:inline-flex;align-items:center;justify-content:center}
+#calc .fr>span+span{border-top:2px solid currentColor}
+#calc .sup{display:inline-flex;align-items:center;font-size:.66em;align-self:flex-start;margin-top:-2px}
+#calc .rad{display:inline-flex;align-items:stretch}
+#calc .rad .rs{font-size:1.1em;line-height:1}
+#calc .rad .ri{border-top:2px solid currentColor;padding:0 2px;display:inline-flex;align-items:center}
+#calc .rad .rn{font-size:.55em;align-self:flex-start;margin-right:-4px}
+#calc .slot{display:inline-flex;align-items:center;min-width:10px;min-height:.9em}
+#calc .slot.empty{outline:1.5px dashed rgba(30,42,26,.55);outline-offset:-1px;min-width:12px;min-height:18px}
+#calc .cur{display:inline-block;width:2px;height:1em;background:#1E2A1A;margin:0 1px;animation:cblink 1s steps(1) infinite;align-self:center}
+@keyframes cblink{50%{opacity:0}}
+#calc .fn{font-family:Figtree,sans-serif;font-size:.82em;margin-right:1px}
+/* keys */
+#calc .keys{display:grid;grid-template-columns:repeat(5,1fr);gap:9px 9px;margin-top:14px}
+#calc .k{position:relative;height:40px;border:0;border-radius:12px;background:#E4E9F7;color:#1F2847;font:700 16px Figtree,sans-serif;cursor:pointer;
+  box-shadow:0 3px 0 #9CA8CC;padding:0;margin-top:14px;display:flex;align-items:center;justify-content:center}
+#calc .k:active,#calc .k.hit{transform:translateY(2px);box-shadow:0 1px 0 #9CA8CC}
+#calc .k .s2{position:absolute;top:-17px;left:0;right:0;text-align:center;font:700 11.5px Figtree,sans-serif;color:#FFC24B;white-space:nowrap;pointer-events:none}
+#calc .k.num{background:#fff;font-size:21px;box-shadow:0 3px 0 #A8B2CF}
+#calc .k.op{background:#5B8DEF;color:#fff;font-size:22px;box-shadow:0 3px 0 #2C58B8}
+#calc .k.second{background:#FFC24B;color:#3A2A00;box-shadow:0 3px 0 #B8841A}
+#calc .k.enter{background:#fff;color:#2C58B8;box-shadow:0 3px 0 #A8B2CF;border:2px solid #5B8DEF}
+#calc .k i{font-style:italic;font-family:"Cambria Math",Cambria,serif;font-size:1.05em}
+#calc .k sup{font-size:.65em}
+#calc .pad{grid-column:4 / span 2;grid-row:1 / span 2;position:relative;height:88px;align-self:center}
+#calc .pad button{position:absolute;border:0;background:#E4E9F7;color:#1F2847;font-size:15px;cursor:pointer;box-shadow:0 2px 0 #9CA8CC}
+#calc .pad .u{left:50%;top:0;transform:translateX(-50%);width:54px;height:28px;border-radius:14px 14px 6px 6px}
+#calc .pad .d{left:50%;bottom:0;transform:translateX(-50%);width:54px;height:28px;border-radius:6px 6px 14px 14px}
+#calc .pad .l{left:6px;top:50%;transform:translateY(-50%);width:40px;height:34px;border-radius:14px 6px 6px 14px}
+#calc .pad .r{right:6px;top:50%;transform:translateY(-50%);width:40px;height:34px;border-radius:6px 14px 14px 6px}
+#calc .pad button:active{transform:translate(-50%,2px)}
+#calc .pad .l:active,#calc .pad .r:active{transform:translateY(calc(-50% + 2px))}
+#calc .hint{color:#AEB9DD;font-size:12.5px;text-align:center;margin-top:10px}
+
 /* Diagram Creator figures */
 .fig text{font-family: Georgia, "Times New Roman", "Nimbus Roman", serif;}
 .fig .shape-poly{stroke: #1a1a1a; stroke-width: calc(1.6px * var(--label-scale, 1)); stroke-linejoin: round;}
@@ -569,27 +709,6 @@ table.cmp td{height:96px}
 
 <div id="app">
 
-  <!-- ================= TOP BAR ================= -->
-  <div class="bar" id="topbar">
-    <span class="deckname">Y7 Enrichment <span>&#8594;</span> 7A Points, lines, intervals and angles</span>
-    <span class="sep"></span>
-    <button class="tb ghost" id="btnList" title="Slide list (L)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      Slides</button>
-    <button class="tb" id="btnPrev" title="Previous (&#8592;)">&#8592;</button>
-    <span class="counter" id="counter">1 / 16</span>
-    <button class="tb" id="btnNext" title="Next (&#8594;)">&#8594;</button>
-    <span class="spacer"></span>
-    <span class="lesson" id="lessonEl">Lesson not started</span>
-    <button class="tb ghost" id="btnLesson" title="Start / pause the 80 minute lesson clock">Start lesson</button>
-    <span class="sep"></span>
-    <span class="clock" id="clock">--:--</span>
-    <span class="sep"></span>
-    <button class="tb ghost" id="btnEdit" aria-pressed="false" title="Change the text on a slide, or delete a slide">Edit deck</button>
-    <button class="tb ghost" id="btnBare" title="Hide the bars (U)">Hide UI</button>
-    <button class="tb ghost" id="btnFull" title="Fullscreen (F)">Full screen</button>
-  </div>
-
   <!-- ================= STAGE ================= -->
   <div id="stagewrap">
     <div id="stage">
@@ -605,17 +724,19 @@ table.cmp td{height:96px}
             <h1>Points, lines and <span>angles</span></h1>
             <p class="small" style="margin:14px 0 0;font-size:27px">I can:</p>
             <ul class="goals" style="margin-top:12px;gap:14px"><li><i>1</i><span>Name points, lines, rays, segments and angles</span></li><li><i>2</i><span>Classify an angle as acute, right, obtuse, straight, reflex or a revolution</span></li><li><i>3</i><span>Measure and draw angles with a protractor, including reflex angles</span></li></ul>
+            <button class="startlesson no-ink" type="button" style="margin-top:34px"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>Start lesson</button>
           </div>
           <div class="pane" style="justify-content:center;align-items:center;gap:26px">
             <span class="fig" style="width:592px;height:302px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="207.60 176 536.39 273.64"><rect x="207.60" y="176" width="536.39" height="273.64" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="protractor-60" style="--label-scale: 1.88;"><path d="M 280 420 A 220 220 0 0 1 720 420 Z" fill="#eef4fb" stroke="#1a1a1a" stroke-width="2.63"/><path d="M 376.79 420 A 123.20 123.20 0 0 1 623.2 420" fill="none" stroke="#1a1a1a" stroke-width="1.69"/><line x1="720" y1="420" x2="698" y2="420" stroke="#1a1a1a" stroke-width="2.06"/><line x1="623.2" y1="420" x2="634.2" y2="420" stroke="#1a1a1a" stroke-width="1.69"/><line x1="719.96" y1="416.16" x2="712.26" y2="416.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.86" y1="412.32" x2="712.17" y2="412.59" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.69" y1="408.48" x2="712.00" y2="408.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.46" y1="404.65" x2="711.78" y2="405.19" stroke="#1a1a1a" stroke-width="1.12"/><line x1="719.16" y1="400.82" x2="704.91" y2="402.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="718.79" y1="397.00" x2="711.13" y2="397.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="718.36" y1="393.18" x2="710.71" y2="394.12" stroke="#1a1a1a" stroke-width="1.12"/><line x1="717.85" y1="389.38" x2="710.23" y2="390.45" stroke="#1a1a1a" stroke-width="1.12"/><line x1="717.29" y1="385.58" x2="709.68" y2="386.78" stroke="#1a1a1a" stroke-width="1.12"/><line x1="716.65" y1="381.79" x2="694.99" y2="385.61" stroke="#1a1a1a" stroke-width="2.06"/><line x1="621.32" y1="398.60" x2="632.16" y2="396.69" stroke="#1a1a1a" stroke-width="1.69"/><line x1="715.95" y1="378.02" x2="708.39" y2="379.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="715.19" y1="374.25" x2="707.66" y2="375.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="714.36" y1="370.51" x2="706.85" y2="372.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="713.46" y1="366.77" x2="705.99" y2="368.63" stroke="#1a1a1a" stroke-width="1.12"/><line x1="712.50" y1="363.05" x2="698.69" y2="366.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="711.47" y1="359.35" x2="704.07" y2="361.48" stroke="#1a1a1a" stroke-width="1.12"/><line x1="710.38" y1="355.67" x2="703.02" y2="357.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="709.23" y1="352.01" x2="701.90" y2="354.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="708.01" y1="348.37" x2="700.73" y2="350.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="706.73" y1="344.75" x2="686.05" y2="352.28" stroke="#1a1a1a" stroke-width="2.06"/><line x1="615.77" y1="377.86" x2="626.10" y2="374.10" stroke="#1a1a1a" stroke-width="1.69"/><line x1="705.38" y1="341.15" x2="698.19" y2="343.91" stroke="#1a1a1a" stroke-width="1.12"/><line x1="703.98" y1="337.58" x2="696.84" y2="340.47" stroke="#1a1a1a" stroke-width="1.12"/><line x1="702.51" y1="334.03" x2="695.42" y2="337.04" stroke="#1a1a1a" stroke-width="1.12"/><line x1="700.98" y1="330.51" x2="693.94" y2="333.64" stroke="#1a1a1a" stroke-width="1.12"/><line x1="699.38" y1="327.02" x2="686.42" y2="333.06" stroke="#1a1a1a" stroke-width="1.12"/><line x1="697.73" y1="323.55" x2="690.81" y2="326.93" stroke="#1a1a1a" stroke-width="1.12"/><line x1="696.02" y1="320.12" x2="689.16" y2="323.61" stroke="#1a1a1a" stroke-width="1.12"/><line x1="694.24" y1="316.71" x2="687.44" y2="320.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="692.41" y1="313.34" x2="685.68" y2="317.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="690.52" y1="310" x2="671.47" y2="321" stroke="#1a1a1a" stroke-width="2.06"/><line x1="606.69" y1="358.4" x2="616.22" y2="352.9" stroke="#1a1a1a" stroke-width="1.69"/><line x1="688.57" y1="306.69" x2="681.97" y2="310.65" stroke="#1a1a1a" stroke-width="1.12"/><line x1="686.57" y1="303.41" x2="680.04" y2="307.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="684.50" y1="300.17" x2="678.04" y2="304.37" stroke="#1a1a1a" stroke-width="1.12"/><line x1="682.38" y1="296.97" x2="676.00" y2="301.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="680.21" y1="293.81" x2="668.49" y2="302.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="677.98" y1="290.68" x2="671.75" y2="295.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="675.69" y1="287.60" x2="669.55" y2="292.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="673.36" y1="284.55" x2="667.29" y2="289.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="670.97" y1="281.54" x2="664.98" y2="286.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="668.52" y1="278.58" x2="651.67" y2="292.72" stroke="#1a1a1a" stroke-width="2.06"/><line x1="594.37" y1="340.80" x2="602.80" y2="333.73" stroke="#1a1a1a" stroke-width="1.69"/><line x1="666.03" y1="275.66" x2="660.22" y2="280.71" stroke="#1a1a1a" stroke-width="1.12"/><line x1="663.49" y1="272.79" x2="657.76" y2="277.94" stroke="#1a1a1a" stroke-width="1.12"/><line x1="660.89" y1="269.96" x2="655.26" y2="275.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="658.25" y1="267.17" x2="652.71" y2="272.52" stroke="#1a1a1a" stroke-width="1.12"/><line x1="655.56" y1="264.43" x2="645.45" y2="274.54" stroke="#1a1a1a" stroke-width="1.12"/><line x1="652.82" y1="261.74" x2="647.47" y2="267.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="650.03" y1="259.10" x2="644.78" y2="264.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="647.20" y1="256.50" x2="642.05" y2="262.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="644.33" y1="253.96" x2="639.28" y2="259.77" stroke="#1a1a1a" stroke-width="1.12"/><line x1="641.41" y1="251.47" x2="627.27" y2="268.32" stroke="#1a1a1a" stroke-width="2.06"/><line x1="579.19" y1="325.62" x2="586.26" y2="317.19" stroke="#1a1a1a" stroke-width="1.69"/><line x1="638.45" y1="249.02" x2="633.60" y2="255.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="635.44" y1="246.63" x2="630.70" y2="252.70" stroke="#1a1a1a" stroke-width="1.12"/><line x1="632.39" y1="244.30" x2="627.76" y2="250.44" stroke="#1a1a1a" stroke-width="1.12"/><line x1="629.31" y1="242.01" x2="624.78" y2="248.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="626.18" y1="239.78" x2="617.98" y2="251.50" stroke="#1a1a1a" stroke-width="1.12"/><line x1="623.02" y1="237.61" x2="618.71" y2="243.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="619.82" y1="235.49" x2="615.62" y2="241.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="616.58" y1="233.42" x2="612.50" y2="239.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="613.30" y1="231.42" x2="609.34" y2="238.02" stroke="#1a1a1a" stroke-width="1.12"/><line x1="610" y1="229.47" x2="599" y2="248.52" stroke="#1a1a1a" stroke-width="2.06"/><line x1="561.6" y1="313.30" x2="567.1" y2="303.77" stroke="#1a1a1a" stroke-width="1.69"/><line x1="606.65" y1="227.58" x2="602.92" y2="234.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="603.28" y1="225.75" x2="599.66" y2="232.55" stroke="#1a1a1a" stroke-width="1.12"/><line x1="599.87" y1="223.97" x2="596.38" y2="230.83" stroke="#1a1a1a" stroke-width="1.12"/><line x1="596.44" y1="222.26" x2="593.06" y2="229.18" stroke="#1a1a1a" stroke-width="1.12"/><line x1="592.97" y1="220.61" x2="586.93" y2="233.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="589.48" y1="219.01" x2="586.35" y2="226.05" stroke="#1a1a1a" stroke-width="1.12"/><line x1="585.96" y1="217.48" x2="582.95" y2="224.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="582.41" y1="216.01" x2="579.52" y2="223.15" stroke="#1a1a1a" stroke-width="1.12"/><line x1="578.84" y1="214.61" x2="576.08" y2="221.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="575.24" y1="213.26" x2="567.71" y2="233.94" stroke="#1a1a1a" stroke-width="2.06"/><line x1="542.13" y1="304.22" x2="545.89" y2="293.89" stroke="#1a1a1a" stroke-width="1.69"/><line x1="571.62" y1="211.98" x2="569.11" y2="219.26" stroke="#1a1a1a" stroke-width="1.12"/><line x1="567.98" y1="210.76" x2="565.60" y2="218.09" stroke="#1a1a1a" stroke-width="1.12"/><line x1="564.32" y1="209.61" x2="562.07" y2="216.97" stroke="#1a1a1a" stroke-width="1.12"/><line x1="560.64" y1="208.52" x2="558.51" y2="215.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="556.94" y1="207.49" x2="553.23" y2="221.30" stroke="#1a1a1a" stroke-width="1.12"/><line x1="553.22" y1="206.53" x2="551.36" y2="214.00" stroke="#1a1a1a" stroke-width="1.12"/><line x1="549.48" y1="205.63" x2="547.75" y2="213.14" stroke="#1a1a1a" stroke-width="1.12"/><line x1="545.74" y1="204.80" x2="544.13" y2="212.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="541.97" y1="204.04" x2="540.50" y2="211.60" stroke="#1a1a1a" stroke-width="1.12"/><line x1="538.20" y1="203.34" x2="534.38" y2="225.00" stroke="#1a1a1a" stroke-width="2.06"/><line x1="521.39" y1="298.67" x2="523.30" y2="287.83" stroke="#1a1a1a" stroke-width="1.69"/><line x1="534.41" y1="202.70" x2="533.21" y2="210.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="530.61" y1="202.14" x2="529.54" y2="209.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="526.81" y1="201.63" x2="525.87" y2="209.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="522.99" y1="201.20" x2="522.19" y2="208.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="519.17" y1="200.83" x2="517.92" y2="215.08" stroke="#1a1a1a" stroke-width="1.12"/><line x1="515.34" y1="200.53" x2="514.80" y2="208.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="511.51" y1="200.30" x2="511.11" y2="207.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="507.67" y1="200.13" x2="507.40" y2="207.82" stroke="#1a1a1a" stroke-width="1.12"/><line x1="503.83" y1="200.03" x2="503.70" y2="207.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="500" y1="200" x2="500" y2="222" stroke="#1a1a1a" stroke-width="2.06"/><line x1="500" y1="296.79" x2="500" y2="285.79" stroke="#1a1a1a" stroke-width="1.69"/><line x1="496.16" y1="200.03" x2="496.29" y2="207.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="492.32" y1="200.13" x2="492.59" y2="207.82" stroke="#1a1a1a" stroke-width="1.12"/><line x1="488.48" y1="200.30" x2="488.88" y2="207.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="484.65" y1="200.53" x2="485.19" y2="208.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="480.82" y1="200.83" x2="482.07" y2="215.08" stroke="#1a1a1a" stroke-width="1.12"/><line x1="477.00" y1="201.20" x2="477.80" y2="208.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="473.18" y1="201.63" x2="474.12" y2="209.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="469.38" y1="202.14" x2="470.45" y2="209.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="465.58" y1="202.70" x2="466.78" y2="210.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="461.79" y1="203.34" x2="465.61" y2="225.00" stroke="#1a1a1a" stroke-width="2.06"/><line x1="478.60" y1="298.67" x2="476.69" y2="287.83" stroke="#1a1a1a" stroke-width="1.69"/><line x1="458.02" y1="204.04" x2="459.49" y2="211.60" stroke="#1a1a1a" stroke-width="1.12"/><line x1="454.25" y1="204.80" x2="455.86" y2="212.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="450.51" y1="205.63" x2="452.24" y2="213.14" stroke="#1a1a1a" stroke-width="1.12"/><line x1="446.77" y1="206.53" x2="448.63" y2="214.00" stroke="#1a1a1a" stroke-width="1.12"/><line x1="443.05" y1="207.49" x2="446.76" y2="221.30" stroke="#1a1a1a" stroke-width="1.12"/><line x1="439.35" y1="208.52" x2="441.48" y2="215.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="435.67" y1="209.61" x2="437.92" y2="216.97" stroke="#1a1a1a" stroke-width="1.12"/><line x1="432.01" y1="210.76" x2="434.39" y2="218.09" stroke="#1a1a1a" stroke-width="1.12"/><line x1="428.37" y1="211.98" x2="430.88" y2="219.26" stroke="#1a1a1a" stroke-width="1.12"/><line x1="424.75" y1="213.26" x2="432.28" y2="233.94" stroke="#1a1a1a" stroke-width="2.06"/><line x1="457.86" y1="304.22" x2="454.10" y2="293.89" stroke="#1a1a1a" stroke-width="1.69"/><line x1="421.15" y1="214.61" x2="423.91" y2="221.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="417.58" y1="216.01" x2="420.47" y2="223.15" stroke="#1a1a1a" stroke-width="1.12"/><line x1="414.03" y1="217.48" x2="417.04" y2="224.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="410.51" y1="219.01" x2="413.64" y2="226.05" stroke="#1a1a1a" stroke-width="1.12"/><line x1="407.02" y1="220.61" x2="413.06" y2="233.57" stroke="#1a1a1a" stroke-width="1.12"/><line x1="403.55" y1="222.26" x2="406.93" y2="229.18" stroke="#1a1a1a" stroke-width="1.12"/><line x1="400.12" y1="223.97" x2="403.61" y2="230.83" stroke="#1a1a1a" stroke-width="1.12"/><line x1="396.71" y1="225.75" x2="400.33" y2="232.55" stroke="#1a1a1a" stroke-width="1.12"/><line x1="393.34" y1="227.58" x2="397.07" y2="234.31" stroke="#1a1a1a" stroke-width="1.12"/><line x1="390.00" y1="229.47" x2="401.00" y2="248.52" stroke="#1a1a1a" stroke-width="2.06"/><line x1="438.40" y1="313.30" x2="432.90" y2="303.77" stroke="#1a1a1a" stroke-width="1.69"/><line x1="386.69" y1="231.42" x2="390.65" y2="238.02" stroke="#1a1a1a" stroke-width="1.12"/><line x1="383.41" y1="233.42" x2="387.49" y2="239.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="380.17" y1="235.49" x2="384.37" y2="241.95" stroke="#1a1a1a" stroke-width="1.12"/><line x1="376.97" y1="237.61" x2="381.28" y2="243.99" stroke="#1a1a1a" stroke-width="1.12"/><line x1="373.81" y1="239.78" x2="382.01" y2="251.50" stroke="#1a1a1a" stroke-width="1.12"/><line x1="370.68" y1="242.01" x2="375.21" y2="248.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="367.60" y1="244.30" x2="372.23" y2="250.44" stroke="#1a1a1a" stroke-width="1.12"/><line x1="364.55" y1="246.63" x2="369.29" y2="252.70" stroke="#1a1a1a" stroke-width="1.12"/><line x1="361.54" y1="249.02" x2="366.39" y2="255.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="358.58" y1="251.47" x2="372.72" y2="268.32" stroke="#1a1a1a" stroke-width="2.06"/><line x1="420.80" y1="325.62" x2="413.73" y2="317.19" stroke="#1a1a1a" stroke-width="1.69"/><line x1="355.66" y1="253.96" x2="360.71" y2="259.77" stroke="#1a1a1a" stroke-width="1.12"/><line x1="352.79" y1="256.50" x2="357.94" y2="262.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="349.96" y1="259.10" x2="355.21" y2="264.73" stroke="#1a1a1a" stroke-width="1.12"/><line x1="347.17" y1="261.74" x2="352.52" y2="267.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="344.43" y1="264.43" x2="354.54" y2="274.54" stroke="#1a1a1a" stroke-width="1.12"/><line x1="341.74" y1="267.17" x2="347.28" y2="272.52" stroke="#1a1a1a" stroke-width="1.12"/><line x1="339.10" y1="269.96" x2="344.73" y2="275.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="336.50" y1="272.79" x2="342.23" y2="277.94" stroke="#1a1a1a" stroke-width="1.12"/><line x1="333.96" y1="275.66" x2="339.77" y2="280.71" stroke="#1a1a1a" stroke-width="1.12"/><line x1="331.47" y1="278.58" x2="348.32" y2="292.72" stroke="#1a1a1a" stroke-width="2.06"/><line x1="405.62" y1="340.80" x2="397.19" y2="333.73" stroke="#1a1a1a" stroke-width="1.69"/><line x1="329.02" y1="281.54" x2="335.01" y2="286.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="326.63" y1="284.55" x2="332.70" y2="289.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="324.30" y1="287.60" x2="330.44" y2="292.23" stroke="#1a1a1a" stroke-width="1.12"/><line x1="322.01" y1="290.68" x2="328.24" y2="295.21" stroke="#1a1a1a" stroke-width="1.12"/><line x1="319.78" y1="293.81" x2="331.50" y2="302.01" stroke="#1a1a1a" stroke-width="1.12"/><line x1="317.61" y1="296.97" x2="323.99" y2="301.28" stroke="#1a1a1a" stroke-width="1.12"/><line x1="315.49" y1="300.17" x2="321.95" y2="304.37" stroke="#1a1a1a" stroke-width="1.12"/><line x1="313.42" y1="303.41" x2="319.95" y2="307.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="311.42" y1="306.69" x2="318.02" y2="310.65" stroke="#1a1a1a" stroke-width="1.12"/><line x1="309.47" y1="310" x2="328.52" y2="321" stroke="#1a1a1a" stroke-width="2.06"/><line x1="393.30" y1="358.4" x2="383.77" y2="352.9" stroke="#1a1a1a" stroke-width="1.69"/><line x1="307.58" y1="313.34" x2="314.31" y2="317.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="305.75" y1="316.71" x2="312.55" y2="320.33" stroke="#1a1a1a" stroke-width="1.12"/><line x1="303.97" y1="320.12" x2="310.83" y2="323.61" stroke="#1a1a1a" stroke-width="1.12"/><line x1="302.26" y1="323.55" x2="309.18" y2="326.93" stroke="#1a1a1a" stroke-width="1.12"/><line x1="300.61" y1="327.02" x2="313.57" y2="333.06" stroke="#1a1a1a" stroke-width="1.12"/><line x1="299.01" y1="330.51" x2="306.05" y2="333.64" stroke="#1a1a1a" stroke-width="1.12"/><line x1="297.48" y1="334.03" x2="304.57" y2="337.04" stroke="#1a1a1a" stroke-width="1.12"/><line x1="296.01" y1="337.58" x2="303.15" y2="340.47" stroke="#1a1a1a" stroke-width="1.12"/><line x1="294.61" y1="341.15" x2="301.80" y2="343.91" stroke="#1a1a1a" stroke-width="1.12"/><line x1="293.26" y1="344.75" x2="313.94" y2="352.28" stroke="#1a1a1a" stroke-width="2.06"/><line x1="384.22" y1="377.86" x2="373.89" y2="374.10" stroke="#1a1a1a" stroke-width="1.69"/><line x1="291.98" y1="348.37" x2="299.26" y2="350.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="290.76" y1="352.01" x2="298.09" y2="354.39" stroke="#1a1a1a" stroke-width="1.12"/><line x1="289.61" y1="355.67" x2="296.97" y2="357.92" stroke="#1a1a1a" stroke-width="1.12"/><line x1="288.52" y1="359.35" x2="295.92" y2="361.48" stroke="#1a1a1a" stroke-width="1.12"/><line x1="287.49" y1="363.05" x2="301.30" y2="366.76" stroke="#1a1a1a" stroke-width="1.12"/><line x1="286.53" y1="366.77" x2="294.00" y2="368.63" stroke="#1a1a1a" stroke-width="1.12"/><line x1="285.63" y1="370.51" x2="293.14" y2="372.24" stroke="#1a1a1a" stroke-width="1.12"/><line x1="284.80" y1="374.25" x2="292.33" y2="375.86" stroke="#1a1a1a" stroke-width="1.12"/><line x1="284.04" y1="378.02" x2="291.60" y2="379.49" stroke="#1a1a1a" stroke-width="1.12"/><line x1="283.34" y1="381.79" x2="305.00" y2="385.61" stroke="#1a1a1a" stroke-width="2.06"/><line x1="378.67" y1="398.60" x2="367.83" y2="396.69" stroke="#1a1a1a" stroke-width="1.69"/><line x1="282.70" y1="385.58" x2="290.31" y2="386.78" stroke="#1a1a1a" stroke-width="1.12"/><line x1="282.14" y1="389.38" x2="289.76" y2="390.45" stroke="#1a1a1a" stroke-width="1.12"/><line x1="281.63" y1="393.18" x2="289.28" y2="394.12" stroke="#1a1a1a" stroke-width="1.12"/><line x1="281.20" y1="397.00" x2="288.86" y2="397.80" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.83" y1="400.82" x2="295.08" y2="402.07" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.53" y1="404.65" x2="288.21" y2="405.19" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.30" y1="408.48" x2="287.99" y2="408.88" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.13" y1="412.32" x2="287.82" y2="412.59" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280.03" y1="416.16" x2="287.73" y2="416.29" stroke="#1a1a1a" stroke-width="1.12"/><line x1="280" y1="420" x2="302" y2="420" stroke="#1a1a1a" stroke-width="2.06"/><line x1="376.79" y1="420" x2="365.79" y2="420" stroke="#1a1a1a" stroke-width="1.69"/><text x="682.31" y="409.80" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 682.31 409.80)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">0</text><text x="641.52" y="409.70" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(90 641.52 409.70)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">180</text><text x="679.82" y="388.29" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(80 679.82 388.29)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">10</text><text x="639.74" y="395.35" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(80 639.74 395.35)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">170</text><text x="671.58" y="357.54" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(70 671.58 357.54)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">20</text><text x="633.34" y="371.46" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(70 633.34 371.46)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">160</text><text x="658.13" y="328.70" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(60 658.13 328.70)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">30</text><text x="622.88" y="349.05" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(60 622.88 349.05)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">150</text><text x="639.87" y="302.62" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(50 639.87 302.62)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">40</text><text x="608.70" y="328.78" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(50 608.70 328.78)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">140</text><text x="617.37" y="280.12" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(40 617.37 280.12)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">50</text><text x="591.21" y="311.29" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(40 591.21 311.29)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">130</text><text x="591.3" y="261.86" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(30 591.3 261.86)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">60</text><text x="570.95" y="297.11" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(30 570.95 297.11)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">120</text><text x="562.45" y="248.41" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(20 562.45 248.41)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">70</text><text x="548.53" y="286.65" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(20 548.53 286.65)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">110</text><text x="531.70" y="240.17" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(10 531.70 240.17)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">80</text><text x="524.64" y="280.25" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(10 524.64 280.25)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">100</text><text x="500" y="237.4" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(0 500 237.4)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">90</text><text x="500" y="278.1" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(0 500 278.1)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">90</text><text x="468.29" y="240.17" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-10 468.29 240.17)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">100</text><text x="475.35" y="280.25" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-10 475.35 280.25)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">80</text><text x="437.54" y="248.41" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-20 437.54 248.41)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">110</text><text x="451.46" y="286.65" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-20 451.46 286.65)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">70</text><text x="408.70" y="261.86" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 408.70 261.86)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">120</text><text x="429.05" y="297.11" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 429.05 297.11)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">60</text><text x="382.62" y="280.12" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-40 382.62 280.12)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">130</text><text x="408.78" y="311.29" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-40 408.78 311.29)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">50</text><text x="360.12" y="302.62" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-50 360.12 302.62)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">140</text><text x="391.29" y="328.78" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-50 391.29 328.78)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">40</text><text x="341.86" y="328.70" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-60 341.86 328.70)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">150</text><text x="377.11" y="349.05" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-60 377.11 349.05)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">30</text><text x="328.41" y="357.54" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-70 328.41 357.54)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">160</text><text x="366.65" y="371.46" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-70 366.65 371.46)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">20</text><text x="320.17" y="388.29" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-80 320.17 388.29)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">170</text><text x="360.25" y="395.35" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-80 360.25 395.35)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">10</text><text x="317.68" y="409.80" font-size="13.64" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 317.68 409.80)" fill="#1a1a1a" font-family="Arial, Helvetica, sans-serif">180</text><text x="358.47" y="409.70" font-size="11" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 358.47 409.70)" fill="#4b5563" font-family="Arial, Helvetica, sans-serif">0</text><circle cx="500" cy="420" r="5.64" fill="#1a1a1a"/><line x1="500" y1="420" x2="231.60" y2="419.99" stroke="#1d4ed8" stroke-width="4.13" stroke-linecap="round"/><line x1="500" y1="420" x2="672.52" y2="214.39" stroke="#1d4ed8" stroke-width="4.13" stroke-linecap="round"/><path d="M 464.8 420 A 35.2 35.2 0 0 1 522.62 393.03" fill="none" stroke="#1d4ed8" stroke-width="2.44"/></g></g></svg></span>
             <div class="openpage"><b>Booklet 1, section 7A</b><span>Bring: protractor, ruler, pencil. Your lesson page: Learning Home &#8594; Year 7 Enrichment &#8594; today's lesson.</span></div>
           </div>
         </div>
+        <button class="sclock corner no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button>
       </section>
 
       <!-- KEY IDEAS 1 -->
       <section class="slide" data-mode="notes" data-part="Key ideas" data-t="The building blocks" data-mins="5">
-        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>The building blocks</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><span class="mins">5 min</span></header>
+        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>The building blocks</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><button class="sclock no-ink" type="button" data-mins="5" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body"><div class="notes">
 <table class="ntab"><tr><th>Object</th><th>Picture</th><th>How we write it</th></tr>
 <tr><td><b>Point</b> &nbsp;a position, no size</td><td class="c"><span class="fig" style="width:94px;height:108px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="271.00 429.07 69.84 79.91"><rect x="271.00" y="429.07" width="69.84" height="79.91" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-2" style="--label-scale: 1.56;"><circle cx="300" cy="480" r="4.99" fill="#c8102e"/><text x="314.58" y="457.98" class="vertex-label" text-anchor="middle" dominant-baseline="middle">P</text></g></g></svg></span></td><td>point <button class="gap" type="button">P</button></td></tr>
@@ -628,7 +749,7 @@ table.cmp td{height:96px}
 
       <!-- KEY IDEAS 2 -->
       <section class="slide" data-mode="notes" data-part="Key ideas" data-t="Naming an angle" data-mins="5">
-        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>Naming an angle</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><span class="mins">5 min</span></header>
+        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>Naming an angle</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><button class="sclock no-ink" type="button" data-mins="5" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body"><div class="notes">
 <div class="nrow" style="grid-template-columns: 450px 1fr; align-items:center">
 <div class="ncell"><span class="fig" style="width:299px;height:270px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="249.36 291.61 279.63 252.35"><rect x="249.36" y="291.61" width="279.63" height="252.35" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-12" style="--label-scale: 1.49;"><line x1="300" y1="480" x2="327.39" y2="315.61" class="shape-line"/><path d="M 327.39 315.61 L 331.12 331.36 L 318.76 329.30 Z" class="dimension-head"/><line x1="300" y1="480" x2="505" y2="480" class="shape-line"/><path d="M 505 480 L 490.07 486.26 L 490.07 473.73 Z" class="dimension-head"/><line x1="300" y1="480" x2="327.39" y2="315.61" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="505" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 305.39 447.61 A 32.82 32.82 0 0 1 332.82 480" class="angle-arc"/><g class="removable-label"><text x="347.77" y="439.52" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><circle cx="320" cy="360" r="4.77" fill="#c8102e"/><circle cx="300" cy="480" r="4.77" fill="#c8102e"/><circle cx="460" cy="480" r="4.77" fill="#c8102e"/><text x="294.97" y="355.82" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="280.64" y="496.39" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="460" y="454.63" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="302.5" y="510" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">vertex</text><text x="415" y="462.5" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">arm</text><text x="342.5" y="400" class="side-label note-label" text-anchor="middle" dominant-baseline="middle">arm</text></g></g></svg></span></div>
@@ -647,7 +768,7 @@ table.cmp td{height:96px}
 
       <!-- KEY IDEAS 3 -->
       <section class="slide" data-mode="notes" data-part="Key ideas" data-t="More words" data-mins="4">
-        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>More words</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><span class="mins">4 min</span></header>
+        <header class="head"><span class="chip"><b>Key ideas</b><em>Fill the gaps in your booklet as we go.</em></span><h2>More words</h2><div class="headbtns"><button class="hbtn gapall" type="button">Fill the gaps</button></div><button class="sclock no-ink" type="button" data-mins="4" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body"><div class="notes">
 <div class="nrow" style="grid-template-columns: repeat(4, 1fr)">
 <div class="ncell"><span class="fig" style="width:270px;height:144px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="234.22 376.95 281.15 150.03"><rect x="234.22" y="376.95" width="281.15" height="150.03" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-26" style="--label-scale: 1.95;"><line x1="300" y1="480" x2="450" y2="430" class="construction-line"/><line x1="300" y1="480" x2="450" y2="430" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="6.24" fill="#c8102e"/><circle cx="375" cy="455" r="6.24" fill="#c8102e"/><circle cx="450" cy="430" r="6.24" fill="#c8102e"/><text x="268.55" y="490.48" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="393.23" y="427.48" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="481.44" y="419.51" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span><b>Collinear</b>points on one <button class="gap" type="button">straight line</button></div>
@@ -660,7 +781,7 @@ table.cmp td{height:96px}
 
       <!-- EXAMPLE 1 -->
       <section class="slide" data-mode="ido" data-part="Example 1 &amp;#183; Naming" data-t="Example 1: Naming lines, rays, segments and angles" data-mins="5">
-        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 1: Naming lines, rays, segments and angles</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax1a" type="button">Show answers</button></div><span class="mins">5 min</span></header>
+        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 1: Naming lines, rays, segments and angles</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax1a" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="5" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body exgrid">
           <div class="pane"><div class="exq">Use the diagram to name:<br><b>a</b> the line &nbsp; <b>b</b> the ray &nbsp; <b>c</b> the segment &nbsp; <b>d</b> the angle marked with an arc.</div><div class="figs"><figure><span class="fig" style="width:533px;height:275px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="231 324.23 414.33 213.75"><rect x="231" y="324.23" width="414.33" height="213.75" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-34" style="--label-scale: 1.69;"><line x1="510" y1="385" x2="590" y2="455" class="shape-line"/><line x1="430" y1="480" x2="538.98" y2="350.57" class="shape-line"/><path d="M 538.98 350.57 L 533.54 368.03 L 522.70 358.91 Z" class="dimension-head"/><line x1="255" y1="480" x2="475" y2="480" class="shape-line"/><path d="M 255 480 L 271.86 472.91 L 271.86 487.08 Z" class="dimension-head"/><path d="M 475 480 L 458.13 487.08 L 458.13 472.91 Z" class="dimension-head"/><line x1="510" y1="385" x2="590" y2="455" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="430" y1="480" x2="538.98" y2="350.57" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="255" y1="480" x2="475" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 392.90 480 A 37.09 37.09 0 0 1 453.89 451.62" class="angle-arc"/><circle cx="300" cy="480" r="5.39" fill="#c8102e"/><circle cx="430" cy="480" r="5.39" fill="#c8102e"/><circle cx="510" cy="385" r="5.39" fill="#c8102e"/><circle cx="590" cy="455" r="5.39" fill="#c8102e"/><text x="300" y="451.33" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="411.53" y="501.92" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="488.42" y="366.12" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="611.57" y="473.87" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span></figure></div></div>
           <div class="pane"><button class="stepbtn" data-steps="7ax1" type="button">Reveal step 1</button><ol class="xsteps" id="7ax1"><li style="flex:11 1 0"><span class="sl"><i>a</i>The line</span></li><li style="flex:11 1 0"><span class="sl"><i>b</i>The ray</span></li><li style="flex:11 1 0"><span class="sl"><i>c</i>The segment</span></li><li style="flex:11 1 0"><span class="sl"><i>d</i>The angle</span></li></ol></div>
@@ -670,25 +791,25 @@ table.cmp td{height:96px}
 
       <!-- YOUR TURN 1.1 -->
       <section class="slide" data-mode="youdo" data-part="Example 1 &amp;#183; Naming" data-t="Your turn: question 1" data-mins="6" data-timer="360">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 1</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">6 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 1</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="6" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:auto 1fr;gap:16px;align-content:start"><div class="gobar"><span class="gopen">&#9998;</span><span>Your turn. In your booklet: <b>Questions 1, 2 and 3</b>, straight after Example 1.</span></div><div class="qs"><div class="qb"><div class="qst"><span class="num">1</span>Name these line segments and angles.</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:300px;height:176px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="242.79 391.63 225.31 131.86"><rect x="242.79" y="391.63" width="225.31" height="131.86" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-36" style="--label-scale: 1.63;"><line x1="300" y1="480" x2="410" y2="440" class="shape-line"/><line x1="300" y1="480" x2="410" y2="440" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.2" fill="#c8102e"/><circle cx="410" cy="440" r="5.2" fill="#c8102e"/><text x="274.03" y="489.44" class="vertex-label" text-anchor="middle" dominant-baseline="middle">P</text><text x="435.96" y="430.55" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Q</text></g></g></svg></span><div class="pa">segment PQ (or QP)</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span></span></div><span class="fig" style="width:300px;height:152px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="234.33 382.86 282.04 143.19"><rect x="234.33" y="382.86" width="282.04" height="143.19" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-38" style="--label-scale: 1.95;"><line x1="300" y1="435" x2="450" y2="480" class="shape-line"/><line x1="300" y1="435" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="435" r="6.24" fill="#c8102e"/><circle cx="450" cy="480" r="6.24" fill="#c8102e"/><text x="268.24" y="425.47" class="vertex-label" text-anchor="middle" dominant-baseline="middle">X</text><text x="481.75" y="489.52" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Y</text></g></g></svg></span><div class="pa">segment XY (or YX)</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span></span></div><span class="fig" style="width:240px;height:260px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="251.28 316.23 199.92 216.65"><rect x="251.28" y="316.23" width="199.92" height="216.65" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-40" style="--label-scale: 1.56;"><line x1="300" y1="480" x2="305" y2="380" class="shape-line"/><line x1="300" y1="480" x2="395" y2="462.5" class="shape-line"/><line x1="300" y1="480" x2="305" y2="380" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="395" y2="462.5" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 301.71 445.72 A 34.32 34.32 0 0 1 333.75 473.78" class="angle-arc"/><circle cx="305" cy="380" r="4.99" fill="#c8102e"/><circle cx="300" cy="480" r="4.99" fill="#c8102e"/><circle cx="395" cy="462.5" r="4.99" fill="#c8102e"/><text x="306.32" y="353.51" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="282.52" y="499.95" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="421.08" y="457.69" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text></g></g></svg></span><div class="pa">∠AOB (or ∠BOA)</div></div><div class="pc"><div class="ph"><span class="pl">d</span><span></span></div><span class="fig" style="width:246px;height:260px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="248.83 326.78 199.53 210.77"><rect x="248.83" y="326.78" width="199.53" height="210.77" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-42" style="--label-scale: 1.58;"><line x1="365" y1="390" x2="300" y2="435" class="shape-line"/><line x1="365" y1="390" x2="405" y2="480" class="shape-line"/><line x1="365" y1="390" x2="300" y2="435" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="365" y1="390" x2="405" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 336.34 409.84 A 34.85 34.85 0 0 0 379.15 421.85" class="angle-arc"/><circle cx="300" cy="435" r="5.07" fill="#c8102e"/><circle cx="365" cy="390" r="5.07" fill="#c8102e"/><circle cx="405" cy="480" r="5.07" fill="#c8102e"/><text x="277.85" y="450.33" class="vertex-label" text-anchor="middle" dominant-baseline="middle">S</text><text x="372.27" y="364.06" class="vertex-label" text-anchor="middle" dominant-baseline="middle">T</text><text x="415.93" y="504.61" class="vertex-label" text-anchor="middle" dominant-baseline="middle">U</text></g></g></svg></span><div class="pa">∠STU (or ∠UTS)</div></div></div></div></div></div>
       </section>
 
       <!-- YOUR TURN 1.2 -->
       <section class="slide" data-mode="youdo" data-part="Example 1 &amp;#183; Naming" data-t="Your turn: question 2" data-mins="0">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 2</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 2</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:1fr;gap:16px;align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">2</span>Name the following objects.</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:140px;height:160px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="271.00 428.99 70.19 79.99"><rect x="271.00" y="428.99" width="70.19" height="79.99" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-44" style="--label-scale: 1.56;"><circle cx="300" cy="480" r="4.99" fill="#c8102e"/><text x="314.58" y="457.98" class="vertex-label" text-anchor="middle" dominant-baseline="middle">T</text></g></g></svg></span><div class="pa">point T</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span></span></div><span class="fig" style="width:320px;height:174px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="232.54 374.35 264.90 143.94"><rect x="232.54" y="374.35" width="264.90" height="143.94" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-46" style="--label-scale: 1.79;"><line x1="256.54" y1="491.69" x2="473.45" y2="433.30" class="shape-line"/><path d="M 256.54 491.69 L 271.85 479.80 L 275.75 494.30 Z" class="dimension-head"/><path d="M 473.45 433.30 L 458.14 445.19 L 454.24 430.69 Z" class="dimension-head"/><line x1="256.54" y1="491.69" x2="473.45" y2="433.30" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.72" fill="#c8102e"/><circle cx="430" cy="445" r="5.72" fill="#c8102e"/><text x="292.10" y="450.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="422.10" y="415.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span><div class="pa">line CD (or DC)</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span></span></div><span class="fig" style="width:192px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="245.36 311.34 243.63 222.62"><rect x="245.36" y="311.34" width="243.63" height="222.62" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-48" style="--label-scale: 1.71;"><line x1="300" y1="480" x2="318.08" y2="335.34" class="shape-line"/><path d="M 318.08 335.34 L 323.07 353.16 L 308.85 351.38 Z" class="dimension-head"/><line x1="300" y1="480" x2="465" y2="480" class="shape-line"/><path d="M 465 480 L 447.93 487.16 L 447.93 472.83 Z" class="dimension-head"/><line x1="300" y1="480" x2="318.08" y2="335.34" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="465" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 304.65 442.75 A 37.53 37.53 0 0 1 337.53 480" class="angle-arc"/><circle cx="300" cy="480" r="5.46" fill="#c8102e"/><circle cx="420" cy="480" r="5.46" fill="#c8102e"/><circle cx="312.5" cy="380" r="5.46" fill="#c8102e"/><text x="278.25" y="499.19" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="420" y="450.99" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="283.71" y="376.40" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text></g></g></svg></span><div class="pa">∠BAC (or ∠CAB)</div></div><div class="pc"><div class="ph"><span class="pl">d</span><span></span></div><span class="fig" style="width:240px;height:146px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 391 218 133"><rect x="276" y="391" width="218" height="133" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-50" style="--label-scale: 2.11;"><polygon points="300,480 430,500 470,435 340,415" fill="#cbe2f3" stroke="none"/><polygon points="300,480 430,500 470,435 340,415" class="shape-line" fill="none"/></g></g></svg></span><div class="pa">plane</div></div><div class="pc"><div class="ph"><span class="pl">e</span><span></span></div><span class="fig" style="width:180px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="250.67 349.33 186.15 181.11"><rect x="250.67" y="349.33" width="186.15" height="181.11" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-52" style="--label-scale: 1.56;"><line x1="300" y1="480" x2="412.82" y2="374.22" class="shape-line"/><path d="M 412.82 374.22 L 405.92 389.67 L 396.96 380.11 Z" class="dimension-head"/><line x1="300" y1="480" x2="412.82" y2="374.22" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="4.99" fill="#c8102e"/><circle cx="380" cy="405" r="4.99" fill="#c8102e"/><text x="280.65" y="498.13" class="vertex-label" text-anchor="middle" dominant-baseline="middle">P</text><text x="361.86" y="385.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">Q</text></g></g></svg></span><div class="pa">ray PQ</div></div><div class="pc"><div class="ph"><span class="pl">f</span><span></span></div><span class="fig" style="width:143px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="255.34 329.01 165.94 203.32"><rect x="255.34" y="329.01" width="165.94" height="203.32" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-54" style="--label-scale: 1.56;"><line x1="300" y1="385" x2="375" y2="480" class="shape-line"/><line x1="300" y1="385" x2="375" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="385" r="4.99" fill="#c8102e"/><circle cx="375" cy="480" r="4.99" fill="#c8102e"/><text x="283.56" y="364.18" class="vertex-label" text-anchor="middle" dominant-baseline="middle">S</text><text x="391.43" y="500.81" class="vertex-label" text-anchor="middle" dominant-baseline="middle">T</text></g></g></svg></span><div class="pa">segment ST (or TS)</div></div></div></div></div></div>
       </section>
 
       <!-- YOUR TURN 1.3 -->
       <section class="slide" data-mode="youdo" data-part="Example 1 &amp;#183; Naming" data-t="Your turn: question 3" data-mins="0">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 3</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 3</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:1fr;gap:16px;align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">3</span>Name the angle marked by the arc in these diagrams.</div><div class="pgrid" style="grid-template-columns:repeat(2,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:272px;height:300px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="245.72 234.19 279.91 309.22"><rect x="245.72" y="234.19" width="279.91" height="309.22" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-56" style="--label-scale: 1.98;"><line x1="300" y1="480" x2="325" y2="310" class="shape-line"/><line x1="300" y1="480" x2="370" y2="330" class="shape-line"/><line x1="300" y1="480" x2="415" y2="365" class="shape-line"/><line x1="300" y1="480" x2="460" y2="420" class="shape-line"/><line x1="300" y1="480" x2="325" y2="310" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="370" y2="330" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="415" y2="365" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="460" y2="420" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 325.15 426.10 A 59.47 59.47 0 0 1 342.05 437.94" class="angle-arc"/><circle cx="300" cy="480" r="6.34" fill="#c8102e"/><circle cx="325" cy="310" r="6.34" fill="#c8102e"/><circle cx="370" cy="330" r="6.34" fill="#c8102e"/><circle cx="415" cy="365" r="6.34" fill="#c8102e"/><circle cx="460" cy="420" r="6.34" fill="#c8102e"/><text x="279.79" y="506.97" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="329.90" y="276.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="384.25" y="299.45" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="438.83" y="341.16" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="491.55" y="408.16" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span><div class="pa">∠BOC (or ∠COB)</div></div><div class="pc"><div class="ph"><span class="pl">d</span><span></span></div><span class="fig" style="width:400px;height:272px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="144.12 391.63 388.12 263.78"><rect x="144.12" y="391.63" width="388.12" height="263.78" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-58" style="--label-scale: 2.34;"><line x1="300" y1="480" x2="210" y2="570" class="shape-line"/><line x1="300" y1="480" x2="265" y2="575" class="shape-line"/><line x1="300" y1="480" x2="300" y2="575" class="shape-line"/><line x1="300" y1="480" x2="350" y2="575" class="shape-line"/><line x1="300" y1="480" x2="460" y2="545" class="shape-line"/><line x1="300" y1="480" x2="210" y2="570" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="265" y2="575" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="300" y2="575" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="350" y2="575" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="460" y2="545" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 263.63 516.36 A 51.42 51.42 0 0 0 300 531.42" class="angle-arc"/><circle cx="300" cy="480" r="7.48" fill="#c8102e"/><circle cx="210" cy="570" r="7.48" fill="#c8102e"/><circle cx="265" cy="575" r="7.48" fill="#c8102e"/><circle cx="300" cy="575" r="7.48" fill="#c8102e"/><circle cx="350" cy="575" r="7.48" fill="#c8102e"/><circle cx="460" cy="545" r="7.48" fill="#c8102e"/><text x="296.56" y="440.41" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="181.90" y="598.09" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="251.26" y="612.28" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="300" y="614.73" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="368.50" y="610.16" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text><text x="496.81" y="559.95" class="vertex-label" text-anchor="middle" dominant-baseline="middle">E</text></g></g></svg></span><div class="pa">∠AOC (or ∠COA)</div></div></div></div></div></div>
       </section>
 
       <!-- EXAMPLE 2 -->
       <section class="slide" data-mode="ido" data-part="Example 2 &amp;#183; Measuring" data-t="Example 2: Classifying and measuring an angle" data-mins="6">
-        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 2: Classifying and measuring an angle</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax2a" type="button">Show answers</button></div><span class="mins">6 min</span></header>
+        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 2: Classifying and measuring an angle</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax2a" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="6" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body exgrid">
           <div class="pane"><div class="exq">Measure this angle with a protractor.<br><b>a</b> What type of angle is it?<br><b>b</b> Which scale do you read, and what does it say?<br><b>c</b> Find the size of the reflex angle on the other side.</div><div class="figs"><figure><svg class="bare" xmlns="http://www.w3.org/2000/svg" viewBox="-380 -298 695 338" width="695" height="338"><line x1="0" y1="0" x2="-350" y2="0" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/><line x1="0" y1="0" x2="225.0" y2="-268.1" stroke="#1a1a1a" stroke-width="3.5" stroke-linecap="round"/><path d="M -44 0 A 44 44 0 0 1 28.3 -33.7" fill="none" stroke="#1a1a1a" stroke-width="2.5"/><circle cx="0" cy="0" r="6" fill="#c8102e"/></svg></figure></div></div>
           <div class="pane"><button class="stepbtn" data-steps="7ax2" type="button">Reveal step 1</button><ol class="xsteps" id="7ax2"><li style="flex:11 1 0"><span class="sl"><i>a</i>Type</span></li><li style="flex:16 1 0"><span class="sl"><i>b</i>Which scale, and the size</span></li><li style="flex:11 1 0"><span class="sl"><i>c</i>The reflex angle</span></li></ol></div>
@@ -698,13 +819,13 @@ table.cmp td{height:96px}
 
       <!-- YOUR TURN 2.1 -->
       <section class="slide" data-mode="youdo" data-part="Example 2 &amp;#183; Measuring" data-t="Your turn: question 4" data-mins="6" data-timer="360">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 4</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">6 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 4</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="6" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:auto 1fr;gap:16px;align-content:start"><div class="gobar"><span class="gopen">&#9998;</span><span>Your turn. In your booklet: <b>Question 4</b>, straight after Example 2.</span></div><div class="qs"><div class="qb"><div class="qst"><span class="num">4</span>For the angles shown, state the type of angle and measure its size.</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:233px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 385.29 158 118.70"><rect x="276" y="385.29" width="158" height="118.70" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-62" style="--label-scale: 1.63;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="384.25" y2="409.3" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="384.25" y2="409.3" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 335.75 480 A 35.75 35.75 0 0 0 327.38 457.01" class="angle-arc"/></g></g></svg></span><div class="pa">acute, 40°</div></div><div class="pc"><div class="ph"><span class="pl">d</span><span></span></div><span class="fig" style="width:280px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="212.89 365.89 221.10 138.10"><rect x="212.89" y="365.89" width="221.10" height="138.10" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-64" style="--label-scale: 2.14;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="236.9" y2="389.9" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="236.9" y2="389.9" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 347.02 480 A 47.02 47.02 0 0 0 273.02 441.47" class="angle-arc"/></g></g></svg></span><div class="pa">obtuse, 125°</div></div><div class="pc"><div class="ph"><span class="pl">e</span><span></span></div><span class="fig" style="width:340px;height:132px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="166 401.46 264.25 102.53"><rect x="166" y="401.46" width="264.25" height="102.53" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-66" style="--label-scale: 2.48;"><line x1="300" y1="480" x2="406.25" y2="451.55" class="shape-line"/><line x1="300" y1="480" x2="190" y2="480" class="shape-line"/><line x1="300" y1="480" x2="406.25" y2="451.55" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="190" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 352.67 465.89 A 54.53 54.53 0 0 0 245.46 480" class="angle-arc"/></g></g></svg></span><div class="pa">obtuse, 165°</div></div><div class="pc"><div class="ph"><span class="pl">g</span><span></span></div><span class="fig" style="width:239px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="205.30 371.75 228.69 167.44"><rect x="205.30" y="371.75" width="228.69" height="167.44" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-68" style="--label-scale: 2.20;"><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="229.3" y2="395.75" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="229.3" y2="395.75" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 335.19 480 A 35.19 35.19 0 1 1 277.37 453.04" class="angle-arc"/></g></g></svg></span><div class="pa">reflex, 230°</div></div><div class="pc"><div class="ph"><span class="pl">i</span><span></span></div><span class="fig" style="width:235px;height:175px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="250 430.00 184 137.09"><rect x="250" y="430.00" width="184" height="137.09" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-70" style="--label-scale: 1.63;"><line x1="300" y1="480" x2="390.1" y2="543.1" class="shape-line"/><line x1="300" y1="480" x2="410" y2="480" class="shape-line"/><line x1="300" y1="480" x2="390.1" y2="543.1" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="410" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 321.29 494.91 A 26 26 0 1 1 326 480" class="angle-arc"/></g></g></svg></span><div class="pa">reflex, 325°</div></div></div></div></div></div>
       </section>
 
       <!-- EXAMPLE 3 -->
       <section class="slide" data-mode="ido" data-part="Example 3 &amp;#183; Drawing" data-t="Example 3: Drawing an angle" data-mins="6">
-        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 3: Drawing an angle</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax3a" type="button">Show answers</button></div><span class="mins">6 min</span></header>
+        <header class="head"><span class="chip"><b>I do</b><em>Pens down. Watch and think.</em></span><h2>Example 3: Drawing an angle</h2><div class="headbtns"><button class="reveal hbtn" data-target="7ax3a" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="6" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body exgrid">
           <div class="pane"><div class="exq">Draw <b>a</b> ∠XYZ = 115° &nbsp; <b>b</b> reflex ∠PQR = 250°<br><span class="howto"><b>1</b> Draw one arm. &nbsp;<b>2</b> Centre on the vertex, 0° on that arm. &nbsp;<b>3</b> Count round the scale that starts at 0 and put a dot at the size. &nbsp;<b>4</b> Join the vertex to the dot and mark the angle.</span></div><div class="figs"></div></div>
           <div class="pane"><button class="stepbtn" data-steps="7ax3" type="button">Reveal step 1</button><ol class="xsteps" id="7ax3"><li style="flex:40 1 0"><span class="sl"><i>a</i>∠XYZ = 115°</span></li><li style="flex:40 1 0"><span class="sl"><i>b</i>reflex ∠PQR = 250°<br><span style='font-weight:500'>First: 360° − 250° = ?</span></span></li></ol></div>
@@ -714,13 +835,13 @@ table.cmp td{height:96px}
 
       <!-- YOUR TURN 3.1 -->
       <section class="slide" data-mode="youdo" data-part="Example 3 &amp;#183; Drawing" data-t="Your turn: question 5" data-mins="7" data-timer="420">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 5</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">7 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Then check.</em></span><h2>Your turn: question 5</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="7" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:auto 1fr;gap:16px;align-content:start"><div class="gobar"><span class="gopen">&#9998;</span><span>Your turn. In your booklet: <b>Question 5</b>, straight after Example 3.</span></div><div class="qs"><div class="qb"><div class="qst"><span class="num">5</span>Use a protractor to draw each of the following angles.</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">b</span><span>75°</span></div><div class="pa"><span class="fig" style="width:250px;height:240px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="244.59 306.29 235.48 225.78"><rect x="244.59" y="306.29" width="235.48" height="225.78" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-79" style="--label-scale: 1.70;"><line x1="300" y1="480" x2="328.45" y2="373.75" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="328.45" y2="373.75" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 309.67 443.87 A 37.39 37.39 0 0 1 337.39 480" class="angle-arc"/><g class="removable-label"><text x="360.60" y="433.49" class="angle-label" text-anchor="middle" dominant-baseline="middle">75°</text></g><circle cx="300" cy="480" r="5.43" fill="#c8102e"/><circle cx="420" cy="480" r="5.43" fill="#c8102e"/><circle cx="328.45" cy="373.75" r="5.43" fill="#c8102e"/><text x="277.07" y="497.59" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="448.89" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="335.92" y="345.83" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text></g></g></svg></span></div></div><div class="pc"><div class="ph"><span class="pl">d</span><span>135°</span></div><div class="pa"><span class="fig" style="width:250px;height:169px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="157.90 328.07 335.92 227.42"><rect x="157.90" y="328.07" width="335.92" height="227.42" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-82" style="--label-scale: 2.33;"><line x1="300" y1="480" x2="222.2" y2="402.2" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="222.2" y2="402.2" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 263.76 443.76 A 51.24 51.24 0 0 1 351.24 480" class="angle-arc"/><g class="removable-label"><text x="339.72" y="384.09" class="angle-label" text-anchor="middle" dominant-baseline="middle">135°</text></g><circle cx="300" cy="480" r="7.45" fill="#c8102e"/><circle cx="420" cy="480" r="7.45" fill="#c8102e"/><circle cx="222.2" cy="402.2" r="7.45" fill="#c8102e"/><text x="284.84" y="516.58" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="459.59" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="194.19" y="374.19" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text></g></g></svg></span></div></div><div class="pc"><div class="ph"><span class="pl">g</span><span>260°</span></div><div class="pa"><span class="fig" style="width:250px;height:244px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="200.59 298.06 283.50 276.77"><rect x="200.59" y="298.06" width="283.50" height="276.77" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-85" style="--label-scale: 1.85;"><line x1="300" y1="480" x2="280.9" y2="371.65" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="280.9" y2="371.65" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 294.84 450.78 A 29.66 29.66 0 1 0 329.66 480" class="angle-arc"/><g class="removable-label"><text x="250.94" y="538.45" class="angle-label" text-anchor="middle" dominant-baseline="middle">260°</text></g><circle cx="300" cy="480" r="5.93" fill="#c8102e"/><circle cx="420" cy="480" r="5.93" fill="#c8102e"/><circle cx="280.9" cy="371.65" r="5.93" fill="#c8102e"/><text x="279.73" y="504.14" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="451.52" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="275.42" y="340.60" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text></g></g></svg></span></div></div><div class="pc"><div class="ph"><span class="pl">j</span><span>352°</span></div><div class="pa"><span class="fig" style="width:250px;height:95px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="183.60 418.69 297.60 112.51"><rect x="183.60" y="418.69" width="297.60" height="112.51" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-88" style="--label-scale: 1.70;"><line x1="300" y1="480" x2="408.95" y2="464.7" class="shape-line"/><line x1="300" y1="480" x2="420" y2="480" class="shape-line"/><line x1="300" y1="480" x2="408.95" y2="464.7" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="420" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 326.93 476.21 A 27.19 27.19 0 1 0 327.19 480" class="angle-arc"/><g class="removable-label"><text x="231.82" y="484.76" class="angle-label" text-anchor="middle" dominant-baseline="middle">352°</text></g><circle cx="300" cy="480" r="5.43" fill="#c8102e"/><circle cx="420" cy="480" r="5.43" fill="#c8102e"/><circle cx="408.95" cy="464.7" r="5.43" fill="#c8102e"/><text x="271.17" y="482.01" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="448.89" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="437.56" y="460.68" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text></g></g></svg></span></div></div></div></div></div></div>
       </section>
 
       <!-- PRACTICE -->
       <section class="slide" data-mode="youdo" data-part="Practice" data-t="Practice: Bronze, Silver, Gold" data-mins="18" data-timer="1080">
-        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Start where you are ready.</em></span><h2>Practice: Bronze, Silver, Gold</h2><span class="mins">18 min</span></header>
+        <header class="head"><span class="chip"><b>You do</b><em>In your booklet. Start where you are ready.</em></span><h2>Practice: Bronze, Silver, Gold</h2><button class="sclock no-ink" type="button" data-mins="18" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:auto auto 1fr auto;gap:18px;align-content:start">
           <div class="gobar"><span class="gopen">&#9998;</span><span>Your turn. Booklet 7A: <b>Bronze</b>, then <b>Silver</b>, then <b>Gold</b>. Answers are at the back.</span></div>
           <p class="small" style="font-size:27px">Confident after Your turn? Start at Silver. Everyone should try at least one Gold question.</p>
@@ -731,37 +852,37 @@ table.cmp td{height:96px}
 
       <!-- CHECK Bronze 1 -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Bronze: question 7" data-mins="0">
-        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Bronze: question 7</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Bronze: question 7</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">7</span>Name the set of three labelled points that are collinear in these diagrams.</div><div class="pgrid" style="grid-template-columns:repeat(2,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:360px;height:300px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="157.03 376.35 265.93 221.64"><rect x="157.03" y="376.35" width="265.93" height="221.64" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-90" style="--label-scale: 1.58;"><line x1="181.03" y1="548.70" x2="398.96" y2="422.84" class="shape-line"/><path d="M 181.03 548.70 L 191.40 535.04 L 198.04 546.54 Z" class="dimension-head"/><path d="M 398.96 422.84 L 388.59 436.50 L 381.95 425.00 Z" class="dimension-head"/><line x1="360" y1="400.35" x2="360" y2="574" class="shape-line"/><path d="M 360 400.35 L 366.64 416.16 L 353.35 416.16 Z" class="dimension-head"/><path d="M 360 574 L 353.35 558.18 L 366.64 558.18 Z" class="dimension-head"/><line x1="265.14" y1="451.53" x2="394.85" y2="557.46" class="shape-line"/><path d="M 265.14 451.53 L 281.59 456.39 L 273.19 466.68 Z" class="dimension-head"/><path d="M 394.85 557.46 L 378.40 552.60 L 386.80 542.31 Z" class="dimension-head"/><line x1="181.03" y1="548.70" x2="398.96" y2="422.84" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="360" y1="400.35" x2="360" y2="574" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="265.14" y1="451.53" x2="394.85" y2="557.46" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="220" cy="526.2" r="5.06" fill="#c8102e"/><circle cx="300" cy="480" r="5.06" fill="#c8102e"/><circle cx="360" cy="445.35" r="5.06" fill="#c8102e"/><circle cx="360" cy="529" r="5.06" fill="#c8102e"/><text x="206.55" y="502.92" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="317.00" y="459.17" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="346.55" y="422.07" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text><text x="386.88" y="529" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text></g></g></svg></span><div class="pa">C, B and D</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span></span></div><span class="fig" style="width:400px;height:276px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="237.35 314.35 325.07 224.40"><rect x="237.35" y="314.35" width="325.07" height="224.40" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-92" style="--label-scale: 1.99;"><line x1="300" y1="380" x2="500" y2="380" class="shape-line"/><line x1="500" y1="380" x2="500" y2="480" class="shape-line"/><line x1="500" y1="480" x2="300" y2="480" class="shape-line"/><line x1="300" y1="480" x2="300" y2="380" class="shape-line"/><line x1="300" y1="480" x2="500" y2="380" class="shape-line"/><line x1="300" y1="380" x2="420" y2="420" class="shape-line"/><line x1="300" y1="380" x2="500" y2="380" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="500" y1="380" x2="500" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="500" y1="480" x2="300" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="300" y2="380" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="500" y2="380" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="380" x2="420" y2="420" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="380" r="6.38" fill="#c8102e"/><circle cx="500" cy="380" r="6.38" fill="#c8102e"/><circle cx="300" cy="480" r="6.38" fill="#c8102e"/><circle cx="420" cy="420" r="6.38" fill="#c8102e"/><text x="271.91" y="361.02" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="526.93" y="359.42" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text><text x="273.06" y="500.57" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="452.15" y="430.71" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span><div class="pa">A, C and D</div></div></div></div></div></div>
       </section>
 
       <!-- CHECK Bronze 2 -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Bronze: question 8" data-mins="0">
-        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Bronze: question 8</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Bronze: question 8</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">8</span>State whether the following sets of lines are concurrent.</div><div class="pgrid" style="grid-template-columns:repeat(2,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span></span></div><span class="fig" style="width:325px;height:300px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="133.01 326.17 343.97 317.64"><rect x="133.01" y="326.17" width="343.97" height="317.64" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-94" style="--label-scale: 2.29;"><line x1="157.01" y1="523.30" x2="452.98" y2="431.69" class="shape-line"/><path d="M 157.01 523.30 L 176.02 507.36 L 181.70 525.71 Z" class="dimension-head"/><path d="M 452.98 431.69 L 433.97 447.63 L 428.29 429.28 Z" class="dimension-head"/><line x1="228.53" y1="360.45" x2="366.46" y2="614.54" class="shape-line"/><path d="M 228.53 360.45 L 247.88 375.97 L 231.00 385.13 Z" class="dimension-head"/><path d="M 366.46 614.54 L 347.11 599.02 L 363.99 589.86 Z" class="dimension-head"/><line x1="390.95" y1="350.17" x2="249.04" y2="619.82" class="shape-line"/><path d="M 390.95 350.17 L 388.80 374.89 L 371.80 365.94 Z" class="dimension-head"/><path d="M 249.04 619.82 L 251.19 595.10 L 268.19 604.05 Z" class="dimension-head"/><line x1="157.01" y1="523.30" x2="452.98" y2="431.69" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="228.53" y1="360.45" x2="366.46" y2="614.54" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="390.95" y1="350.17" x2="249.04" y2="619.82" stroke="transparent" stroke-width="16" style="cursor: grab;"/></g></g></svg></span><div class="pa">no</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span></span></div><span class="fig" style="width:237px;height:300px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="174.18 321 251.63 318"><rect x="174.18" y="321" width="251.63" height="318" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-96" style="--label-scale: 2.19;"><line x1="198.18" y1="378.18" x2="401.81" y2="581.81" class="shape-line"/><path d="M 198.18 378.18 L 220.20 387.17 L 207.17 400.20 Z" class="dimension-head"/><path d="M 401.81 581.81 L 379.79 572.82 L 392.82 559.79 Z" class="dimension-head"/><line x1="401.81" y1="378.18" x2="198.18" y2="581.81" class="shape-line"/><path d="M 401.81 378.18 L 392.82 400.20 L 379.79 387.17 Z" class="dimension-head"/><path d="M 198.18 581.81 L 207.17 559.79 L 220.20 572.82 Z" class="dimension-head"/><line x1="300" y1="345" x2="300" y2="615" class="shape-line"/><path d="M 300 345 L 309.21 366.93 L 290.78 366.93 Z" class="dimension-head"/><path d="M 300 615 L 290.78 593.06 L 309.21 593.06 Z" class="dimension-head"/><line x1="198.18" y1="378.18" x2="401.81" y2="581.81" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="401.81" y1="378.18" x2="198.18" y2="581.81" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="345" x2="300" y2="615" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="7.02" fill="#c8102e"/></g></g></svg></span><div class="pa">yes</div></div></div></div></div></div>
       </section>
 
       <!-- CHECK Silver 1 -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Silver: questions 10 and 11" data-mins="0">
-        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Silver: questions 10 and 11</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Silver: questions 10 and 11</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">10</span>A clock face is numbered 1 to 12. Find the angle the minute hand turns in:</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span>30 minutes</span></div><div class="pa">180°</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span>5 minutes</span></div><div class="pa">30°</div></div><div class="pc"><div class="ph"><span class="pl">e</span><span>1 minute</span></div><div class="pa">6°</div></div><div class="pc"><div class="ph"><span class="pl">g</span><span>10.5 minutes</span></div><div class="pa">63°</div></div></div></div><div class="qb"><div class="qst"><span class="num">11</span>A clock face is numbered 1 to 12. Find the angle between the hour hand and the minute hand at:</div><div class="pgrid" style="grid-template-columns:repeat(4,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span>6:00 p.m.</span></div><div class="pa">180°</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span>3:00 p.m.</span></div><div class="pa">90° or 270°</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span>4:00 p.m.</span></div><div class="pa">120° or 240°</div></div><div class="pc"><div class="ph"><span class="pl">d</span><span>11:00 a.m.</span></div><div class="pa">30° or 330°</div></div></div></div></div></div>
       </section>
 
       <!-- CHECK Gold 1 -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Gold: questions 12 and 14" data-mins="0">
-        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Gold: questions 12 and 14</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Gold: questions 12 and 14</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">12</span>Find the angle between the hour hand and the minute hand of a clock at these times. Remember the hour hand moves too.</div><div class="pgrid" style="grid-template-columns:repeat(3,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span>10:10 a.m.</span></div><div class="pa">115°</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span>11:10 p.m.</span></div><div class="pa">85°</div></div><div class="pc"><div class="ph"><span class="pl">e</span><span>7:16 p.m.</span></div><div class="pa">122°</div></div></div></div><div class="qb"><div class="qst"><span class="num">14</span>An acute angle ∠AOB is equal to 60°. Why is it unnecessary to use a protractor to work out the size of the reflex angle ∠AOB?</div><div class="qrow"><span class="fig" style="width:300px;height:275px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="208.64 318.46 256.68 235.03"><rect x="208.64" y="318.46" width="256.68" height="235.03" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-98" style="--label-scale: 1.75;"><line x1="300" y1="480" x2="355" y2="385" class="shape-line"/><line x1="300" y1="480" x2="405" y2="510" class="shape-line"/><line x1="300" y1="480" x2="355" y2="385" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="405" y2="510" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 336.95 490.55 A 38.43 38.43 0 0 0 319.25 446.74" class="angle-arc"/><g class="removable-label"><text x="371.80" y="450.99" class="angle-label" text-anchor="middle" dominant-baseline="middle">60°</text></g><path d="M 338.63 491.03 A 40.17 40.17 0 1 1 320.13 445.22" class="angle-arc"/><g class="removable-label"><text x="238.28" y="504.92" class="angle-label" text-anchor="middle" dominant-baseline="middle">?</text></g><circle cx="300" cy="480" r="5.59" fill="#c8102e"/><circle cx="355" cy="385" r="5.59" fill="#c8102e"/><circle cx="405" cy="510" r="5.59" fill="#c8102e"/><text x="272.46" y="491.12" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="369.87" y="359.29" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="433.55" y="518.15" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text></g></g></svg></span><div class="pa left">The two angles make a revolution, so reflex ∠AOB = 360° − 60° = 300°.</div></div></div></div></div>
       </section>
 
       <!-- CHECK Gold 2 -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Gold: question 16" data-mins="0">
-        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Gold: question 16</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><span class="mins">0 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Tick in green. Fix in red.</em></span><h2>Gold: question 16</h2><div class="headbtns"><button class="hbtn ansall" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="0" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="align-content:start"><div class="qs"><div class="qb"><div class="qst"><span class="num">16</span>A line contains a certain number of labelled points. For example, this line has three points, A, B and C, and three segments: AB, BC and AC.</div><div class="qrow" style="align-items:flex-start"><span class="fig" style="width:400px;height:201px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="232.34 369.44 295.31 148.30"><rect x="232.34" y="369.44" width="295.31" height="148.30" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-100" style="--label-scale: 1.72;"><line x1="256.34" y1="490.91" x2="503.65" y2="429.08" class="shape-line"/><path d="M 256.34 490.91 L 271.26 479.74 L 274.76 493.74 Z" class="dimension-head"/><path d="M 503.65 429.08 L 488.73 440.25 L 485.23 426.25 Z" class="dimension-head"/><line x1="256.34" y1="490.91" x2="503.65" y2="429.08" stroke="transparent" stroke-width="16" style="cursor: grab;"/><circle cx="300" cy="480" r="5.50" fill="#c8102e"/><circle cx="360" cy="465" r="5.50" fill="#c8102e"/><circle cx="460" cy="440" r="5.50" fill="#c8102e"/><text x="292.91" y="451.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="376.07" y="440.74" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="452.91" y="411.65" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span><div style="flex:1;min-width:0"><div class="pgrid" style="grid-template-columns:repeat(1,1fr)"><div class="pc"><div class="ph"><span class="pl">a</span><span>Complete this table by counting the total number of segments for the given number of labelled points.</span></div><table class="t"><tr><th>Number of points</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr><tr><td>Number of segments</td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table><div class="pa">0, 1, 3, 6, 10, 15</div></div><div class="pc"><div class="ph"><span class="pl">b</span><span>Explain any patterns you see in the table. Is there a quick way of finding the next number?</span></div><div class="pa">For 5 points add 4 to the previous total, for 6 points add 5, and so on.</div></div><div class="pc"><div class="ph"><span class="pl">c</span><span>If <i>n</i> is the number of points on the line, find a rule for the number of segments. Test it on at least three cases and explain why it works.</span></div><div class="pa">Number of segments = <span class="fr"><span class="nu">n</span><span class="de">2</span></span>(n − 1)</div></div></div></div></div></div></div></div>
       </section>
 
       <!-- EXIT -->
       <section class="slide" data-mode="check" data-part="Practice" data-t="Exit check" data-mins="4" data-timer="240">
-        <header class="head"><span class="chip"><b>Check</b><em>On your lesson page, Part 8. Then show me.</em></span><h2>Exit check</h2><div class="headbtns"><button class="reveal hbtn" data-target="exita" type="button">Show answers</button></div><span class="mins">4 min</span></header>
+        <header class="head"><span class="chip"><b>Check</b><em>Lesson page, Part 8.</em></span><h2>Exit check</h2><div class="headbtns"><button class="reveal hbtn" data-target="exita" type="button">Show answers</button></div><button class="sclock no-ink" type="button" data-mins="4" title="Tap to start or pause the lesson clock"><span class="sct">--:--</span><span class="scl"></span></button></header>
         <div class="body" style="grid-template-rows:auto 1fr">
           <div class="gobar"><span class="gopen">&#9998;</span><span>Type your answers in <b>Exit check</b> on your lesson page, Part 8. Then save.</span></div>
           <div class="exitq"><div class="work"><div class="eqs"><b>1</b>What type of angle is 205&#176;?</div></div><div class="work"><div class="eqs"><b>2</b>An angle is 48&#176;. How big is the reflex angle on the other side?</div></div><div class="work"><div class="eqs"><b>3</b>Name the angle at vertex Q between the arms QP and QR.</div></div></div>
@@ -772,50 +893,77 @@ table.cmp td{height:96px}
       <!-- SLIDES END -->
 
       <div id="proto" hidden aria-label="Protractor"><svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg"><g id="protoG"></g></svg></div>
+      <div id="calc" hidden aria-label="Calculator">
+        <div class="cgrip no-ink"><span class="cname">SCI-30 <small>drag me</small></span><button class="cx" type="button" data-k="off" aria-label="Close calculator">×</button></div>
+        <div class="lcd"><div class="ind"><span id="cInd2"></span><span id="cIndA">DEG</span></div><div class="hist" id="cHist"></div><div class="entry" id="cEntry"></div><div class="menu" id="cMenu" hidden></div></div>
+        <div class="keys no-ink">
+          <div class="pad"><button class="u" type="button" data-k="up" aria-label="Up">▲</button><button class="d" type="button" data-k="down" aria-label="Down">▼</button><button class="l" type="button" data-k="left" aria-label="Left">◀</button><button class="r" type="button" data-k="right" aria-label="Right">▶</button></div>
+          <button class="k second" type="button" data-k="2nd" data-k2="">2nd</button><button class="k " type="button" data-k="mode" data-k2="quit"><span class="s2">quit</span>mode</button><button class="k " type="button" data-k="del" data-k2="noop"><span class="s2">insert</span>delete</button><button class="k " type="button" data-k="log" data-k2="10x"><span class="s2">10<sup>x</sup></span>log</button><button class="k " type="button" data-k="prb" data-k2="angle"><span class="s2">angle</span>prb</button><button class="k " type="button" data-k="data" data-k2="stat"><span class="s2">stat</span>data</button><button class="k " type="button" data-k="ln" data-k2="ex"><span class="s2">e<sup>x</sup></span>ln</button><button class="k " type="button" data-k="frac" data-k2="mixed"><span class="s2">U n/d</span><span style="display:inline-flex;flex-direction:column;line-height:.9;font-size:13px"><span>n</span><span style="border-top:1.5px solid currentColor">d</span></span></button><button class="k " type="button" data-k="sci" data-k2="fmix"><span class="s2">n/d◂▸Un/d</span>×10<sup><i>n</i></sup></button><button class="k " type="button" data-k="table" data-k2="fd"><span class="s2">f◂▸d</span>table</button><button class="k " type="button" data-k="clear" data-k2="">clear</button><button class="k " type="button" data-k="pi" data-k2="hyp"><span class="s2">hyp</span>π</button><button class="k " type="button" data-k="sin" data-k2="asin"><span class="s2">sin<sup>-1</sup></span>sin</button><button class="k " type="button" data-k="cos" data-k2="acos"><span class="s2">cos<sup>-1</sup></span>cos</button><button class="k " type="button" data-k="tan" data-k2="atan"><span class="s2">tan<sup>-1</sup></span>tan</button><button class="k op" type="button" data-k="/" data-k2="const"><span class="s2">K</span>÷</button><button class="k " type="button" data-k="pow" data-k2="root"><span class="s2"><sup>x</sup>√</span>^</button><button class="k " type="button" data-k="inv" data-k2=""><i>x</i><sup>-1</sup></button><button class="k " type="button" data-k="(" data-k2="pct"><span class="s2">%</span>(</button><button class="k " type="button" data-k=")" data-k2="topct"><span class="s2">▸%</span>)</button><button class="k op" type="button" data-k="*" data-k2="">×</button><button class="k " type="button" data-k="sq" data-k2="sqrt"><span class="s2">√</span><i>x</i><sup>2</sup></button><button class="k num" type="button" data-k="7" data-k2="">7</button><button class="k num" type="button" data-k="8" data-k2="">8</button><button class="k num" type="button" data-k="9" data-k2="">9</button><button class="k op" type="button" data-k="-" data-k2="">−</button><button class="k " type="button" data-k="var" data-k2="clrvar"><span class="s2">clear var</span><i>x</i><sup style="font-size:.5em">yzt</sup></button><button class="k num" type="button" data-k="4" data-k2="">4</button><button class="k num" type="button" data-k="5" data-k2="">5</button><button class="k num" type="button" data-k="6" data-k2="">6</button><button class="k op" type="button" data-k="+" data-k2="">+</button><button class="k " type="button" data-k="sto" data-k2="recall"><span class="s2">recall</span>sto ▸</button><button class="k num" type="button" data-k="1" data-k2="">1</button><button class="k num" type="button" data-k="2" data-k2="">2</button><button class="k num" type="button" data-k="3" data-k2="">3</button><button class="k op" type="button" data-k="tog" data-k2="">◂▸</button><button class="k " type="button" data-k="off" data-k2="off"><span class="s2">off</span>on</button><button class="k num" type="button" data-k="0" data-k2="reset"><span class="s2">reset</span>0</button><button class="k num" type="button" data-k="." data-k2="comma"><span class="s2">,</span>.</button><button class="k num" type="button" data-k="neg" data-k2="ans"><span class="s2">ans</span>(−)</button><button class="k enter" type="button" data-k="enter" data-k2="">enter</button>
+        </div>
+        <div class="hint no-ink">Your pen writes on the screen. The keys always press.</div>
+      </div>
+
       <canvas id="ink"></canvas>
       <div id="ecur"></div>
     </div>
   </div>
 
-  <!-- ================= BOTTOM BAR : INK ================= -->
-  <div class="bar" id="botbar">
-    <button class="tb" id="tMove" data-tool="move" aria-pressed="false" title="Move / click (V). Your stylus still draws.">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 3l7 17 2.5-6.5L20 11z"/></svg>Move</button>
-    <button class="tb" id="tPen" data-tool="pen" aria-pressed="true" title="Pen (P)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M15 4l5 5L9 20H4v-5z"/></svg>Pen</button>
-    <button class="tb" id="tHi" data-tool="hi" aria-pressed="false" title="Highlighter (H)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M8 20H4v-4l9-9 4 4z"/><path d="M14 4l6 6"/></svg>Marker</button>
-    <button class="tb" id="tEr" data-tool="eraser" aria-pressed="false" title="Eraser (E)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 18l-3-3 9-9 6 6-6 6z"/><path d="M21 20H9"/></svg>Eraser</button>
 
-    <span class="sep"></span>
-    <span class="swatches" id="swatches"></span>
-    <span class="sep"></span>
-    <span class="widths">
-      <button class="wd" data-w="2" title="Fine"><i style="width:5px;height:5px"></i></button>
-      <button class="wd" data-w="4" aria-pressed="true" title="Medium"><i style="width:9px;height:9px"></i></button>
-      <button class="wd" data-w="8" title="Thick"><i style="width:15px;height:15px"></i></button>
+  <!-- ================= DOCK: teaching tools ================= -->
+  <div id="dock" role="toolbar" aria-label="Teaching tools">
+    <button class="dk" id="btnPrev" title="Previous slide (&#8592;)" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="dk ctr" id="btnList" title="All slides (L)"><span id="counter">1 / 1</span></button>
+    <button class="dk" id="btnNext" title="Next slide (&#8594;)" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <span class="dsep"></span>
+    <button class="dk" id="tMove" data-tool="move" aria-pressed="false" title="Click things (V). Your stylus still draws." aria-label="Click"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l6 16 2.3-6.2L20 10.5z"/></svg></button>
+    <button class="dk" id="tPen" data-tool="pen" aria-pressed="true" title="Pen (P)" aria-label="Pen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4l5 5L9 20H4v-5z"/></svg></button>
+    <button class="dk" id="tHi" data-tool="hi" aria-pressed="false" title="Highlighter (H)" aria-label="Highlighter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20H4v-4l9-9 4 4z"/><path d="M14 4l6 6"/></svg></button>
+    <button class="dk" id="tEr" data-tool="eraser" aria-pressed="false" title="Eraser (E)" aria-label="Eraser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18l-3-3 9-9 6 6-6 6z"/><path d="M21 20H9"/></svg></button>
+    <span class="colwrap">
+      <button class="dk" id="btnColour" title="Colour and thickness" aria-label="Colour and thickness" aria-expanded="false"><span class="cdot" id="cdot"></span></button>
+      <span class="pop" id="colpop" hidden>
+        <span class="swatches" id="swatches"></span>
+        <span class="widths">
+          <button class="wd" data-w="2" title="Fine"><i style="width:5px;height:5px"></i></button>
+          <button class="wd" data-w="4" aria-pressed="true" title="Medium"><i style="width:9px;height:9px"></i></button>
+          <button class="wd" data-w="8" title="Thick"><i style="width:15px;height:15px"></i></button>
+        </span>
+      </span>
     </span>
-
-    <span class="sep"></span>
-    <button class="tb" id="btnUndo" title="Undo (Ctrl+Z)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h11a5 5 0 010 10h-4"/><path d="M7 6l-4 4 4 4"/></svg></button>
-    <button class="tb" id="btnRedo" title="Redo (Ctrl+Shift+Z)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10H10a5 5 0 000 10h4"/><path d="M17 6l4 4-4 4"/></svg></button>
-    <button class="tb" id="btnProto" aria-pressed="false" title="Protractor (R). Drag the centre to move it, the round ends to turn it." aria-label="Protractor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 18h20M4 18a8 8 0 0116 0"/><path d="M12 18l5-6"/></svg></button>
-    <button class="tb" id="btnClear" title="Clear the ink on this slide">Clear slide</button>
-
-    <span class="spacer"></span>
-    <button class="tb" id="btnTouch" aria-pressed="false" title="Let a finger draw as well as the stylus">Finger draws</button>
-    <span class="sep"></span>
-    <span class="savestate" id="saveState"><span class="dot"></span><span id="saveText">Not saved yet</span></span>
-    <button class="tb" id="btnSave" title="Save now (Ctrl+S)">Save</button>
-    <button class="tb" id="btnHtml" title="Save the slides with your handwriting on them, as an HTML page for OneNote">Export HTML</button>
-    <button class="tb ghost" id="btnExport" title="Download a backup of your ink as a data file">Backup ink</button>
-    <button class="tb ghost" id="btnRecover" title="Load the last automatic backup of your ink on this device">Recover</button>
-    <button class="tb ghost" id="btnImport" title="Load ink from a file">Import</button>
-    <input type="file" id="fileIn" accept="application/json,.json" hidden>
+    <span class="dsep"></span>
+    <button class="dk" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h11a5 5 0 010 10h-4"/><path d="M7 6l-4 4 4 4"/></svg></button>
+    <button class="dk" id="btnRedo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10H10a5 5 0 000 10h4"/><path d="M17 6l4 4-4 4"/></svg></button>
+    <button class="dk" id="btnClear" title="Clear the ink on this slide" aria-label="Clear slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+    <span class="colwrap">
+      <button class="dk" id="btnTools" title="Calculator and protractor" aria-label="Tools" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></button>
+      <span class="pop toolpop" id="toolpop" hidden>
+        <button class="tl" id="btnCalc" aria-pressed="false" title="Calculator (C)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8 6.5h8M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M15.5 14.5h.01M8.5 18h.01M12 18h.01M15.5 18h.01"/></svg><span>Calculator</span><kbd>C</kbd></button>
+        <button class="tl" id="btnProto" aria-pressed="false" title="Protractor (R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 18h20M4 18a8 8 0 0116 0"/><path d="M12 18l5-6"/></svg><span>Protractor</span><kbd>R</kbd></button>
+      </span>
+    </span>
+    <button class="dk" id="btnReplay" title="Replay the writing on this slide (Y)" aria-label="Replay writing" disabled><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button>
+    <span class="dsep menusep"></span>
+    <button class="dk" id="btnMenu" title="More" aria-label="More" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
+  <div id="dockTab" title="Show tools" aria-hidden="true"></div>
+
+  <!-- ================= MENU: the rarely used things ================= -->
+  <div id="menu" hidden>
+    <div class="mrow"><span class="lesson" id="lessonEl">Lesson not started</span><button class="mb" id="btnLesson">Start lesson</button></div>
+    <button class="mb" id="btnFull">Full screen <kbd>F</kbd></button>
+    <button class="mb" id="btnBare">Hide tools</button>
+    <button class="mb" id="btnEdit" aria-pressed="false">Edit deck</button>
+    <button class="mb" id="btnTouch" aria-pressed="false">Let a finger draw</button>
+    <div class="mrow msave"><span class="savestate" id="saveState"><span class="dot"></span><span id="saveText">Not saved yet</span></span><button class="mb small" id="btnSave">Save now</button></div>
+    <p class="mnote">Your writing saves by itself on this computer.</p>
+    <button class="mb" id="btnHtml">Export slides with writing (for OneNote)</button>
+    <button class="mb" id="btnExport">Back up the writing to a file</button>
+    <button class="mb" id="btnImport">Load writing from a file</button>
+    <button class="mb" id="btnRecover">Recover the last backup</button>
+    <input type="file" id="fileIn" accept="application/json,.json" hidden>
+    <span id="clock" hidden></span>
+  </div>
+
 </div>
 
 <div id="editbar">
@@ -866,7 +1014,7 @@ function toast(msg){
    ============================================================ */
 function fit(){
   var wrap = document.getElementById('stagewrap');
-  var aw = wrap.clientWidth - 16, ah = wrap.clientHeight - 16;
+  var aw = wrap.clientWidth - 8, ah = wrap.clientHeight - 8;
   scale = Math.max(0.2, Math.min(aw / W, ah / H));
   stage.style.transform = 'scale(' + scale + ')';
   sizeInk();
@@ -1039,7 +1187,8 @@ stage.addEventListener('pointerdown', function(e){
     t: t === 'hi' ? 'hi' : 'pen',
     c: t === 'hi' ? hiColor : penColor,
     w: t === 'hi' ? Math.max(16, penW * 5) : penW,
-    p: [[pt[0], pt[1], e.pointerType === 'pen' ? (e.pressure || 0.5) : 0.55]]
+    s0: Date.now(),
+    p: [[pt[0], pt[1], e.pointerType === 'pen' ? (e.pressure || 0.5) : 0.55, 0]]
   };
   lastPt = pt;
 }, {capture:true});
@@ -1059,7 +1208,7 @@ stage.addEventListener('pointermove', function(e){
       var dx = p[0]-lastPt[0], dy = p[1]-lastPt[1];
       if(dx*dx + dy*dy < 1.6) continue;
     }
-    live.p.push([p[0], p[1], ev.pointerType === 'pen' ? (ev.pressure || 0.5) : 0.55]);
+    live.p.push([p[0], p[1], ev.pointerType === 'pen' ? (ev.pressure || 0.5) : 0.55, Date.now() - live.s0]);
     lastPt = p;
   }
   // incremental draw of the tail only, for speed
@@ -1190,8 +1339,8 @@ function pack(){
   for(var k in strokes){
     if(!strokes[k] || !strokes[k].length) continue;
     out[k] = strokes[k].map(function(s){
-      return { t:s.t, c:s.c, w:Math.round(s.w*10)/10,
-               p:s.p.map(function(a){ return [Math.round(a[0]*10)/10, Math.round(a[1]*10)/10, Math.round((a[2]==null?0.5:a[2])*100)/100]; }) };
+      return { t:s.t, c:s.c, w:Math.round(s.w*10)/10, s0:s.s0,
+               p:s.p.map(function(a){ return [Math.round(a[0]*10)/10, Math.round(a[1]*10)/10, Math.round((a[2]==null?0.5:a[2])*100)/100].concat(a[3]==null?[]:[Math.round(a[3])]); }) };
     });
   }
   return { v:2, edits: textEdits, deleted: deleted, deck:'y7enr-7a', savedAt: Date.now(), slides: out };
@@ -2156,7 +2305,7 @@ drawer.addEventListener('click', function(e){ if(e.target === drawer) drawer.cla
    ============================================================ */
 document.getElementById('btnBare').addEventListener('click', function(){
   app.classList.toggle('bare');
-  this.textContent = app.classList.contains('bare') ? 'Show UI' : 'Hide UI';
+  this.textContent = app.classList.contains('bare') ? 'Show tools (U)' : 'Hide tools';
   setTimeout(fit, 60);
 });
 document.getElementById('btnFull').addEventListener('click', function(){
@@ -2211,6 +2360,7 @@ window.addEventListener('beforeunload', function(){
   }catch(err){}
 });
 document.addEventListener('visibilitychange', function(){ if(document.hidden){ clearTimeout(saveTimer); doSave(); } });
+window.DECK = { key:curKey, slideStrokes:slideStrokes, drawStroke:drawStroke, redraw:redraw, ctx:ctx, canvas:canvas, q:function(){ return q; } };
 
 })();
 
@@ -2329,6 +2479,525 @@ document.addEventListener('visibilitychange', function(){ if(document.hidden){ c
     var t = e.target; if(t && (t.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(t.tagName))) return;
     if(e.key === 'r' || e.key === 'R'){ e.preventDefault(); show(box.hidden); }
   });
+})();
+
+/* ---- calculator: MathPrint entry, TI-30XB style keys ---- */
+(function(){
+  var box = document.getElementById('calc'); if(!box) return;
+  var stageEl = document.getElementById('stage');
+  var entryEl = document.getElementById('cEntry'), histEl = document.getElementById('cHist'), menuEl = document.getElementById('cMenu');
+  var S = {second:false, deg:true, hist:[], ans:0, vars:{x:0,y:0,z:0,t:0,a:0,b:0,c:0}, menu:null, hsel:-1, lastVar:null};
+  var VARS = ['x','y','z','t','a','b','c'];
+  /* ---------- the entry: a tree of slots. A slot is an array of items; an item is a string token or a template. ---------- */
+  function slot(){ return []; }
+  var root, cur;
+  function reset(){ root = slot(); cur = {s:root, i:0}; S.lastVar = null; }
+  reset();
+  function T(type, n){ var t = {t:type, s:[]}; for(var i = 0; i < n; i++){ var sl = slot(); sl.parent = t; t.s.push(sl); } return t; }
+  function parentOf(sl){ return sl.parent || null; }
+  function holder(t){ return t.holder; }
+  function insert(item){
+    if(typeof item !== 'string'){ item.holder = cur.s; }
+    cur.s.splice(cur.i, 0, item); cur.i++;
+    if(typeof item !== 'string'){ return item; }
+  }
+  function enterTpl(t, k){ cur = {s:t.s[k || 0], i:0}; }
+  function tpl(type, n, into){ var t = T(type, n); cur.s.splice(cur.i, 0, t); t.holder = cur.s; enterTpl(t, into || 0); return t; }
+  function moveRight(){
+    if(cur.i < cur.s.length){
+      var it = cur.s[cur.i];
+      if(typeof it !== 'string'){ enterTpl(it, 0); return; }
+      cur.i++; return;
+    }
+    var t = parentOf(cur.s); if(!t) return;
+    var k = t.s.indexOf(cur.s);
+    if(k < t.s.length - 1){ cur = {s:t.s[k + 1], i:0}; return; }
+    var h = t.holder; cur = {s:h, i:h.indexOf(t) + 1};
+  }
+  function moveLeft(){
+    if(cur.i > 0){
+      var it = cur.s[cur.i - 1];
+      if(typeof it !== 'string'){ var last = it.s[it.s.length - 1]; cur = {s:last, i:last.length}; return; }
+      cur.i--; return;
+    }
+    var t = parentOf(cur.s); if(!t) return;
+    var k = t.s.indexOf(cur.s);
+    if(k > 0){ var p = t.s[k - 1]; cur = {s:p, i:p.length}; return; }
+    var h = t.holder; cur = {s:h, i:h.indexOf(t)};
+  }
+  function del(){
+    if(cur.i > 0){
+      var it = cur.s[cur.i - 1];
+      if(typeof it !== 'string'){ var last = it.s[it.s.length - 1]; cur = {s:last, i:last.length}; return; }
+      cur.s.splice(cur.i - 1, 1); cur.i--; return;
+    }
+    var t = parentOf(cur.s); if(!t) return;
+    // at the start of a template: unwrap it, keeping what was typed inside
+    var h = t.holder, at = h.indexOf(t), flat = [];
+    t.s.forEach(function(sl){ sl.forEach(function(x){ if(typeof x !== 'string') x.holder = h; flat.push(x); }); });
+    h.splice.apply(h, [at, 1].concat(flat));
+    cur = {s:h, i:at};
+  }
+  /* the previous operand, for templates that wrap it (a typed number becomes the numerator, like the real one) */
+  function grabOperand(){
+    var s = cur.s, j = cur.i, out = [];
+    while(j > 0){
+      var it = s[j - 1];
+      if(typeof it === 'string' && /^[0-9.]$/.test(it)){ out.unshift(it); j--; } else break;
+    }
+    s.splice(j, out.length); cur.i = j;
+    return out;
+  }
+  /* ---------- rendering ---------- */
+  var FN = {sin:'sin(', cos:'cos(', tan:'tan(', asin:'sin<sup>-1</sup>(', acos:'cos<sup>-1</sup>(', atan:'tan<sup>-1</sup>(', log:'log(', ln:'ln(', nPr:' nPr ', nCr:' nCr ', rand:'rand', randint:'randInt(', abs:'abs('};
+  function tokHTML(t){
+    if(FN[t]) return '<span class="fn">' + FN[t] + '</span>';
+    return ({'*':'×', '/':'÷', '-':'−', neg:'<span style="font-size:.8em">−</span>', pi:'π', e:'<i>e</i>', ans:'<span class="fn">ans</span>', sq:'<span class="sup">2</span>', inv:'<span class="sup">-1</span>',
+      pct:'%', deg:'°', min:'′', sec:'″', fact:'!', comma:',', x:'<i>x</i>', y:'<i>y</i>', z:'<i>z</i>', t:'<i>t</i>', a:'<i>a</i>', b:'<i>b</i>', c:'<i>c</i>'})[t] || t;
+  }
+  function slotHTML(sl, withCur){
+    var h = '', cursorHere = withCur && cur.s === sl;
+    for(var i = 0; i <= sl.length; i++){
+      if(cursorHere && cur.i === i) h += '<span class="cur"></span>';
+      if(i === sl.length) break;
+      var it = sl[i];
+      h += typeof it === 'string' ? tokHTML(it) : tplHTML(it, withCur);
+    }
+    var empty = !sl.length && sl.parent;
+    return '<span class="slot' + (empty && !cursorHere ? ' empty' : '') + '">' + h + '</span>';
+  }
+  function tplHTML(t, w){
+    var s = function(k){ return slotHTML(t.s[k], w); };
+    if(t.t === 'frac') return '<span class="fr"><span>' + s(0) + '</span><span>' + s(1) + '</span></span>';
+    if(t.t === 'mixed') return s(0) + '<span class="fr"><span>' + s(1) + '</span><span>' + s(2) + '</span></span>';
+    if(t.t === 'pow') return '<span class="sup">' + s(0) + '</span>';
+    if(t.t === 'sci') return '<span class="fn">×10</span><span class="sup">' + s(0) + '</span>';
+    if(t.t === 'sqrt') return '<span class="rad"><span class="rs">√</span><span class="ri">' + s(0) + '</span></span>';
+    if(t.t === 'root') return '<span class="rad"><span class="rn">' + s(0) + '</span><span class="rs">√</span><span class="ri">' + s(1) + '</span></span>';
+    if(t.t === 'ten') return '<span>10</span><span class="sup">' + s(0) + '</span>';
+    if(t.t === 'exp') return '<i>e</i><span class="sup">' + s(0) + '</span>';
+    return '';
+  }
+  /* ---------- evaluation: tokens to a value, with implicit multiplication and TI order of operations ---------- */
+  function Err(m){ this.m = m; }
+  function toRad(v){ return S.deg ? v * Math.PI / 180 : v; }
+  function fromRad(v){ return S.deg ? v * 180 / Math.PI : v; }
+  function clean(v){ return Math.abs(v) < 1e-13 ? 0 : v; }
+  function evalSlot(sl){
+    var toks = [], num = '';
+    function flush(){ if(num){ if((num.match(/\./g) || []).length > 1) throw new Err('SYNTAX ERROR'); toks.push({n:parseFloat(num)}); num = ''; } }
+    sl.forEach(function(it){
+      if(typeof it === 'string' && /^[0-9.]$/.test(it)){ num += it; return; }
+      flush();
+      if(typeof it === 'string') toks.push({o:it}); else toks.push({tp:it});
+    });
+    flush();
+    var p = 0;
+    function peek(){ return toks[p]; }
+    function isStart(t){ return t && (t.n != null || t.tp && t.tp.t !== 'pow' && t.tp.t !== 'sci' || t.o && /^(\(|pi|e|ans|x|y|z|t|a|b|c|neg|sin|cos|tan|asin|acos|atan|log|ln|rand|randint|abs)$/.test(t.o)); }
+    function expr(){
+      var v = term();
+      while(peek() && (peek().o === '+' || peek().o === '-')){ var o = toks[p++].o, r = term(); v = o === '+' ? v + r : v - r; }
+      return v;
+    }
+    function term(){
+      var v = comb();
+      for(;;){
+        var t = peek();
+        if(t && (t.o === '*' || t.o === '/')){ p++; var r = comb(); if(t.o === '/'){ if(r === 0) throw new Err('DIVIDE BY 0'); v = v / r; } else v = v * r; }
+        else if(isStart(t)){ v = v * comb(); }
+        else return v;
+      }
+    }
+    function comb(){
+      var v = unary();
+      while(peek() && (peek().o === 'nPr' || peek().o === 'nCr')){
+        var o = toks[p++].o, r = unary();
+        if(v < 0 || r < 0 || r > v || v % 1 || r % 1) throw new Err('DOMAIN ERROR');
+        var perm = 1; for(var i = 0; i < r; i++) perm *= (v - i);
+        if(o === 'nCr'){ var f = 1; for(var j = 2; j <= r; j++) f *= j; perm = perm / f; }
+        v = Math.round(perm);
+      }
+      return v;
+    }
+    function unary(){ if(peek() && peek().o === 'neg'){ p++; return -unary(); } return post(); }
+    function post(){
+      var v = prim();
+      for(;;){
+        var t = peek(); if(!t) return v;
+        if(t.tp && t.tp.t === 'pow'){ p++; var e = evalSlot(t.tp.s[0]); v = Math.pow(v, e); if(isNaN(v)) throw new Err('DOMAIN ERROR'); continue; }
+        if(t.tp && t.tp.t === 'sci'){ p++; v = v * Math.pow(10, evalSlot(t.tp.s[0])); continue; }
+        if(t.o === 'sq'){ p++; v = v * v; continue; }
+        if(t.o === 'inv'){ p++; if(v === 0) throw new Err('DIVIDE BY 0'); v = 1 / v; continue; }
+        if(t.o === 'pct'){ p++; v = v / 100; continue; }
+        if(t.o === 'fact'){ p++; if(v < 0 || v % 1 || v > 69) throw new Err('DOMAIN ERROR'); var f = 1; for(var i = 2; i <= v; i++) f *= i; v = f; continue; }
+        if(t.o === 'deg'){ p++; v = S.deg ? v : v * Math.PI / 180; continue; }
+        if(t.o === 'min'){ p++; v = S.deg ? v / 60 : v / 60 * Math.PI / 180; continue; }
+        if(t.o === 'sec'){ p++; v = S.deg ? v / 3600 : v / 3600 * Math.PI / 180; continue; }
+        return v;
+      }
+    }
+    function group(){ var v = expr(); if(peek() && peek().o === ')') p++; else if(peek()) throw new Err('SYNTAX ERROR'); return v; }
+    function prim(){
+      var t = toks[p++];
+      if(!t) throw new Err('SYNTAX ERROR');
+      if(t.n != null) return t.n;
+      if(t.tp){
+        var tp = t.tp;
+        if(tp.t === 'frac'){ var d = evalSlot(tp.s[1]); if(d === 0) throw new Err('DIVIDE BY 0'); return evalSlot(tp.s[0]) / d; }
+        if(tp.t === 'mixed'){ var w = evalSlot(tp.s[0]), fr = evalSlot(tp.s[1]) / evalSlot(tp.s[2]); return w < 0 ? w - fr : w + fr; }
+        if(tp.t === 'sqrt'){ var r = evalSlot(tp.s[0]); if(r < 0) throw new Err('DOMAIN ERROR'); return Math.sqrt(r); }
+        if(tp.t === 'root'){ var n = evalSlot(tp.s[0]), x = evalSlot(tp.s[1]); if(x < 0 && Math.round(n) % 2 === 1) return -Math.pow(-x, 1 / n); if(x < 0) throw new Err('DOMAIN ERROR'); return Math.pow(x, 1 / n); }
+        if(tp.t === 'ten') return Math.pow(10, evalSlot(tp.s[0]));
+        if(tp.t === 'exp') return Math.exp(evalSlot(tp.s[0]));
+        throw new Err('SYNTAX ERROR');
+      }
+      var o = t.o;
+      if(o === '('){ var v = expr(); if(peek() && peek().o === ')') p++; return v; }
+      if(o === 'pi') return Math.PI;
+      if(o === 'e') return Math.E;
+      if(o === 'ans') return S.ans;
+      if(S.vars.hasOwnProperty(o)) return S.vars[o];
+      if(o === 'rand') return Math.random();
+      if(o === 'randint'){ var a = expr(); if(!peek() || peek().o !== 'comma') throw new Err('SYNTAX ERROR'); p++; var b = expr(); if(peek() && peek().o === ')') p++; var lo = Math.min(a, b), hi = Math.max(a, b); return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+      var g, res;
+      switch(o){
+        case 'sin': g = group(); return clean(Math.sin(toRad(g)));
+        case 'cos': g = group(); return clean(Math.cos(toRad(g)));
+        case 'tan': g = group(); res = Math.tan(toRad(g)); if(Math.abs(res) > 1e15 || S.deg && Math.abs(((g % 180) + 180) % 180 - 90) < 1e-9) throw new Err('DOMAIN ERROR'); return clean(res);
+        case 'asin': g = group(); if(g < -1 || g > 1) throw new Err('DOMAIN ERROR'); return fromRad(Math.asin(g));
+        case 'acos': g = group(); if(g < -1 || g > 1) throw new Err('DOMAIN ERROR'); return fromRad(Math.acos(g));
+        case 'atan': g = group(); return fromRad(Math.atan(g));
+        case 'log': g = group(); if(g <= 0) throw new Err('DOMAIN ERROR'); return Math.log10(g);
+        case 'ln': g = group(); if(g <= 0) throw new Err('DOMAIN ERROR'); return Math.log(g);
+        case 'abs': g = group(); return Math.abs(g);
+      }
+      throw new Err('SYNTAX ERROR');
+    }
+    if(!toks.length) throw new Err('SYNTAX ERROR');
+    var val = expr();
+    if(p < toks.length){ if(toks[p].o === ')'){ throw new Err('SYNTAX ERROR'); } throw new Err('SYNTAX ERROR'); }
+    return val;
+  }
+  /* ---------- answers ---------- */
+  function hasFrac(sl){ return sl.some(function(it){ return typeof it !== 'string' && (it.t === 'frac' || it.t === 'mixed' || it.s.some(hasFrac)); }); }
+  function toFrac(x){
+    if(!isFinite(x) || x % 1 === 0) return null;
+    var sign = x < 0 ? -1 : 1, v = Math.abs(x), h1 = 1, h0 = 0, k1 = 0, k0 = 1, b = v;
+    for(var i = 0; i < 30; i++){
+      var a = Math.floor(b), h2 = a * h1 + h0, k2 = a * k1 + k0;
+      h0 = h1; h1 = h2; k0 = k1; k1 = k2;
+      if(Math.abs(v - h1 / k1) < 1e-10 * Math.max(1, v)) break;
+      b = 1 / (b - a); if(!isFinite(b)) break;
+    }
+    if(k1 > 10000 || Math.abs(v - h1 / k1) > 1e-9 * Math.max(1, v)) return null;
+    return [sign * h1, k1];
+  }
+  function sig(x){
+    if(x === 0) return '0';
+    var ax = Math.abs(x);
+    if(ax >= 1e10 || ax < 1e-9){
+      var e = Math.floor(Math.log10(ax)), m = x / Math.pow(10, e);
+      m = parseFloat(m.toPrecision(10)); if(Math.abs(m) >= 10){ m /= 10; e++; }
+      return fmtNum(m) + '<span class="fn">×10</span><span class="sup">' + fmtNum(e) + '</span>';
+    }
+    return fmtNum(parseFloat(x.toPrecision(10)));
+  }
+  function fmtNum(v){ var s = String(v); if(s.indexOf('e') >= 0) s = v.toFixed(12).replace(/\.?0+$/, ''); return s.replace(/^-/, '−'); }
+  function show(h){
+    if(h.err) return h.err;
+    var f = toFrac(h.v);
+    if(h.mode === 'frac' && f){
+      var sgn = f[0] < 0 ? '−' : '', p = Math.abs(f[0]), q = f[1];
+      if(h.mixed && p > q) return sgn + Math.floor(p / q) + '<span class="fr"><span>' + (p % q) + '</span><span>' + q + '</span></span>';
+      return sgn + '<span class="fr"><span>' + p + '</span><span>' + q + '</span></span>';
+    }
+    return sig(h.v);
+  }
+  /* ---------- drawing the screen ---------- */
+  function render(){
+    document.getElementById('cInd2').innerHTML = S.second ? '<span class="on2">2nd</span>' : '';
+    document.getElementById('cIndA').textContent = S.deg ? 'DEG' : 'RAD';
+    var hs = S.hist.slice(-2), start = S.hist.length - hs.length;
+    histEl.innerHTML = hs.map(function(h, i){
+      return '<div class="chl' + (start + i === S.hsel ? ' sel' : '') + '" data-h="' + (start + i) + '"><span class="he">' + slotHTML(h.tree, false) + '</span><span class="hr">' + show(h) + '</span></div>';
+    }).join('');
+    entryEl.innerHTML = slotHTML(root, true);
+    entryEl.classList.toggle('over', entryEl.scrollWidth > entryEl.clientWidth + 2);
+    if(S.menu){ menuEl.hidden = false; menuEl.innerHTML = '<div class="mt">' + S.menu.title + '</div>' + S.menu.items.map(function(m, i){ return '<div class="mi" data-m="' + i + '"><b>' + (i + 1) + ':</b>' + m[0] + '</div>'; }).join(''); }
+    else menuEl.hidden = true;
+  }
+  function clone(sl, par){ var c = []; c.parent = par || null; sl.forEach(function(it){ if(typeof it === 'string') c.push(it); else { var t = {t:it.t, s:[]}; it.s.forEach(function(x){ t.s.push(clone(x, t)); }); t.holder = c; c.push(t); } }); return c; }
+  function evaluate(){
+    if(!root.length){ if(S.hist.length){ root = clone(S.hist[S.hist.length - 1].tree); root.parent = null; cur = {s:root, i:root.length}; } else return; }
+    var h = {tree:clone(root)};
+    try{
+      var v = evalSlot(root);
+      if(!isFinite(v)) throw new Err(Math.abs(v) === Infinity ? 'OVERFLOW' : 'DOMAIN ERROR');
+      if(Math.abs(v) >= 1e100) throw new Err('OVERFLOW');
+      h.v = v; h.mode = hasFrac(root) ? 'frac' : 'dec'; S.ans = v;
+    }catch(e){ if(e instanceof Err) h.err = '<span class="fn">' + e.m + '</span>'; else throw e; }
+    S.hist.push(h); if(S.hist.length > 40) S.hist.shift();
+    reset(); S.hsel = -1;
+  }
+  /* ---------- menus (prb, angle, mode, sto, recall) ---------- */
+  function openMenu(title, items){ S.menu = {title:title, items:items}; render(); }
+  function pickMenu(i){ var m = S.menu; if(!m || !m.items[i]) return; S.menu = null; m.items[i][1](); render(); }
+  function afterOperatorAns(){ if(!root.length && S.hist.length && !S.hist[S.hist.length - 1].err){ insert('ans'); } }
+  /* ---------- keys ---------- */
+  function press(k){
+    var sec = S.second; S.second = false;
+    if(S.menu && k !== 'up' && k !== 'down' && !/^[0-9]$/.test(k) && k !== 'enter' && k !== 'clear' && k !== 'mode'){ S.menu = null; }
+    if(S.menu){
+      if(/^[1-9]$/.test(k)){ pickMenu(+k - 1); return; }
+      if(k === 'clear' || k === 'mode'){ S.menu = null; render(); return; }
+      if(k === 'enter'){ pickMenu(0); return; }
+      return;
+    }
+    if(sec){ var b = box.querySelector('[data-k="' + k + '"]'); var k2 = b && b.dataset.k2; if(k2 === undefined || k2 === null) k2 = ''; k = k2 || k; if(!k2 && !/^(2nd)$/.test(k)) {} }
+    if(k !== 'var') S.lastVar = null;
+    switch(k){
+      case '2nd': S.second = !sec; break;
+      case 'noop': case 'quit': break;
+      case 'mode': openMenu('Angle unit', [['DEG  (degrees)', function(){ S.deg = true; }], ['RAD  (radians)', function(){ S.deg = false; }]]); return;
+      case 'del': del(); break;
+      case 'clear': if(root.length) reset(); else { S.hist = []; S.hsel = -1; } break;
+      case 'reset': S.hist = []; S.ans = 0; VARS.forEach(function(v){ S.vars[v] = 0; }); S.deg = true; reset(); break;
+      case 'off': box.hidden = true; var tb = document.getElementById('btnCalc'); if(tb) tb.setAttribute('aria-pressed', 'false'); return;
+      case 'left': moveLeft(); break;
+      case 'right': moveRight(); break;
+      case 'up':
+        if(!S.hist.length) break;
+        S.hsel = S.hsel < 0 ? S.hist.length - 1 : Math.max(0, S.hsel - 1);
+        root = clone(S.hist[S.hsel].tree); root.parent = null; cur = {s:root, i:root.length}; break;
+      case 'down':
+        if(S.hsel < 0) break;
+        S.hsel++; if(S.hsel >= S.hist.length){ S.hsel = -1; reset(); } else { root = clone(S.hist[S.hsel].tree); root.parent = null; cur = {s:root, i:root.length}; } break;
+      case 'enter': evaluate(); break;
+      case '+': case '-': case '*': case '/': afterOperatorAns(); insert(k); break;
+      case 'pow': afterOperatorAns(); tpl('pow', 1); break;
+      case 'sq': afterOperatorAns(); insert('sq'); break;
+      case 'inv': afterOperatorAns(); insert('inv'); break;
+      case 'root': tpl('root', 2); break;
+      case 'sqrt': tpl('sqrt', 1); break;
+      case 'frac':
+        var numr = grabOperand(); var t = tpl('frac', 2);
+        if(numr.length){ numr.forEach(function(d){ t.s[0].push(d); }); cur = {s:t.s[1], i:0}; }
+        break;
+      case 'mixed': var w = grabOperand(); var tm = tpl('mixed', 3); if(w.length){ w.forEach(function(d){ tm.s[0].push(d); }); cur = {s:tm.s[1], i:0}; } break;
+      case 'sci': tpl('sci', 1); break;
+      case '10x': tpl('ten', 1); break;
+      case 'ex': tpl('exp', 1); break;
+      case 'pi': insert('pi'); break;
+      case 'sin': case 'cos': case 'tan': case 'asin': case 'acos': case 'atan': case 'log': case 'ln': insert(k); break;
+      case '(': case ')': insert(k); break;
+      case 'pct': insert('pct'); break;
+      case 'comma': insert('comma'); break;
+      case 'neg': insert('neg'); break;
+      case 'ans': insert('ans'); break;
+      case 'var':
+        if(S.lastVar && cur.i > 0 && cur.s[cur.i - 1] === S.lastVar){ var nx = VARS[(VARS.indexOf(S.lastVar) + 1) % VARS.length]; cur.s[cur.i - 1] = nx; S.lastVar = nx; }
+        else { insert('x'); S.lastVar = 'x'; }
+        break;
+      case 'clrvar': VARS.forEach(function(v){ S.vars[v] = 0; }); break;
+      case 'sto': openMenu('Store ans (' + fmtNum(parseFloat(S.ans.toPrecision(10))) + ') in', VARS.map(function(v){ return ['<i>' + v + '</i>', function(){ S.vars[v] = S.ans; }]; })); return;
+      case 'recall': openMenu('Recall', VARS.map(function(v){ return ['<i>' + v + '</i> = ' + fmtNum(parseFloat(S.vars[v].toPrecision(10))), function(){ insert(v); }]; })); return;
+      case 'prb': openMenu('Probability', [['nPr', function(){ afterOperatorAns(); insert('nPr'); }], ['nCr', function(){ afterOperatorAns(); insert('nCr'); }], ['! (factorial)', function(){ afterOperatorAns(); insert('fact'); }], ['rand', function(){ insert('rand'); }], ['randInt(', function(){ insert('randint'); }]]); return;
+      case 'angle': openMenu('Angle', [['° degrees', function(){ insert('deg'); }], ['′ minutes', function(){ insert('min'); }], ['″ seconds', function(){ insert('sec'); }]]); return;
+      case 'tog': case 'fd': case 'fmix':
+        var last = S.hist[S.hist.length - 1];
+        if(last && !last.err){ if(k === 'fmix') last.mixed = !last.mixed; else last.mode = last.mode === 'frac' ? 'dec' : 'frac'; }
+        break;
+      case 'hyp': case 'const': case 'data': case 'stat': case 'table': case 'topct':
+        flash(k === 'hyp' ? 'hyp is not on this one' : 'Use your own calculator for ' + ({const:'constants', data:'data lists', stat:'statistics', table:'tables', topct:'▸%'})[k]); break;
+      default:
+        if(/^[0-9.]$/.test(k)){ if(!root.length && S.hist.length && S.hsel < 0) {} insert(k); }
+    }
+    render();
+  }
+  function flash(msg){ var el = document.createElement('div'); el.className = 'menu'; el.style.justifyContent = 'center'; el.style.textAlign = 'center'; el.textContent = msg; box.querySelector('.lcd').appendChild(el); setTimeout(function(){ el.remove(); }, 1400); }
+  box.addEventListener('pointerdown', function(e){
+    focused = true;
+    var mi = e.target.closest('.mi'); if(mi){ e.preventDefault(); pickMenu(+mi.dataset.m); return; }
+    var hl = e.target.closest('.chl'); if(hl){ e.preventDefault(); var h = S.hist[+hl.dataset.h]; insert('ans'); S.ans = h && !h.err ? h.v : S.ans; render(); return; }
+    var b = e.target.closest('[data-k]'); if(!b) return;
+    e.preventDefault(); e.stopPropagation();
+    b.classList.add('hit'); setTimeout(function(){ b.classList.remove('hit'); }, 110);
+    press(b.dataset.k);
+  });
+  /* dragging by the top strip, in slide coordinates so it scales with the slide */
+  var drag = null, focused = false;
+  box.querySelector('.cgrip').addEventListener('pointerdown', function(e){
+    if(e.target.closest('button')) return;
+    var r = stageEl.getBoundingClientRect(), k = 1600 / r.width;
+    drag = {id:e.pointerId, x:e.clientX, y:e.clientY, l:box.offsetLeft, t:box.offsetTop, k:k};
+    box.setPointerCapture(e.pointerId); e.preventDefault(); e.stopPropagation();
+  });
+  box.addEventListener('pointermove', function(e){
+    if(!drag || e.pointerId !== drag.id) return;
+    box.style.left = Math.max(-300, Math.min(1500, drag.l + (e.clientX - drag.x) * drag.k)) + 'px';
+    box.style.top = Math.max(-40, Math.min(820, drag.t + (e.clientY - drag.y) * drag.k)) + 'px';
+  });
+  box.addEventListener('pointerup', function(){ drag = null; });
+  document.addEventListener('pointerdown', function(e){ if(!e.target.closest('#calc')) focused = false; }, true);
+  document.addEventListener('keydown', function(e){
+    if(box.hidden || !focused || e.ctrlKey || e.metaKey || e.altKey) return;
+    var map = {'Enter':'enter', '=':'enter', 'Backspace':'del', 'Delete':'del', 'Escape':'clear', 'ArrowLeft':'left', 'ArrowRight':'right', 'ArrowUp':'up', 'ArrowDown':'down',
+      '+':'+', '-':'-', '*':'*', 'x':'*', '/':'frac', '^':'pow', '(':'(', ')':')', '.':'.', 'p':'pi', 's':'sin', 'c':'cos', 't':'tan', 'l':'log', 'n':'ln', 'r':'sqrt', '!':'fact', '%':'pct'};
+    var k = /^[0-9]$/.test(e.key) ? e.key : map[e.key];
+    if(!k) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(k === 'fact'){ insert('fact'); render(); return; }
+    press(k);
+  }, true);
+  window.CALC = {show:function(on){ box.hidden = !on; if(on) render(); }, press:press, _S:S, text:function(){ return entryEl.textContent + ' | ' + histEl.textContent; }};
+  render();
+})();
+
+/* ============================================================
+   INTEGRATED CHROME: dock, colour pop-up, menu, slide clocks,
+   start lesson on the title slide, auto-hiding dock, stylus replay
+   ============================================================ */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  var dock = $('dock'), menu = $('menu'), colpop = $('colpop');
+  /* colour button shows the current colour; the pop-up closes after a pick */
+  function paintDot(){ var on = document.querySelector('#swatches .sw[aria-pressed="true"]'); if(on) $('cdot').style.background = on.style.background; }
+  new MutationObserver(paintDot).observe($('swatches'), {childList:true, subtree:true, attributes:true});
+  paintDot();
+  function closePops(except){
+    if(except !== colpop){ colpop.hidden = true; $('btnColour').setAttribute('aria-expanded','false'); }
+    if(except !== toolpop && toolpop){ toolpop.hidden = true; $('btnTools').setAttribute('aria-expanded','false'); }
+    if(except !== menu){ menu.hidden = true; $('btnMenu').setAttribute('aria-expanded','false'); }
+  }
+  var toolpop = $('toolpop');
+  $('btnTools').addEventListener('click', function(e){ e.stopPropagation(); var o = toolpop.hidden; closePops(toolpop); toolpop.hidden = !o; this.setAttribute('aria-expanded', String(o)); });
+  toolpop.addEventListener('click', function(){ setTimeout(function(){ toolpop.hidden = true; }, 120); });
+  function paintTools(){ var on = $('btnCalc').getAttribute('aria-pressed') === 'true' || $('btnProto').getAttribute('aria-pressed') === 'true'; $('btnTools').setAttribute('aria-pressed', String(on)); }
+  new MutationObserver(paintTools).observe(toolpop, {attributes:true, subtree:true, attributeFilter:['aria-pressed']});
+  $('btnCalc').addEventListener('click', function(){ var on = document.getElementById('calc').hidden; window.CALC.show(on); this.setAttribute('aria-pressed', String(on)); });
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target; if(t && (t.isContentEditable || /INPUT|TEXTAREA|SELECT/.test(t.tagName))) return;
+    if(e.key === 'c' || e.key === 'C'){ e.preventDefault(); $('btnCalc').click(); }
+  });
+  $('btnColour').addEventListener('click', function(e){ e.stopPropagation(); var o = colpop.hidden; closePops(colpop); colpop.hidden = !o; this.setAttribute('aria-expanded', String(o)); });
+  $('swatches').addEventListener('click', function(){ setTimeout(function(){ colpop.hidden = true; }, 120); });
+  $('btnMenu').addEventListener('click', function(e){ e.stopPropagation(); var o = menu.hidden; closePops(menu); menu.hidden = !o; this.setAttribute('aria-expanded', String(o)); });
+  document.addEventListener('pointerdown', function(e){ if(!e.target.closest('#dock, #menu')) closePops(null); }, true);
+  Array.prototype.forEach.call(menu.querySelectorAll('.mb'), function(b){ if(b.id !== 'btnSave' && b.id !== 'btnLesson') b.addEventListener('click', function(){ setTimeout(function(){ menu.hidden = true; }, 60); }); });
+  document.addEventListener('fullscreenchange', function(){ document.body.classList.toggle('isfull', !!document.fullscreenElement); });
+
+  /* the dock slides away while you teach, and comes back when the pointer nears the bottom */
+  var idleT = null;
+  function wake(){ dock.classList.remove('away'); clearTimeout(idleT); idleT = setTimeout(sleep, 5000); }
+  function sleep(){ if(!colpop.hidden || !toolpop.hidden || !menu.hidden || dock.matches(':hover')) { idleT = setTimeout(sleep, 3000); return; } dock.classList.add('away'); }
+  document.addEventListener('pointermove', function(e){ if(e.clientY > innerHeight - 110) wake(); }, {passive:true});
+  $('dockTab').addEventListener('pointerdown', wake);
+  dock.addEventListener('pointerenter', wake);
+  wake();
+
+  /* slide clocks: time of day, and the lesson clock once it is running */
+  var lessonBtn = $('btnLesson');
+  function lessonState(){
+    var t = lessonBtn.textContent;
+    if(/Start/.test(t)) return 'idle';
+    if(/Resume/.test(t)) return 'paused';
+    return 'run';
+  }
+  function tick(){
+    var d = new Date(), h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? 'pm' : 'am'; h = h % 12; if(h === 0) h = 12;
+    var time = h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap, st = lessonState(), le = $('lessonEl').textContent, mins = parseInt(le, 10);
+    Array.prototype.forEach.call(document.querySelectorAll('.sclock'), function(c){
+      c.querySelector('.sct').textContent = time;
+      var l = c.querySelector('.scl');
+      l.textContent = st === 'idle' ? (c.dataset.mins && c.dataset.mins !== '0' ? c.dataset.mins + ' min on this' : 'Tap to start the lesson') : (st === 'paused' ? 'Paused at ' + le : le);
+      c.classList.toggle('run', st === 'run');
+      c.classList.toggle('warn', st !== 'idle' && mins > 70 && mins <= 80);
+      c.classList.toggle('over', st !== 'idle' && mins > 80);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.startlesson'), function(b){
+      b.classList.toggle('on', st !== 'idle');
+      b.lastChild.nodeValue = st === 'idle' ? 'Start lesson' : (st === 'run' ? 'Lesson running: ' + le : 'Resume lesson');
+    });
+  }
+  function toggleLesson(){ lessonBtn.click(); setTimeout(tick, 30); }
+  Array.prototype.forEach.call(document.querySelectorAll('.sclock, .startlesson'), function(c){ c.addEventListener('click', toggleLesson); });
+  lessonBtn.addEventListener('click', function(){ setTimeout(tick, 30); });
+  tick(); setInterval(tick, 5000);
+
+  /* ---------------- stylus replay ---------------- */
+  var D = window.DECK, bar = null, R = null;
+  function timed(a){ return a.filter(function(s){ return s.s0 && s.p && s.p.length && s.p[s.p.length - 1].length > 3; }); }
+  function refreshReplayBtn(){ var a = D.slideStrokes(D.key()); $('btnReplay').disabled = !timed(a).length || !!R; }
+  setInterval(refreshReplayBtn, 700);
+  function makeBar(){
+    bar = document.createElement('div'); bar.id = 'replayBar'; bar.className = 'no-ink'; bar.hidden = true;
+    bar.innerHTML = '<span class="rstate" id="rState">Replaying</span><button type="button" id="rGo" class="go">Next step</button><button type="button" id="rEnd">Show all</button><button type="button" id="rStop">Close</button>';
+    $('stage').appendChild(bar);
+    $('rGo').addEventListener('click', function(){ if(R){ R.waiting = false; R.last = performance.now(); paint(); } });
+    $('rEnd').addEventListener('click', function(){ stop(); });
+    $('rStop').addEventListener('click', function(){ stop(); });
+  }
+  function paint(){
+    if(!R) return;
+    $('rGo').hidden = !R.waiting;
+    $('rState').textContent = R.waiting ? 'Paused. Next step when ready.' : 'Replaying ' + (R.i + 1) + ' of ' + R.list.length;
+  }
+  function start(){
+    var all = D.slideStrokes(D.key()), list = timed(all).slice().sort(function(a, b){ return a.s0 - b.s0; });
+    if(!list.length) return;
+    if(!bar) makeBar();
+    var untimed = all.filter(function(s){ return list.indexOf(s) < 0; });
+    R = {key:D.key(), list:list, base:untimed, i:0, t:0, last:performance.now(), waiting:false, gapLeft:0};
+    bar.hidden = false; paint(); refreshReplayBtn();
+    requestAnimationFrame(frame);
+  }
+  function stop(){ R = null; if(bar) bar.hidden = true; D.redraw(); refreshReplayBtn(); }
+  function frame(now){
+    if(!R) return;
+    if(D.key() !== R.key){ stop(); return; }
+    var dt = Math.min(64, now - R.last); R.last = now;
+    if(!R.waiting){
+      if(R.gapLeft > 0){ R.gapLeft -= dt; }
+      else {
+        R.t += dt;
+        var s = R.list[R.i], dur = s.p[s.p.length - 1][3];
+        if(R.t >= dur){
+          R.i++; R.t = 0;
+          if(R.i >= R.list.length){ draw(); stop(); return; }
+          var prev = R.list[R.i - 1], gap = R.list[R.i].s0 - (prev.s0 + prev.p[prev.p.length - 1][3]);
+          if(gap > 3500){ R.waiting = true; paint(); }
+          else R.gapLeft = Math.min(gap, 450);
+          paint();
+        }
+      }
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+  function draw(){
+    var c = D.ctx, q = D.q();
+    c.setTransform(1,0,0,1,0,0); c.clearRect(0, 0, D.canvas.width, D.canvas.height); c.setTransform(q,0,0,q,0,0);
+    R.base.forEach(D.drawStroke);
+    for(var i = 0; i < R.i && i < R.list.length; i++) D.drawStroke(R.list[i]);
+    var s = R.list[R.i];
+    if(s && !R.waiting){
+      var pts = s.p.filter(function(a){ return a[3] <= R.t; });
+      if(pts.length) D.drawStroke({t:s.t, c:s.c, w:s.w, p:pts});
+    }
+  }
+  $('btnReplay').addEventListener('click', function(){ if(R) stop(); else start(); });
+  document.addEventListener('keydown', function(e){
+    var t = e.target; if(t && (/INPUT|TEXTAREA|SELECT/.test(t.tagName) || t.isContentEditable)) return;
+    if(R && (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown')){
+      e.preventDefault(); e.stopImmediatePropagation();
+      if(R.waiting){ R.waiting = false; R.last = performance.now(); paint(); }
+      return;
+    }
+    if(R && e.key === 'Escape'){ e.stopImmediatePropagation(); stop(); return; }
+    if(!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'y' || e.key === 'Y')){ e.preventDefault(); if(R) stop(); else start(); }
+  }, true);
 })();
 </script>
 
