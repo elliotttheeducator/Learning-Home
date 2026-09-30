@@ -7,17 +7,38 @@
       "Use shared features to find an animal's closest living relative",
       "Decide what you think about de-extinction, and give a reason"
     ],
-    "bring": ["Charged laptop"],
+    "bring": [
+      "Charged laptop"
+    ],
     "studentNote": "Open the lesson page below and keep it open all lesson. Your work saves on your laptop as you go.",
     "resources": [
-      { "title": "Lesson page: Should we bring them back?", "url": "/y7-science/de-extinction", "type": "app" },
-      { "title": "Teacher deck (projector)", "url": "/teacher/decks/y7-science/de-extinction", "type": "deck" }
+      {
+        "title": "Lesson page: Should we bring them back?",
+        "url": "/y7-science/de-extinction",
+        "type": "app",
+        "for": "students"
+      },
+      {
+        "title": "Teacher deck (projector)",
+        "url": "/teacher/decks/y7-science/de-extinction",
+        "type": "deck",
+        "for": "teacher"
+      }
     ],
     "notes": "Built from the Stile lesson Introduction: Resurrecting extinct animals. About 70 minutes, blocked:\n0  listen 2   title, open the lesson page\n2  listen 4   the return of the dire wolf\n6  you do 3   brainstorm extinct animals (Part 1)\n9  you do 5   storyboard: the dire wolf returns (Part 2)\n14 listen 5   how could we bring an animal back?\n19 we do  6   match the extinct birds, whiteboard wipeout (Part 3)\n25 notes  5   classification notes (Part 4)\n30 you do 7   mammoth vs Asian elephant (Part 5)\n37 you do 7   storyboard: bring back the mammoth (Part 6)\n44 we do  7   four corners (Part 7)\n51 listen 2   meet the prehistoric animals (Part 8)\n53 you do 15  slideshow (Part 9), finished Friday\n68 check  2   exit sentence\n\nThe deck link only opens for you (it sits behind the teacher password), so it never shows on the student calendar.",
     "prep": [
-      { "t": "Laptops charged", "d": false },
-      { "t": "Mini whiteboards for the bird match", "d": false },
-      { "t": "Label the four corners of the room 1 to 4", "d": false }
+      {
+        "t": "Laptops charged",
+        "d": false
+      },
+      {
+        "t": "Mini whiteboards for the bird match",
+        "d": false
+      },
+      {
+        "t": "Label the four corners of the room 1 to 4",
+        "d": false
+      }
     ]
   },
   "2026-10-16|P6": {
@@ -27,10 +48,17 @@
       "Finish your slideshow on a prehistoric animal",
       "Present it to a partner and give them one piece of feedback"
     ],
-    "bring": ["Charged laptop"],
+    "bring": [
+      "Charged laptop"
+    ],
     "studentNote": "Open Part 9 of the lesson page. When you finish, press Save my work and hand in the file.",
     "resources": [
-      { "title": "Lesson page, Part 9: My slideshow", "url": "/y7-science/de-extinction#p9", "type": "app" }
+      {
+        "title": "Lesson page, Part 9: My slideshow",
+        "url": "/y7-science/de-extinction#p9",
+        "type": "app",
+        "for": "students"
+      }
     ],
     "notes": "Lab 34, but this one is a laptop lesson. Rough shape: 5 recap, 35 build, 20 pair presentations, 10 hand in.",
     "prep": []

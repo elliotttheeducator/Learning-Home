@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Print</title>
+<style>
+  :root { --ink:#17233D; --print:#E07A12; --line:#D9E1EE; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:#EEF3FA; color:var(--ink); font:15px/1.4 "Public Sans","Segoe UI",system-ui,sans-serif; }
+  .bar { position:fixed; top:0; left:0; right:0; height:56px; display:flex; align-items:center; gap:12px; padding:0 16px; background:#fff; border-bottom:1px solid var(--line); z-index:2; }
+  .bar b { font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .st { color:#6B7890; font-size:13px; white-space:nowrap; }
+  .bar .sp { flex:1; }
+  .btn { border:1px solid #C2CDDE; background:#fff; border-radius:9px; padding:8px 14px; font:inherit; font-weight:700; cursor:pointer; text-decoration:none; color:var(--ink); white-space:nowrap; }
+  .btn.go { background:var(--print); border-color:var(--print); color:#fff; }
+  iframe { position:fixed; top:56px; left:0; width:100%; height:calc(100% - 56px); border:0; background:#fff; }
+  .msg { padding:120px 24px; text-align:center; font-size:18px; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <b id="title">Print</b><span class="st" id="st">Loading...</span><span class="sp"></span>
+  <button class="btn go" id="again">Print</button>
+  <a class="btn" id="plain" target="_blank" rel="noopener">Open without printing</a>
+</div>
+<script>
+(function () {
+  // Opens a page from this site inside a frame and brings up the print dialog once it has loaded.
+  var q = new URLSearchParams(location.search), u = q.get("u") || "", t = q.get("t") || "";
+  document.getElementById("title").textContent = t ? "Print: " + t : "Print";
+  document.title = t ? "Print " + t : "Print";
+  if (!/^\/(?!\/)/.test(u)) {
+    document.body.insertAdjacentHTML("beforeend", '<p class="msg">This printer link only works for pages on Learning Home.</p>');
+    document.getElementById("st").textContent = "";
+    return;
+  }
+  document.getElementById("plain").href = u;
+  var f = document.createElement("iframe");
+  f.title = t || "Page to print";
+  f.src = u;
+  var printed = false;
+  function go() {
+    try { f.contentWindow.focus(); f.contentWindow.print(); document.getElementById("st").textContent = "Print dialog opened"; }
+    catch (e) { document.getElementById("st").textContent = "Use Open without printing, then Ctrl+P"; }
+  }
+  f.addEventListener("load", function () {
+    document.getElementById("st").textContent = "Ready";
+    if (!printed) { printed = true; setTimeout(go, 600); }   // a moment for fonts and pictures to settle
+  });
+  document.body.appendChild(f);
+  document.getElementById("again").addEventListener("click", go);
+})();
+</script>
+</body>
+</html>

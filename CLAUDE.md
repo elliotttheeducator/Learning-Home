@@ -31,7 +31,12 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
    `{ "title": "Net force to acceleration", "type": "deck", "unit": "Newton's laws", "path": "/y10-science/net-force.html", "added": "2026-10-12" }`
    Types: deck, app, sim, booklet, link.
 3. If you know which lesson it is for, attach it in `src/plans/<class-id>.json` under that
-   lesson's `resources` (`{ "title": "...", "url": "/y7-enrichment/angles.html", "type": "deck" }`).
+   lesson's `resources`, tagged with who it is for:
+   `{ "title": "...", "url": "/y7-enrichment/angles.html", "type": "app", "for": "students" }`
+   `for` is `students` (on the student calendar once published), `teacher` (decks, answer keys,
+   teacher versions: never sent to students) or `print` (opens in the print helper). Teacher-only
+   files that must not be public go under `public/teacher/`, which needs the teacher password.
+   Types: deck, app, sim, booklet, sheet, key, link.
    If the lesson has already been edited in the planner, its saved copy in the D1 database
    `learning-home` wins: add to the `resources` inside that row's `data` and leave every other
    field (including `published`) alone.
