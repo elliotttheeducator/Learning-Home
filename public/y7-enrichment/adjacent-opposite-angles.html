@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7B Adjacent and vertically opposite angles</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232F5BEA'/%3E%3Cpath d='M6 25h20M6 25l16-15' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M13 25a7 7 0 0 0-2-5' stroke='%23FFB400' stroke-width='2.5' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#17233D;--ink-soft:#4A5775;--page:#F1F5FD;--panel:#fff;--line:#D5DEEF;--focus:#FFB400;
+  --acc:#2F5BEA;--acc-dark:#1D3FB0;--good:#15803D;--bad:#BE123C;--font:"Lexend","Segoe UI",Arial,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font);font-size:20px;line-height:1.5}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--focus);outline-offset:2px;border-radius:6px}
+a{color:var(--acc-dark)}
+[hidden]{display:none!important}
+.top{position:sticky;top:0;z-index:20;background:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(20,40,110,.2)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top a.home{color:#fff;font-size:16px;text-decoration:none;opacity:.9;white-space:nowrap}
+.top h1{font-size:21px;margin:0;font-weight:800;line-height:1.2}
+.top h1 .code{background:#fff;color:var(--acc);border-radius:8px;padding:0 8px;margin-right:8px}
+.partnav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.partnav a{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.18);color:#fff;text-decoration:none;font-weight:800;font-size:17px;position:relative}
+.partnav a:hover{background:rgba(255,255,255,.32)}
+.partnav a.done{background:#fff;color:var(--acc-dark)}
+.partnav a.done::after{content:"\2713";position:absolute;right:-4px;top:-6px;font-size:13px;background:var(--focus);color:var(--ink);width:18px;height:18px;border-radius:50%;display:grid;place-items:center}
+.savebox{display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap}
+.savebox .dot{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.6}
+.savebox.ok .dot{background:#B9F6CF;opacity:1}
+.savebox.err .dot{background:#FFB4B4;opacity:1}
+.tbtn{border:2px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:10px;padding:5px 12px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tbtn:hover{background:rgba(255,255,255,.18)}
+main{max-width:1180px;margin:0 auto;padding:24px 20px 80px}
+.hello{display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:var(--panel);border-radius:20px;padding:18px 22px;margin-bottom:22px}
+.hello p{margin:0;flex:1 1 380px;font-size:20px}
+.hello label{font-weight:700}
+.hello input{border:3px solid var(--line);border-radius:12px;padding:8px 12px;width:220px}
+.part{background:var(--panel);border-radius:24px;margin:0 0 26px;box-shadow:0 4px 18px rgba(20,40,110,.07);overflow:hidden;border-top:10px solid var(--pc,var(--acc))}
+.phead{display:flex;align-items:center;gap:16px;padding:20px 26px 6px;flex-wrap:wrap}
+.pnum{flex:none;width:58px;height:58px;border-radius:16px;background:var(--pc,var(--acc));color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800}
+.phead h2{font-size:30px;line-height:1.12;margin:0;flex:1 1 300px}
+.phead .kind{margin-left:auto;font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px;
+  background:color-mix(in srgb,var(--pc,var(--acc)) 14%,#fff);color:color-mix(in srgb,var(--pc,var(--acc)) 75%,#000);white-space:nowrap}
+.pbody{padding:12px 26px 26px}
+.pbody>p{margin:0 0 14px}
+.ican{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:10px}
+.ican li{font-size:22px;padding:10px 16px;background:#F3F6FE;border-left:8px solid var(--pc,var(--acc));border-radius:12px}
+.task{display:flex;align-items:center;gap:12px;background:#FDECEF;color:#8A0F2C;border-radius:14px;padding:12px 18px;font-size:21px;font-weight:700;margin:16px 0 0}
+.task::before{content:"\270E";font-size:28px}
+.task label{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:17px;white-space:nowrap;cursor:pointer}
+.task input{width:22px;height:22px;accent-color:var(--good)}
+.btn{border:0;border-radius:14px;padding:11px 20px;font-weight:800;cursor:pointer;background:var(--pc,var(--acc));color:#fff;
+  box-shadow:0 4px 0 color-mix(in srgb,var(--pc,var(--acc)) 65%,#000);font-size:19px}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--pc,var(--acc)) 65%,#000)}
+.btn.ghost{background:#fff;color:var(--ink);border:3px solid var(--line);box-shadow:none}
+.btn.small{padding:7px 14px;font-size:16px;border-radius:11px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.result{font-size:20px;font-weight:700;margin-top:10px;min-height:1.5em}
+.result.good{color:var(--good)}.result.bad{color:var(--bad)}
+.fig{display:inline-block;line-height:0;max-width:100%;vertical-align:middle}
+.fig svg{width:100%;height:100%;display:block;overflow:visible}
+/* notes */
+.notes{font-size:20px;line-height:1.45}
+.notes h4{font-size:24px;margin:22px 0 10px;color:var(--pc,var(--acc))}
+.notes h4:first-child{margin-top:4px}
+.ntab{border-collapse:collapse;width:100%}
+.ntab th,.ntab td{border:2px solid var(--line);padding:8px 12px;text-align:left;vertical-align:middle}
+.ntab th{background:#EEF2FD;font-size:17px}
+.ntab td.c{text-align:center;line-height:0}
+.nrow{display:grid;gap:12px;margin:12px 0}
+.nrow>*{min-width:0}
+.gi{max-width:100%}
+.ncell{text-align:center;background:#F7F9FF;border:2px solid var(--line);border-radius:14px;padding:10px 8px;font-size:18px}
+.ncell>.fig{display:block;margin:0 auto 6px}
+.ncell b{display:block;color:var(--pc,var(--acc));font-size:19px}
+.watch{background:#FFF4D6;border:3px solid #F29B1D;border-radius:14px;padding:12px 18px;margin-top:14px}
+.watch b{color:#9A5B00}
+.gi{border:0;border-bottom:3px solid var(--pc,var(--acc));background:#EEF2FD;border-radius:6px 6px 0 0;padding:1px 6px;width:7.5em;font-weight:700;text-align:center;font-size:19px}
+.gi.w5{width:10em}
+.gi.ok{background:#DCFCE7;border-color:var(--good)}
+.gi.no{background:#FFE4E6;border-color:var(--bad)}
+select.gi{width:4.2em;padding:0}
+@media (max-width:760px){.nrow{grid-template-columns:1fr 1fr!important}.ntab th:nth-child(2),.ntab td:nth-child(2){display:none}}
+/* examples */
+.ex{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media (max-width:860px){.ex{grid-template-columns:1fr}}
+.ex>*{min-width:0}
+.exfigs figure{max-width:100%}
+.exstem{font-size:21px;margin:0 0 10px}
+.exstem .howto{display:block;font-size:17px;color:var(--ink-soft);margin-top:8px}
+.exfigs{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:center;background:#F7F9FF;border-radius:16px;padding:14px}
+.exfigs figure{margin:0;text-align:center}
+.exfigs figcaption{font-weight:800;color:var(--pc,var(--acc))}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{border:3px solid var(--line);border-left:10px solid var(--pc,var(--acc));border-radius:14px;padding:8px 14px;background:#fff}
+.steps li.hid{border-top-style:dashed;border-right-style:dashed;border-bottom-style:dashed;background:#FAFBFF}
+.steps .sl{font-weight:700;color:var(--ink-soft);font-size:17px}
+.steps .sl i{font-style:normal;background:var(--pc,var(--acc));color:#fff;border-radius:8px;padding:0 8px;margin-right:8px}
+.steps .sa{font-size:20px;margin-top:2px}
+.steps li.hid .sa{visibility:hidden;height:0;overflow:hidden}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.05;font-size:.92em}
+.fr>span{padding:0 .3em}.fr .de{border-top:2px solid currentColor}
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:860px){.tiers{grid-template-columns:1fr}}
+.tier{border:3px solid var(--tc);border-radius:16px;padding:14px 18px;background:color-mix(in srgb,var(--tc) 7%,#fff)}
+.tier h3{margin:0 0 8px;color:var(--tc);text-transform:uppercase;letter-spacing:.06em;font-size:18px}
+.tier label{display:flex;gap:10px;align-items:flex-start;font-size:18px;margin:6px 0;cursor:pointer}
+.tier input{width:20px;height:20px;margin-top:4px;accent-color:var(--good);flex:none}
+.bronze{--tc:#A16207}.silver{--tc:#57687F}.gold{--tc:#B8860B}
+/* exit */
+.exit{display:grid;gap:12px}
+.exit .eq{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:#F7F9FF;border-radius:14px;padding:12px 16px}
+.exit .eq b{font-size:22px;color:var(--pc,var(--acc))}
+.exit input{border:3px solid var(--line);border-radius:10px;padding:6px 10px;width:180px}
+.exit input.ok{border-color:var(--good);background:#DCFCE7}.exit input.no{border-color:var(--bad);background:#FFE4E6}
+@media (max-width:640px){.exit .eq{grid-template-columns:auto 1fr}.exit input{grid-column:1/-1;width:100%}}
+/* game */
+.game{background:linear-gradient(160deg,#EEF3FF,#FFF6E5);border-radius:20px;padding:18px;display:grid;gap:14px}
+.ghud{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{background:#fff;border-radius:999px;padding:6px 14px;font-weight:800;font-size:18px;box-shadow:0 2px 0 var(--line)}
+.pill b{color:var(--pc,var(--acc))}
+.levels{display:flex;gap:8px;flex-wrap:wrap}
+.levels button{border:3px solid var(--line);background:#fff;border-radius:12px;padding:6px 14px;font-weight:800;cursor:pointer;font-size:17px}
+.levels button[aria-pressed="true"]{background:var(--pc,var(--acc));color:#fff;border-color:var(--pc,var(--acc))}
+.levels button small{display:block;font-weight:500;font-size:13px}
+.gstage{background:#fff;border-radius:16px;padding:8px;display:flex;justify-content:center}
+.gstage svg{width:100%;max-width:760px;height:auto;display:block}
+.gin{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gin input{border:3px solid var(--line);border-radius:12px;padding:8px 12px;width:150px;font-size:24px;font-weight:800;text-align:center}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.choices button{border:3px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:17px}
+.choices button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.choices button kbd{font-family:inherit;font-size:12px;opacity:.7;margin-right:4px}
+.gfeed{font-size:20px;font-weight:700;min-height:1.6em}
+.gfeed.good{color:var(--good)}.gfeed.bad{color:var(--bad)}
+.gover{background:#fff;border-radius:16px;padding:20px;text-align:center}
+.gover h3{font-size:30px;margin:0}
+.gover .stars{font-size:44px;letter-spacing:6px;color:#F5B400}
+.pop{animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:none;opacity:1}}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.foot{font-size:16px;color:var(--ink-soft);text-align:center;margin-top:10px}
+.foot button{background:none;border:0;color:var(--acc-dark);text-decoration:underline;cursor:pointer;font-size:16px}
+.toast{visibility:hidden;position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;border-radius:14px;padding:12px 20px;font-weight:700;transition:transform .25s;z-index:50}
+.toast.on{visibility:visible;transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Diagram Creator figures */
+.fig text{font-family: Georgia, "Times New Roman", "Nimbus Roman", serif;}
+.fig .shape-poly{stroke: #1a1a1a; stroke-width: calc(1.6px * var(--label-scale, 1)); stroke-linejoin: round;}
+.fig .shape-line{stroke: #1a1a1a; stroke-width: calc(1.6px * var(--label-scale, 1)); fill: none; stroke-linecap: round;}
+.fig .construction-line{stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1)); stroke-dasharray: calc(5px * var(--label-scale, 1)) calc(4px * var(--label-scale, 1)); fill: none;}
+.fig .hidden-edge{stroke: #1a1a1a; stroke-width: calc(1.2px * var(--label-scale, 1)); stroke-dasharray: calc(6px * var(--label-scale, 1)) calc(5px * var(--label-scale, 1)); fill: none; opacity: 0.75;}
+.fig .dimension-shaft{stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .dimension-head{fill: #1a1a1a; stroke: none;}
+.fig .vertex-label,.fig .side-label,.fig .angle-label{paint-order: stroke; stroke: #ffffff; stroke-width: calc(4px * var(--label-scale, 1)); stroke-linejoin: round;}
+.fig .vertex-label{font-size: calc(16px * var(--label-scale, 1)); font-style: italic; fill: #1a1a1a;}
+.fig .side-label,.fig .angle-label{font-size: calc(15px * var(--label-scale, 1)); fill: #1a1a1a;}
+.fig .angle-arc{fill: none; stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .right-angle-mark{fill: none; stroke: #1a1a1a; stroke-width: calc(1.3px * var(--label-scale, 1));}
+.fig .parallel-chevron{stroke: #1a1a1a; stroke-width: calc(1.5px * var(--label-scale, 1)); fill: none;}
+.fig .equal-length-tick{stroke: #1a1a1a; stroke-width: calc(1.5px * var(--label-scale, 1));}
+.fig .answer{fill: #c8102e;}
+.fig .note-label{font-style: normal;}
+.fig .pronumeral{font-style: italic;}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <a class="home" href="/">&#8592; Learning Home</a>
+  <h1><span class="code">7B</span>Adjacent and vertically opposite angles</h1>
+  <nav class="partnav" id="partnav" aria-label="Parts"></nav>
+  <span class="savebox" id="savebox"><span class="dot"></span><span id="saveText">Not saved yet</span></span>
+  <button class="tbtn" id="saveFile" title="Download everything you have done as one file, to hand in">Save my work</button>
+</div></header>
+<main>
+  <div class="hello"><p>Year 7 Enrichment &#183; Geometry &#183; Booklet 1, section 7B</p><label for="name">Your name</label><input id="name" autocomplete="off" maxlength="40"></div>
+
+  <section class="part" id="p1" style="--pc:#2F5BEA">
+    <div class="phead"><span class="pnum">1</span><h2>Today</h2><span class="kind">Read</span></div>
+    <div class="pbody"><ul class="ican"><li>I can use the angle sums 90°, 180° and 360° to find unknown angles.</li><li>I can use vertically opposite angles.</li><li>I can write the reason for every step, not just the number.</li></ul>
+      <p>You need <b>Booklet 1</b> open at section <b>7B</b>, and a protractor, pencil. Work in your booklet. Use this page to check the key ideas, replay the examples, play the game and do the exit check.</p></div>
+  </section>
+
+  <section class="part" id="p2" style="--pc:#E0457B" data-done="gaps">
+    <div class="phead"><span class="pnum">2</span><h2>Key ideas</h2><span class="kind">Fill the gaps</span></div>
+    <div class="pbody"><p>Type the missing words. They match the gaps in your booklet. Use &#176; for degrees if you like (or just type the number). For the symbols, pick from the list.</p>
+      <div class="notes"><div class="nrow" style="grid-template-columns: 187px 1fr; align-items:center; margin-top:0">
+<div class="ncell"><span class="fig" style="width:156px;height:153px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="243.69 290.03 249.30 244.56"><rect x="243.69" y="290.03" width="249.30" height="244.56" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-102" style="--label-scale: 1.79;"><path d="M 300 480 L 314.74 421.03 A 60.77 60.77 0 0 1 348.09 442.83 Z" fill="#cbe2f3" stroke="none"/><path d="M 300 480 L 348.09 442.83 A 60.77 60.77 0 0 1 360.37 473.03 Z" fill="#f7d6d6" stroke="none"/><line x1="300" y1="480" x2="330" y2="360" class="shape-line"/><line x1="300" y1="480" x2="410" y2="395" class="shape-line"/><line x1="300" y1="480" x2="430" y2="465" class="shape-line"/><line x1="300" y1="480" x2="330" y2="360" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="410" y2="395" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="430" y2="465" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 309.53 441.84 A 39.32 39.32 0 0 1 331.11 455.95" class="angle-arc"/><path d="M 341.01 448.30 A 51.83 51.83 0 0 1 351.49 474.05" class="angle-arc"/><circle cx="300" cy="480" r="5.72" fill="#c8102e"/><circle cx="330" cy="360" r="5.72" fill="#c8102e"/><circle cx="410" cy="395" r="5.72" fill="#c8102e"/><circle cx="430" cy="465" r="5.72" fill="#c8102e"/><text x="276.69" y="499.50" class="vertex-label" text-anchor="middle" dominant-baseline="middle">O</text><text x="337.37" y="330.51" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="434.04" y="376.41" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="460.18" y="461.51" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text></g></g></svg></span></div>
+<div><b>Adjacent angles</b> sit side by side. They share a <input class="gi" data-i="0" aria-label="Gap 1" autocomplete="off" spellcheck="false"> and an <input class="gi" data-i="1" aria-label="Gap 2" autocomplete="off" spellcheck="false">. Here ∠AOB and ∠BOC are adjacent.</div>
+</div><h4>Four facts that find a missing angle</h4>
+<div class="nrow" style="grid-template-columns: repeat(4, 1fr)">
+<div class="ncell"><span class="fig" style="width:125px;height:125px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276 306 198 198"><rect x="276" y="306" width="198" height="198" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-104" style="--label-scale: 1.56;"><path d="M 300 480 L 353.04 480 A 53.04 53.04 0 0 0 345.93 453.48 Z" fill="#cbe2f3" stroke="none"/><path d="M 300 480 L 345.93 453.48 A 53.04 53.04 0 0 0 300 426.96 Z" fill="#f7d6d6" stroke="none"/><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="429.90" y2="405" class="shape-line"/><line x1="300" y1="480" x2="300" y2="330" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="429.90" y2="405" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="300" y2="330" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 346.8 480 A 46.80 46.80 0 0 0 340.52 456.6" class="angle-arc"/><g class="removable-label"><text x="372.23" y="460.64" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><path d="M 339.17 457.38 A 45.24 45.24 0 0 0 300 434.76" class="angle-arc"/><g class="removable-label"><text x="338.18" y="413.86" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 317.16 480 L 317.16 462.84 L 300 462.84" class="right-angle-mark"/></g></g></svg></span><b>Complementary</b>in a right angle, they add to <input class="gi" data-i="2" aria-label="Gap 3" autocomplete="off" spellcheck="false"><br><i>a</i> + <i>b</i> = 90</div>
+<div class="ncell"><span class="fig" style="width:156px;height:79px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="126 327.64 348 176.35"><rect x="126" y="327.64" width="348" height="176.35" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-106" style="--label-scale: 2.44;"><path d="M 300 480 L 382.87 480 A 82.87 82.87 0 0 0 347.53 412.11 Z" fill="#f7d6d6" stroke="none"/><path d="M 300 480 L 347.53 412.11 A 82.87 82.87 0 0 0 217.12 480 Z" fill="#cbe2f3" stroke="none"/><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="150" y2="480" class="shape-line"/><line x1="300" y1="480" x2="386.03" y2="357.12" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="150" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="386.03" y2="357.12" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 353.62 480 A 53.62 53.62 0 0 0 330.75 436.07" class="angle-arc"/><g class="removable-label"><text x="389.10" y="433.61" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 340.54 422.09 A 70.68 70.68 0 0 0 229.31 480" class="angle-arc"/><g class="removable-label"><text x="245.01" y="374.38" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g></g></g></svg></span><b>Supplementary</b>on a straight line, they add to <input class="gi" data-i="3" aria-label="Gap 4" autocomplete="off" spellcheck="false"><br><i>a</i> + <i>b</i> = 180</div>
+<div class="ncell"><span class="fig" style="width:135px;height:127px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="146.09 344.50 327.90 307.21"><rect x="146.09" y="344.50" width="327.90" height="307.21" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-108" style="--label-scale: 2.27;"><path d="M 300 480 L 377.32 480 A 77.32 77.32 0 0 0 233.03 441.33 Z" fill="#cbe2f3" stroke="none"/><path d="M 300 480 L 233.03 441.33 A 77.32 77.32 0 0 0 286.57 556.14 Z" fill="#f7d6d6" stroke="none"/><path d="M 300 480 L 286.57 556.14 A 77.32 77.32 0 0 0 377.32 480 Z" fill="#d9ebcd" stroke="none"/><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="170.09" y2="405" class="shape-line"/><line x1="300" y1="480" x2="273.95" y2="627.72" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="170.09" y2="405" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="273.95" y2="627.72" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 350.03 480 A 50.03 50.03 0 0 0 256.67 454.98" class="angle-arc"/><g class="removable-label"><text x="324.13" y="389.93" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><path d="M 242.88 447.02 A 65.95 65.95 0 0 0 288.54 544.95" class="angle-arc"/><g class="removable-label"><text x="201.06" y="526.13" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 285.78 560.62 A 81.87 81.87 0 0 0 381.87 480" class="angle-arc"/><g class="removable-label"><text x="382.06" y="577.80" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">c°</text></g></g></g></svg></span><b>Revolution</b>all the way round, they add to <input class="gi" data-i="4" aria-label="Gap 5" autocomplete="off" spellcheck="false"><br><i>a</i> + <i>b</i> + <i>c</i> = 360</div>
+<div class="ncell"><span class="fig" style="width:156px;height:154px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="146 338.73 308 304.16"><rect x="146" y="338.73" width="308" height="304.16" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-110" style="--label-scale: 2.11;"><path d="M 300 480 L 371.82 480 A 71.82 71.82 0 0 0 358.83 438.80 Z" fill="#cbe2f3" stroke="none"/><path d="M 300 480 L 358.83 438.80 A 71.82 71.82 0 0 0 228.17 480 Z" fill="#f7d6d6" stroke="none"/><path d="M 300 480 L 228.17 480 A 71.82 71.82 0 0 0 241.16 521.19 Z" fill="#cbe2f3" stroke="none"/><path d="M 300 480 L 241.16 521.19 A 71.82 71.82 0 0 0 371.82 480 Z" fill="#f7d6d6" stroke="none"/><line x1="430" y1="480" x2="170" y2="480" class="shape-line"/><line x1="406.48" y1="405.43" x2="193.51" y2="554.56" class="shape-line"/><line x1="430" y1="480" x2="170" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="406.48" y1="405.43" x2="193.51" y2="554.56" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 346.47 480 A 46.47 46.47 0 0 0 338.07 453.34" class="angle-arc"/><g class="removable-label"><text x="381.06" y="454.44" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><path d="M 350.18 444.86 A 61.26 61.26 0 0 0 238.73 480" class="angle-arc"/><g class="removable-label"><text x="269.37" y="382.85" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 223.95 480 A 76.05 76.05 0 0 0 237.70 523.62" class="angle-arc"/><g class="removable-label"><text x="190.73" y="514.45" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><path d="M 225.59 532.10 A 90.83 90.83 0 0 0 390.83 480" class="angle-arc"/><g class="removable-label"><text x="339.52" y="605.34" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g></g></g></svg></span><b>Vertically opposite</b>across a crossing, they are <input class="gi" data-i="5" aria-label="Gap 6" autocomplete="off" spellcheck="false"></div>
+</div>
+<div class="nrow" style="grid-template-columns: 156px 1fr; align-items:center">
+<div class="ncell"><span class="fig" style="width:125px;height:121px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="232.46 339.16 283.31 275.56"><rect x="232.46" y="339.16" width="283.31" height="275.56" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-112" style="--label-scale: 1.95;"><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="375" y1="545" x2="375" y2="415" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="375" y1="545" x2="375" y2="415" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 400.35 480 L 400.35 454.65 L 375 454.65" class="right-angle-mark"/><circle cx="300" cy="480" r="6.24" fill="#c8102e"/><circle cx="450" cy="480" r="6.24" fill="#c8102e"/><circle cx="375" cy="545" r="6.24" fill="#c8102e"/><circle cx="375" cy="415" r="6.24" fill="#c8102e"/><text x="266.85" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">A</text><text x="483.15" y="480" class="vertex-label" text-anchor="middle" dominant-baseline="middle">B</text><text x="375" y="578.15" class="vertex-label" text-anchor="middle" dominant-baseline="middle">C</text><text x="375" y="381.85" class="vertex-label" text-anchor="middle" dominant-baseline="middle">D</text></g></g></svg></span></div>
+<div><b>Perpendicular</b> lines meet at <input class="gi" data-i="6" aria-label="Gap 7" autocomplete="off" spellcheck="false">. We write AB <select class="gi" data-i="7" aria-label="Gap 8"><option></option><option>∥</option><option>⊥</option><option>=</option><option>∠</option></select> CD.<br>30° is the <b>complement</b> of 60° (they make 90°). 130° is the <b>supplement</b> of 50° (they make 180°).</div>
+</div>
+<div class="watch"><b>Watch out.</b> Diagrams may not be drawn to scale, so <b>calculate, never measure</b>. Every answer gets its reason, written in words: “angles on a straight line add to 180°”.</div></div>
+      <div class="row"><button class="btn" id="gapCheck">Check my gaps</button><button class="btn ghost" id="gapShow" hidden>Show me the answers</button></div>
+      <div class="result" id="gapResult" aria-live="polite"></div></div>
+  </section>
+
+  <section class="part" id="p3" style="--pc:#0E9F6E" data-done="yt1">
+    <div class="phead"><span class="pnum">3</span><h2>Example 1: Complementary and supplementary angles</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">Find the value of each pronumeral. Give a reason.</p><div class="exfigs"><figure><span class="fig" style="width:168px;height:168px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="276.00 306.00 198.00 198.00"><rect x="276.00" y="306.00" width="198.00" height="198.00" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-114" style="--label-scale: 1.56;"><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="432.44" y2="409.57" class="shape-line"/><line x1="300" y1="480" x2="300" y2="330" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="432.44" y2="409.57" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="300" y2="330" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 346.8 480 A 46.80 46.80 0 0 0 341.32 458.02" class="angle-arc"/><g class="removable-label"><text x="378.10" y="460.52" class="angle-label" text-anchor="middle" dominant-baseline="middle">28°</text></g><path d="M 339.94 458.76 A 45.24 45.24 0 0 0 300 434.76" class="angle-arc"/><g class="removable-label"><text x="339.36" y="414.49" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g><path d="M 317.16 480 L 317.16 462.84 L 300 462.84" class="right-angle-mark"/></g></g></svg></span><figcaption>a</figcaption></figure><figure><span class="fig" style="width:213px;height:111px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="126.00 322.35 348.00 181.65"><rect x="126.00" y="322.35" width="348.00" height="181.65" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-117" style="--label-scale: 2.17;"><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="150" y2="480" class="shape-line"/><line x1="300" y1="480" x2="368.09" y2="346.34" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="150" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="368.09" y2="346.34" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 347.85 480 A 47.84 47.84 0 0 0 321.72 437.36" class="angle-arc"/><g class="removable-label"><text x="376.97" y="432.82" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 328.63 423.79 A 63.07 63.07 0 0 0 236.92 480" class="angle-arc"/><g class="removable-label"><text x="239.67" y="381.56" class="angle-label" text-anchor="middle" dominant-baseline="middle">117°</text></g></g></g></svg></span><figcaption>b</figcaption></figure></div></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex1"><li class="hid"><div class="sl"><i>a</i>Which angle sum?</div><div class="sa">angles in a right angle add to 90°</div></li><li class="hid"><div class="sl">Equation</div><div class="sa"><i>a</i> + 28 = 90</div></li><li class="hid"><div class="sl">Solve</div><div class="sa"><i>a</i> = 62</div></li><li class="hid"><div class="sl"><i>b</i>Which angle sum?</div><div class="sa">angles on a straight line add to 180°</div></li><li class="hid"><div class="sl">Equation</div><div class="sa"><i>b</i> + 117 = 180</div></li><li class="hid"><div class="sl">Solve</div><div class="sa"><i>b</i> = 63</div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex1">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Questions 1 and 2.<label><input type="checkbox" data-done="yt1" data-label="Your turn: Questions 1 and 2 (after Example 1)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p4" style="--pc:#F08A00" data-done="yt2">
+    <div class="phead"><span class="pnum">4</span><h2>Example 2: Vertically opposite angles and revolutions</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">Find the value of each pronumeral. Give a reason.</p><div class="exfigs"><figure><span class="fig" style="width:202px;height:164px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="147.03 342.36 304.99 248.63"><rect x="147.03" y="342.36" width="304.99" height="248.63" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-141" style="--label-scale: 1.95;"><line x1="428.02" y1="502.57" x2="171.97" y2="457.42" class="shape-line"/><line x1="396.60" y1="393.01" x2="203.39" y2="566.98" class="shape-line"/><line x1="428.02" y1="502.57" x2="171.97" y2="457.42" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="396.60" y1="393.01" x2="203.39" y2="566.98" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 342.29 487.45 A 42.95 42.95 0 0 0 331.91 451.25" class="angle-arc"/><g class="removable-label"><text x="382.22" y="456.42" class="angle-label" text-anchor="middle" dominant-baseline="middle">52°</text></g><path d="M 342.07 442.11 A 56.61 56.61 0 0 0 244.24 470.16" class="angle-arc"/><g class="removable-label"><text x="274.12" y="389.74" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">b°</text></g><path d="M 230.78 467.79 A 70.28 70.28 0 0 0 247.76 527.03" class="angle-arc"/><g class="removable-label"><text x="198.54" y="509.09" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">a°</text></g></g></g></svg></span><figcaption>a</figcaption></figure><figure><span class="fig" style="width:168px;height:159px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="135.05 326.10 337.27 318.86"><rect x="135.05" y="326.10" width="337.27" height="318.86" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-144" style="--label-scale: 2.20;"><line x1="300" y1="480" x2="375" y2="350.09" class="shape-line"/><line x1="300" y1="480" x2="159.04" y2="531.30" class="shape-line"/><line x1="300" y1="480" x2="351.30" y2="620.95" class="shape-line"/><line x1="300" y1="480" x2="375" y2="350.09" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="159.04" y2="531.30" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="351.30" y2="620.95" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 324.20 438.07 A 48.41 48.41 0 0 0 254.50 496.55" class="angle-arc"/><g class="removable-label"><text x="233.29" y="400.50" class="angle-label" text-anchor="middle" dominant-baseline="middle">140°</text></g><path d="M 273.11 489.78 L 282.90 516.66 L 309.78 506.88" class="right-angle-mark"/><path d="M 321.82 539.97 A 63.82 63.82 0 0 0 331.91 424.72" class="angle-arc"/><g class="removable-label"><text x="399.92" y="488.74" class="angle-label pronumeral" text-anchor="middle" dominant-baseline="middle">c°</text></g></g></g></svg></span><figcaption>b</figcaption></figure></div></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex2"><li class="hid"><div class="sl"><i>a</i><em>a</em>: which fact?</div><div class="sa">vertically opposite angles are equal, so <i>a</i> = 52</div></li><li class="hid"><div class="sl"><em>b</em>: which fact?</div><div class="sa">angles on a straight line add to 180°</div></li><li class="hid"><div class="sl">Solve for <em>b</em></div><div class="sa"><i>b</i> = 180 − 52 = 128</div></li><li class="hid"><div class="sl"><i>b</i>Which angle sum?</div><div class="sa">angles in a revolution add to 360°</div></li><li class="hid"><div class="sl">Equation</div><div class="sa"><i>c</i> + 90 + 140 = 360</div></li><li class="hid"><div class="sl">Solve</div><div class="sa"><i>c</i> = 360 − 230 = 130</div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex2">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Question 3.<label><input type="checkbox" data-done="yt2" data-label="Your turn: Question 3 (after Example 2)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p5" style="--pc:#7C3AED" data-done="yt3">
+    <div class="phead"><span class="pnum">5</span><h2>Example 3: Angles written with algebra</h2><span class="kind">Worked example</span></div>
+    <div class="pbody"><div class="ex">
+        <div><p class="exstem">Find the value of <i>x</i>, then the size of each angle.</p><div class="exfigs"><figure><span class="fig" style="width:248px;height:136px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="126 313.34 348 190.65"><rect x="126" y="313.34" width="348" height="190.65" fill="#ffffff"/><g class="shapes-layer"><g class="shape-group" data-id="figure-162" style="--label-scale: 2.06;"><line x1="300" y1="480" x2="450" y2="480" class="shape-line"/><line x1="300" y1="480" x2="150" y2="480" class="shape-line"/><line x1="300" y1="480" x2="253.64" y2="337.34" class="shape-line"/><line x1="300" y1="480" x2="450" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="150" y2="480" stroke="transparent" stroke-width="16" style="cursor: grab;"/><line x1="300" y1="480" x2="253.64" y2="337.34" stroke="transparent" stroke-width="16" style="cursor: grab;"/><path d="M 345.37 480 A 45.37 45.37 0 0 0 285.97 436.84" class="angle-arc"/><g class="removable-label"><text x="359.38" y="398.26" class="angle-label" text-anchor="middle" dominant-baseline="middle">(3x)°</text></g><path d="M 281.51 423.11 A 59.81 59.81 0 0 0 240.18 480" class="angle-arc"/><g class="removable-label"><text x="202.81" y="409.39" class="angle-label" text-anchor="middle" dominant-baseline="middle">(2x)°</text></g></g></g></svg></span></figure></div></div>
+        <div><p style="margin:0 0 10px;font-size:17px;color:var(--ink-soft)">Try it in your head first, then show one step at a time.</p>
+          <ol class="steps" id="ex3"><li class="hid"><div class="sl"><i>1</i>Which angle sum?</div><div class="sa">angles on a straight line add to 180°</div></li><li class="hid"><div class="sl"><i>2</i>Equation</div><div class="sa">3<i>x</i> + 2<i>x</i> = 180</div></li><li class="hid"><div class="sl"><i>3</i>Collect like terms</div><div class="sa">5<i>x</i> = 180</div></li><li class="hid"><div class="sl"><i>4</i>Solve</div><div class="sa"><i>x</i> = <span class="fr"><span class="nu">180</span><span class="de">5</span></span> = 36</div></li><li class="hid"><div class="sl"><i>5</i>Each angle, and check</div><div class="sa">3 × 36 = 108°, &nbsp;2 × 36 = 72°, &nbsp;108 + 72 = 180 ✓</div></li></ol>
+          <div class="row"><button class="btn exnext" data-ex="ex3">Show step 1</button></div></div>
+      </div>
+      <p class="task">Now in your booklet: Your turn, Question 8.<label><input type="checkbox" data-done="yt3" data-label="Your turn: Question 8 (after Example 3)"> Done</label></p></div>
+  </section>
+
+  <section class="part" id="p6" style="--pc:#0891B2" data-done="bronze4,bronze5">
+    <div class="phead"><span class="pnum">6</span><h2>Practice: Bronze, Silver, Gold</h2><span class="kind">In your booklet</span></div>
+    <div class="pbody"><p>These are in your booklet after the examples. Start where you are ready: confident after Your turn? Start at Silver. Everyone tries at least one Gold. Tick each one off when you have marked it with the answers at the back of the booklet.</p>
+      <div class="tiers"><div class="tier bronze"><h3>Bronze &#183; Practise the skills</h3><label><input type="checkbox" data-done="bronze4" data-label="Bronze question 4"><span><b>Question 4</b></span></label><label><input type="checkbox" data-done="bronze5" data-label="Bronze question 5"><span><b>Question 5</b></span></label><label><input type="checkbox" data-done="bronze6" data-label="Bronze question 6"><span><b>Question 6</b></span></label></div><div class="tier silver"><h3>Silver &#183; Problem-solving</h3><label><input type="checkbox" data-done="silver7" data-label="Silver question 7"><span><b>Question 7</b></span></label><label><input type="checkbox" data-done="silver9" data-label="Silver question 9"><span><b>Question 9</b></span></label></div><div class="tier gold"><h3>Gold &#183; Reasoning and enrichment</h3><label><input type="checkbox" data-done="gold10" data-label="Gold question 10"><span><b>Question 10</b></span></label><label><input type="checkbox" data-done="gold12" data-label="Gold question 12"><span><b>Question 12</b></span></label><label><input type="checkbox" data-done="gold13" data-label="Gold question 13"><span><b>Question 13</b></span></label></div></div></div>
+  </section>
+
+  <section class="part" id="p7" style="--pc:#DB2777" data-done="game">
+    <div class="phead"><span class="pnum">7</span><h2>Angle Detective</h2><span class="kind">Game</span></div>
+    <div class="pbody"><p>Every case has a missing angle. Type its value and choose the reason that proves it. Right number and right reason scores 10. Streaks earn bonus points. The diagrams are drawn to scale here, but in your booklet they may not be: calculate, never measure. Keys: type your answer, press <b>Enter</b> to check and Enter again for the next one.</p>
+<div class="game" id="game">
+  <div class="ghud">
+    <div class="levels" id="gLevels"></div>
+    <span style="flex:1"></span>
+    <span class="pill">Question <b id="gQ">1</b> / 10</span>
+    <span class="pill">Score <b id="gScore">0</b></span>
+    <span class="pill">Streak <b id="gStreak">0</b></span>
+  </div>
+  <div class="gstage" id="gStage"></div>
+  <div id="gPlay">
+    <div class="gin">
+      <label for="gAns" style="font-weight:800">Find the missing value:</label>
+      <input id="gAns" inputmode="decimal" autocomplete="off" aria-label="Find the missing value:">
+      <span style="font-weight:800;font-size:22px"></span>
+    </div>
+    <p style="margin:10px 0 6px;font-weight:700" id="gChoiceLab">Which reason proves it?</p>
+    <div class="choices" id="gChoices"></div>
+    <div class="row">
+      <button class="btn" id="gGo">Check <small style="opacity:.8">(Enter)</small></button>
+      <button class="btn ghost" id="gNext" hidden>Next question <small>(Enter)</small></button>
+    </div>
+    <div class="gfeed" id="gFeed" aria-live="polite"></div>
+  </div>
+  <div class="gover" id="gOver" hidden></div>
+</div>
+</div>
+  </section>
+
+  <section class="part" id="p8" style="--pc:#15803D" data-done="exit">
+    <div class="phead"><span class="pnum">8</span><h2>Exit check</h2><span class="kind">Type, then show me</span></div>
+    <div class="pbody"><p>Three quick questions. Type your answers, press check, then show your teacher.</p>
+      <div class="exit"><div class="eq"><b>1</b><span>Find the complement of 34&#176;.</span><input aria-label="Answer 1" autocomplete="off"></div><div class="eq"><b>2</b><span>Three angles meet at a point: 150&#176;, 95&#176; and <i>x</i>&#176;. Find <i>x</i>.</span><input aria-label="Answer 2" autocomplete="off"></div><div class="eq"><b>3</b><span>(4<i>x</i>)&#176; and (5<i>x</i>)&#176; sit side by side on a straight line. Find <i>x</i>.</span><input aria-label="Answer 3" autocomplete="off"></div></div>
+      <div class="row"><button class="btn" id="exitCheck">Check</button></div>
+      <div class="result" id="exitResult" aria-live="polite"></div></div>
+  </section>
+
+  <p class="foot">Your work is saved in this browser on this computer only. Use Save my work to keep a copy or hand it in.
+    <button id="recover">Recover my last backup</button> &#183; <button id="clearAll">Start again</button></p>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(function () {
+  "use strict";
+  var KEY = "lh-y7enr-7b-v1";
+  var GAPS = [{"a": "vertex", "alt": []}, {"a": "arm", "alt": ["arms"]}, {"a": "90°", "alt": []}, {"a": "180°", "alt": []}, {"a": "360°", "alt": []}, {"a": "equal", "alt": ["the same", "same"]}, {"a": "90°", "alt": []}, {"a": "⊥", "sym": 1}];
+  var EXIT = [{"q": "Find the complement of 34&#176;.", "kind": "num", "a": [56]}, {"q": "Three angles meet at a point: 150&#176;, 95&#176; and <i>x</i>&#176;. Find <i>x</i>.", "kind": "num", "a": [115]}, {"q": "(4<i>x</i>)&#176; and (5<i>x</i>)&#176; sit side by side on a straight line. Find <i>x</i>.", "kind": "num", "a": [20]}];
+  var TITLE = "Adjacent and vertically opposite angles", CODE = "7B";
+  function blank() { return { v: 1, name: "", gaps: {}, gapsChecked: false, steps: {}, done: {}, exit: ["", "", ""], game: {} }; }
+  var S = blank(), loaded = false, saveT = null, clearedNow = false;
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function toast(m) { var t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 3000); }
+  function say(text, cls) { var b = $("savebox"); b.className = "savebox " + (cls || ""); $("saveText").textContent = text; }
+  function hasWork(s) {
+    if (!s) return false;
+    if ((s.name || "").trim()) return true;
+    if (Object.keys(s.gaps || {}).some(function (k) { return (s.gaps[k] || "").trim(); })) return true;
+    if ((s.exit || []).some(function (x) { return (x || "").trim(); })) return true;
+    if (Object.keys(s.done || {}).length || Object.keys(s.game || {}).length) return true;
+    return false;
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var got = JSON.parse(raw); if (got && got.v === 1) { S = Object.assign(blank(), got); if (hasWork(got)) localStorage.setItem(KEY + "-prev", raw); } }
+      say(raw ? "Saved on this computer" : "Not saved yet", raw ? "ok" : "");
+    } catch (e) { say("Saving is off in this browser", "err"); }
+    loaded = true;
+  }
+  function save() { if (!loaded) return; clearTimeout(saveT); saveT = setTimeout(doSave, 400); say("Saving"); }
+  function doSave() {
+    saveT = null;
+    if (!loaded) return;
+    try {
+      var prev = localStorage.getItem(KEY), prevHad = false;
+      try { prevHad = prev && hasWork(JSON.parse(prev)); } catch (e) {}
+      if (!hasWork(S) && prevHad && !clearedNow) { say("Saved on this computer", "ok"); return; }
+      localStorage.setItem(KEY, JSON.stringify(S));
+      if (prevHad) localStorage.setItem(KEY + "-prev", prev);
+      clearedNow = false;
+      var d = new Date(); say("Saved " + d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" }), "ok");
+    } catch (e) { say("Could not save", "err"); }
+  }
+  addEventListener("beforeunload", function () { if (saveT) { clearTimeout(saveT); doSave(); } });
+  document.addEventListener("visibilitychange", function () { if (document.hidden && saveT) { clearTimeout(saveT); doSave(); } });
+  window.LH = { S: function () { return S; }, save: save, toast: toast, esc: esc };
+
+  /* ---------- answer checking ---------- */
+  function nums(s) { return (String(s).match(/\d+(\.\d+)?/g) || []).map(Number); }
+  function letters(s) { return String(s).toLowerCase().replace(/degrees?|deg/g, "").replace(/[^a-z∥⊥=∠]/g, ""); }
+  function gapOK(g, v) {
+    if (!String(v || "").trim()) return false;
+    if (g.sym) return v === g.a;
+    var want = [g.a].concat(g.alt || []);
+    return want.some(function (a) {
+      var na = nums(a);
+      if (na.length) { var nv = nums(v); return nv.length === na.length && na.every(function (x, i) { return x === nv[i]; }); }
+      return letters(a) === letters(v);
+    });
+  }
+  window.LH.nums = nums; window.LH.letters = letters;
+
+  /* ---------- nav ---------- */
+  var PARTS = Array.prototype.map.call(document.querySelectorAll(".part"), function (p) { return p.id; });
+  function partDone(id) {
+    var el = $(id); if (!el) return false;
+    var k = el.dataset.done;
+    if (k === "gaps") return GAPS.length && GAPS.every(function (g, i) { return gapOK(g, S.gaps[i]); });
+    if (k === "exit") return EXIT.every(function (q, i) { return exitOK(q, S.exit[i]); });
+    if (k === "game") return !!(S.game && S.game.rounds);
+    if (k) return k.split(",").every(function (d) { return S.done[d]; });
+    return false;
+  }
+  function buildNav() {
+    $("partnav").innerHTML = PARTS.map(function (id, i) { return '<a href="#' + id + '" data-id="' + id + '" title="Part ' + (i + 1) + '">' + (i + 1) + "</a>"; }).join("");
+  }
+  function markNav() { Array.prototype.forEach.call($("partnav").children, function (a) { a.classList.toggle("done", !!partDone(a.dataset.id)); }); }
+  window.LH.markNav = function () { markNav(); };
+
+  /* ---------- name ---------- */
+  $("name").addEventListener("input", function () { S.name = this.value; save(); });
+
+  /* ---------- gaps ---------- */
+  var gapEls = Array.prototype.slice.call(document.querySelectorAll(".gi"));
+  gapEls.forEach(function (el) {
+    var i = +el.dataset.i;
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", function () { S.gaps[i] = el.value; el.classList.remove("ok", "no"); save(); markNav(); });
+  });
+  function drawGaps(mark) {
+    gapEls.forEach(function (el) {
+      var i = +el.dataset.i; el.value = S.gaps[i] || "";
+      el.classList.remove("ok", "no");
+      if (mark && (S.gaps[i] || "").trim()) el.classList.add(gapOK(GAPS[i], S.gaps[i]) ? "ok" : "no");
+    });
+  }
+  if ($("gapCheck")) $("gapCheck").addEventListener("click", function () {
+    S.gapsChecked = true; drawGaps(true); save(); markNav();
+    var right = GAPS.filter(function (g, i) { return gapOK(g, S.gaps[i]); }).length;
+    var r = $("gapResult");
+    r.className = "result " + (right === GAPS.length ? "good" : "bad");
+    r.textContent = right === GAPS.length ? "All " + right + " gaps right. Your notes are complete." : right + " out of " + GAPS.length + " right. Fix the red ones, then check again.";
+    if (right < GAPS.length) $("gapShow").hidden = false;
+  });
+  if ($("gapShow")) $("gapShow").addEventListener("click", function () {
+    gapEls.forEach(function (el) { var i = +el.dataset.i; if (!gapOK(GAPS[i], S.gaps[i])) { S.gaps[i] = GAPS[i].a; } });
+    drawGaps(true); save(); markNav(); toast("Answers filled in. Copy any you missed into your booklet.");
+  });
+
+  /* ---------- worked examples ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll(".exnext"), function (b) {
+    var id = b.dataset.ex, lis = Array.prototype.slice.call(document.querySelectorAll("#" + id + " li"));
+    function paint() {
+      var n = S.steps[id] || 0;
+      lis.forEach(function (li, i) { li.classList.toggle("hid", i >= n); });
+      b.textContent = n >= lis.length ? "Hide the steps" : "Show step " + (n + 1) + " of " + lis.length;
+    }
+    b.addEventListener("click", function () { var n = S.steps[id] || 0; S.steps[id] = n >= lis.length ? 0 : n + 1; paint(); save(); });
+    b._paint = paint;
+  });
+  function drawSteps() { Array.prototype.forEach.call(document.querySelectorAll(".exnext"), function (b) { b._paint(); }); }
+
+  /* ---------- done ticks ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll("input[data-done]"), function (c) {
+    c.addEventListener("change", function () { if (c.checked) S.done[c.dataset.done] = 1; else delete S.done[c.dataset.done]; save(); markNav(); });
+  });
+  function drawDone() { Array.prototype.forEach.call(document.querySelectorAll("input[data-done]"), function (c) { c.checked = !!S.done[c.dataset.done]; }); }
+
+  /* ---------- exit check ---------- */
+  function exitOK(q, v) {
+    if (!String(v || "").trim()) return false;
+    if (q.kind === "num") { var n = nums(v); return n.length >= 1 && n[n.length - 1] === q.a[0]; }
+    if (q.kind === "angle") { var l = letters(v).replace(/angle|∠/g, "").toUpperCase(); return q.a.indexOf(l) >= 0; }
+    return q.a.some(function (a) { return letters(v).indexOf(letters(a)) >= 0; });
+  }
+  var exitEls = Array.prototype.slice.call(document.querySelectorAll(".exit input"));
+  exitEls.forEach(function (el, i) { el.addEventListener("input", function () { S.exit[i] = el.value; el.classList.remove("ok", "no"); save(); markNav(); }); });
+  function drawExit(mark) {
+    exitEls.forEach(function (el, i) { el.value = S.exit[i] || ""; el.classList.remove("ok", "no"); if (mark && (S.exit[i] || "").trim()) el.classList.add(exitOK(EXIT[i], S.exit[i]) ? "ok" : "no"); });
+  }
+  $("exitCheck").addEventListener("click", function () {
+    drawExit(true); markNav(); doSave();
+    var right = EXIT.filter(function (q, i) { return exitOK(q, S.exit[i]); }).length, r = $("exitResult");
+    r.className = "result " + (right === EXIT.length ? "good" : "bad");
+    r.textContent = right + " out of " + EXIT.length + ". " + (right === EXIT.length ? "Show your teacher." : "Have another go at the red ones, then show your teacher.");
+  });
+
+  /* ---------- save my work ---------- */
+  function download(name, html) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+  }
+  $("saveFile").addEventListener("click", function () {
+    doSave();
+    var gl = GAPS.map(function (g, i) { var v = S.gaps[i] || ""; return "<li>" + (v ? esc(v) : "<i>blank</i>") + (v && gapOK(g, v) ? " &#10003;" : "") + "</li>"; }).join("");
+    var ex = EXIT.map(function (q, i) { var v = S.exit[i] || ""; return "<li>" + q.q + "<br><b>" + (v ? esc(v) : "no answer") + "</b>" + (exitOK(q, v) ? " &#10003;" : "") + "</li>"; }).join("");
+    var dn = Array.prototype.map.call(document.querySelectorAll("input[data-done]"), function (c) { return "<li>" + (c.checked ? "&#10003; " : "&#9744; ") + esc(c.dataset.label) + "</li>"; }).join("");
+    var gm = window.LH.gameSummary ? window.LH.gameSummary() : "";
+    var html = "<!doctype html><html lang='en-AU'><head><meta charset='utf-8'><title>" + esc((S.name || "My") + " work: " + CODE + " " + TITLE) + "</title><style>" +
+      "body{font:17px/1.5 Lexend,'Segoe UI',Arial,sans-serif;color:#17233D;max-width:900px;margin:24px auto;padding:0 16px}h1{margin:0}h2{border-bottom:4px solid #2F5BEA;padding-bottom:4px;margin-top:28px}</style></head><body>" +
+      "<h1>" + CODE + " " + esc(TITLE) + "</h1><p>" + esc(S.name || "") + " &#183; Year 7 Enrichment &#183; " + new Date().toLocaleDateString("en-AU") + "</p>" +
+      "<h2>Key ideas: my gap answers</h2><ol>" + gl + "</ol><h2>Booklet work I ticked off</h2><ul>" + dn + "</ul><h2>Game</h2>" + (gm || "<p>Not played yet.</p>") +
+      "<h2>Exit check</h2><ol>" + ex + "</ol></body></html>";
+    download(((S.name || "my") + "-" + CODE + "-work").toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".html", html);
+    toast("Your work is downloaded. Hand in that file.");
+  });
+
+  /* ---------- recover / restart ---------- */
+  $("recover").addEventListener("click", function () {
+    var raw = null; try { raw = localStorage.getItem(KEY + "-prev"); } catch (e) {}
+    if (!raw) { toast("There is no backup on this computer yet"); return; }
+    if (!confirm("Load your last automatic backup? What is on the page now will be replaced.")) return;
+    try { S = Object.assign(blank(), JSON.parse(raw)); } catch (e) { toast("The backup could not be read"); return; }
+    clearedNow = true; renderAll(); doSave(); toast("Backup loaded");
+  });
+  $("clearAll").addEventListener("click", function () {
+    if (!confirm("Start again? This clears everything on this page. A backup is kept, so Recover can bring it back.")) return;
+    try { var cur = localStorage.getItem(KEY); if (cur) localStorage.setItem(KEY + "-prev", cur); } catch (e) {}
+    S = blank(); clearedNow = true; renderAll(); doSave();
+  });
+
+  function renderAll() {
+    $("name").value = S.name || "";
+    drawGaps(S.gapsChecked); drawSteps(); drawDone(); drawExit(false);
+    if (window.LH.gameRender) window.LH.gameRender();
+    markNav();
+  }
+  window.LH.renderAll = renderAll;
+  load(); buildNav();
+  window.LH.ready = true;
+  document.addEventListener("DOMContentLoaded", renderAll);
+  if (document.readyState !== "loading") setTimeout(renderAll, 0);
+})();
+</script>
+<script>
+(function () {
+  var LH = window.LH;
+
+var REASONS = ["angles in a right angle add to 90&#176;", "angles on a straight line add to 180&#176;", "angles in a revolution add to 360&#176;", "vertically opposite angles are equal"];
+function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function split(total, n, min) {
+  for (var t = 0; t < 200; t++) {
+    var cuts = []; for (var i = 0; i < n - 1; i++) cuts.push(ri(min, total - min));
+    cuts.sort(function (a, b) { return a - b; });
+    var parts = [], prev = 0; cuts.concat([total]).forEach(function (c) { parts.push(c - prev); prev = c; });
+    if (parts.every(function (p) { return p >= min; })) return parts;
+  }
+  return null;
+}
+function MAKE(level) {
+  var kinds = level === 2 ? ["corner", "straight", "straight", "point", "point"] : ["corner", "straight", "point", "cross"];
+  var kind = pick(kinds), start = ri(0, 359);
+  if (kind === "cross") {
+    var th = ri(25, 155), opp = level === 0 || Math.random() < 0.5;
+    var labels = [th + "&#176;", "", "", ""], ans, reason;
+    if (opp) { labels[2] = "<tspan class='u'>a&#176;</tspan>"; ans = th; reason = 3; }
+    else { labels[1] = "<tspan class='u'>a&#176;</tspan>"; ans = 180 - th; reason = 1; }
+    var sizes = [th, 180 - th, th, 180 - th];
+    var eq = opp ? "a = " + th : "a + " + th + " = 180, so a = " + ans;
+    return { svg: drawRays(start, sizes, labels, "cross", -1), ans: ans, reason: reason, working: eq };
+  }
+  var total = kind === "corner" ? 90 : kind === "straight" ? 180 : 360;
+  var reason = kind === "corner" ? 0 : kind === "straight" ? 1 : 2;
+  if (level === 2) {
+    var n = kind === "point" ? 3 : 2, co, x;
+    for (var t = 0; t < 500; t++) {
+      co = []; for (var i = 0; i < n; i++) co.push(ri(1, 6));
+      var s = co.reduce(function (a, b) { return a + b; }, 0);
+      if (total % s === 0 && co.some(function (c) { return c > 1; })) { x = total / s; if (co.every(function (c) { return c * x >= 12; }) && x >= 5) break; }
+    }
+    var sizes2 = co.map(function (c) { return c * x; });
+    var labs = co.map(function (c) { return "<tspan class='u'>" + (c === 1 ? "" : c) + "x&#176;</tspan>"; });
+    var sum = co.reduce(function (a, b) { return a + b; }, 0);
+    var terms = co.map(function (c) { return (c === 1 ? "" : c) + "x"; }).join(" + ");
+    return { svg: drawRays(start, sizes2, labs, kind, -1), ans: x, reason: reason, working: terms + " = " + total + ", so " + sum + "x = " + total + " and x = " + x, ask: "x" };
+  }
+  var n2 = level === 0 ? 2 : (kind === "point" ? ri(3, 4) : 3);
+  var sizes3 = split(total, n2, kind === "corner" ? 14 : 22);
+  var u = ri(0, n2 - 1), lab3 = sizes3.map(function (s, i) { return i === u ? "<tspan class='u'>a&#176;</tspan>" : s + "&#176;"; });
+  var known = sizes3.filter(function (s, i) { return i !== u; });
+  return { svg: drawRays(start, sizes3, lab3, kind, u), ans: sizes3[u], reason: reason,
+    working: "a + " + known.join(" + ") + " = " + total + ", so a = " + total + " &#8722; " + known.reduce(function (a, b) { return a + b; }, 0) + " = " + sizes3[u] };
+}
+function drawRays(start, sizes, labels, kind, u) {
+  var C = [320, 240], L = 200, o = [];
+  function P(r, deg) { var a = deg * Math.PI / 180; return [C[0] + r * Math.cos(a), C[1] - r * Math.sin(a)]; }
+  function ln(p, q, w) { return '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#1a2440" stroke-width="' + (w || 3.2) + '" stroke-linecap="round"/>'; }
+  var cols = ["#3B82F6", "#E0115F", "#16A34A", "#F59E0B"];
+  var a = start, rays = [a];
+  sizes.forEach(function (s) { a += s; rays.push(a); });
+  if (kind === "straight") { o.push(ln(P(L, start), P(L, start + 180))); rays.slice(1, -1).forEach(function (r) { o.push(ln(C, P(L, r))); }); }
+  else if (kind === "cross") { o.push(ln(P(L, start), P(L, start + 180))); o.push(ln(P(L, start + sizes[0]), P(L, start + sizes[0] + 180))); }
+  else if (kind === "point") { rays.slice(0, -1).forEach(function (r) { o.push(ln(C, P(L, r))); }); }
+  else { rays.forEach(function (r) { o.push(ln(C, P(L, r))); }); }
+  var acc = start;
+  sizes.forEach(function (s, i) {
+    var r0 = 46 + (i % 2) * 16, from = acc, to = acc + s;
+    var big = s > 180 ? 1 : 0, c = cols[i % cols.length];
+    if (!(kind === "corner" && false))
+      o.push('<path d="M ' + C[0] + ' ' + C[1] + ' L ' + P(r0, from).map(function (v) { return v.toFixed(1); }).join(" ") + ' A ' + r0 + ' ' + r0 + ' 0 ' + big + ' 0 ' + P(r0, to).map(function (v) { return v.toFixed(1); }).join(" ") + ' Z" fill="' + c + '" fill-opacity=".16" stroke="' + c + '" stroke-width="2.4"/>');
+    var mid = from + s / 2, rl = r0 + (s < 30 ? 70 : 42);
+    var p = P(rl, mid);
+    if (labels[i]) o.push('<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" font-size="24" font-family="Georgia,serif" fill="#1a2440">' + labels[i] + '</text>');
+    acc = to;
+  });
+  if (kind === "corner") {
+    var q1 = P(22, start), q2 = P(22 * Math.SQRT2, start + 45), q3 = P(22, start + 90);
+    o.push('<path d="M ' + q1[0].toFixed(1) + ' ' + q1[1].toFixed(1) + ' L ' + q2[0].toFixed(1) + ' ' + q2[1].toFixed(1) + ' L ' + q3[0].toFixed(1) + ' ' + q3[1].toFixed(1) + '" fill="none" stroke="#1a2440" stroke-width="2.4"/>');
+  }
+  o.push('<circle cx="' + C[0] + '" cy="' + C[1] + '" r="5" fill="#1a2440"/>');
+  return '<svg viewBox="80 20 480 440" role="img" aria-label="An angle diagram"><style>.u{fill:#C8102E;font-style:italic;font-weight:700}</style>' + o.join("") + '</svg>';
+}
+function JUDGE(c, v, ch, level) {
+  var okN = v === c.ans, okR = ch === c.reason, x = c.ask || "a";
+  var msg;
+  if (okN && okR) msg = pick(["Case closed!", "Sharp work, detective.", "Correct, with the right reason.", "Solved!"]) + " " + REASONS[c.reason].charAt(0).toUpperCase() + REASONS[c.reason].slice(1) + ".";
+  else if (okN) msg = "The number is right, but the reason is: <b>" + REASONS[c.reason] + "</b>. Half points.";
+  else msg = x + " = <b>" + c.ans + "</b>. Reason: " + REASONS[c.reason] + ". Working: " + c.working + ".";
+  return { full: okN && okR, pts: okN ? (okR ? 10 : 5) : 0, msg: msg };
+}
+
+  function $(id) { return document.getElementById(id); }
+  var G = { level: 0, q: 0, score: 0, streak: 0, cur: null, choice: null, answered: false, right: 0 };
+  var LEVELS = [{"name":"Rookie","choice":true},{"name":"Detective","choice":true},{"name":"Algebra agent","choice":true}];
+  var CHOICES = ["Right angle: 90&#176;","Straight line: 180&#176;","Revolution: 360&#176;","Vertically opposite: equal"];
+  function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function state() { var S = LH.S(); S.game = S.game || {}; S.game.best = S.game.best || {}; return S.game; }
+  function drawLevels() {
+    var best = state().best;
+    $("gLevels").innerHTML = LEVELS.map(function (L, i) {
+      return '<button type="button" data-l="' + i + '" aria-pressed="' + (i === G.level) + '">' + L.name + '<small>Best: ' + (best[i] != null ? best[i] : "none") + '</small></button>';
+    }).join("");
+  }
+  $("gLevels").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; G.level = +b.dataset.l; start(); });
+  function drawChoices() {
+    var need = LEVELS[G.level].choice;
+    $("gChoiceLab").hidden = !need; $("gChoices").hidden = !need;
+    $("gChoices").innerHTML = CHOICES.map(function (c, i) { return '<button type="button" data-c="' + i + '" aria-pressed="' + (G.choice === i) + '"><kbd>' + (i + 1) + '</kbd>' + c + '</button>'; }).join("");
+  }
+  $("gChoices").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b || G.answered) return; G.choice = +b.dataset.c; drawChoices(); });
+  function hud() { $("gQ").textContent = Math.min(G.q + 1, 10); $("gScore").textContent = G.score; $("gStreak").textContent = G.streak; }
+  function start() {
+    G.q = 0; G.score = 0; G.streak = 0; G.right = 0;
+    $("gOver").hidden = true; $("gPlay").hidden = false; $("gStage").hidden = false;
+    drawLevels(); next();
+  }
+  function next() {
+    G.cur = MAKE(G.level); G.choice = null; G.answered = false;
+    $("gStage").innerHTML = G.cur.svg; $("gStage").firstChild.classList.add("pop");
+    $("gAns").value = ""; $("gAns").disabled = false; $("gFeed").textContent = ""; $("gFeed").className = "gfeed";
+    $("gGo").hidden = false; $("gNext").hidden = true;
+    drawChoices(); hud();
+    if (G.started) { try { $("gAns").focus({ preventScroll: true }); } catch (e) {} }
+    G.started = true;
+  }
+  function check() {
+    if (G.answered) return;
+    var v = $("gAns").value.trim();
+    if (!v) { $("gFeed").className = "gfeed bad"; $("gFeed").textContent = "Type a number first."; return; }
+    if (LEVELS[G.level].choice && G.choice == null) { $("gFeed").className = "gfeed bad"; $("gFeed").textContent = "Now pick one of the buttons as well."; return; }
+    var r = JUDGE(G.cur, Number(v.replace(/[^0-9.\-]/g, "")), G.choice, G.level);
+    G.answered = true; $("gAns").disabled = true;
+    if (r.pts > 0) { G.streak = r.full ? G.streak + 1 : 0; G.score += r.pts + (r.full ? Math.min(10, 2 * (G.streak - 1)) : 0); if (r.full) G.right++; }
+    else G.streak = 0;
+    $("gFeed").className = "gfeed " + (r.full ? "good" : "bad");
+    $("gFeed").innerHTML = r.msg;
+    if (!r.full) { $("gStage").classList.remove("shake"); void $("gStage").offsetWidth; $("gStage").classList.add("shake"); }
+    if (G.cur.reveal) $("gStage").innerHTML = G.cur.reveal;
+    $("gGo").hidden = true; $("gNext").hidden = false; $("gNext").focus({ preventScroll: true });
+    hud();
+  }
+  function after() {
+    G.q++;
+    if (G.q < 10) { next(); return; }
+    var st = state(); st.rounds = (st.rounds || 0) + 1;
+    var best = st.best[G.level], nb = best == null || G.score > best;
+    if (nb) st.best[G.level] = G.score;
+    LH.save(); LH.markNav();
+    var stars = G.right >= 9 ? 3 : G.right >= 7 ? 2 : G.right >= 4 ? 1 : 0;
+    $("gPlay").hidden = true; $("gStage").hidden = true; $("gOver").hidden = false;
+    $("gOver").innerHTML = '<div class="stars pop">' + "&#9733;".repeat(stars) + "&#9734;".repeat(3 - stars) + '</div><h3>' + G.score + ' points</h3>' +
+      '<p>' + G.right + ' out of 10 fully right.' + (nb && G.score > 0 ? ' <b>New best on ' + LEVELS[G.level].name + '!</b>' : (best != null ? ' Best on this level: ' + best + '.' : '')) + '</p>' +
+      '<div class="row" style="justify-content:center"><button class="btn" id="gAgain">Play again</button>' +
+      (G.level < LEVELS.length - 1 ? '<button class="btn ghost" id="gUp">Next level: ' + LEVELS[G.level + 1].name + '</button>' : '') + '</div>';
+    drawLevels();
+    $("gAgain").onclick = start;
+    if ($("gUp")) $("gUp").onclick = function () { G.level++; start(); };
+  }
+  $("gGo").addEventListener("click", check);
+  $("gNext").addEventListener("click", after);
+  $("game").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); if (!G.answered) check(); else after(); return; }
+    var n = parseInt(e.key, 10);
+    if (LEVELS[G.level].choice && n >= 1 && n <= CHOICES.length && !G.answered && e.target.id !== "gAns") { G.choice = n - 1; drawChoices(); }
+    if (LEVELS[G.level].choice && n >= 1 && n <= CHOICES.length && !G.answered && e.target.id === "gAns" && e.altKey) { G.choice = n - 1; drawChoices(); }
+  });
+  LH.gameRender = function () { drawLevels(); };
+  LH.gameCur = function () { return G.cur; };
+  LH.gameSummary = function () {
+    var st = state(); if (!st.rounds) return "";
+    return "<p>Rounds played: " + st.rounds + "</p><ul>" + LEVELS.map(function (L, i) { return "<li>" + L.name + ": best " + (st.best[i] != null ? st.best[i] : "not played") + "</li>"; }).join("") + "</ul>";
+  };
+  start();
+})();
+</script>
+</body>
+</html>
