@@ -6,6 +6,7 @@
 import catalog from "../public/catalog.json";
 import y7Enrichment from "./plans/y7-enrichment.json";
 import y7Science from "./plans/y7-science.json";
+import { serveFile, listFiles, uploadFile, fileVersions, restoreVersion, updateFile } from "./files.js";
 
 // Starting plans written in the repo. Anything saved from the teacher planner
 // is stored in D1 and replaces the starting plan for that lesson.
@@ -47,6 +48,39 @@ export default {
       if (path === "/api/teacher/lesson") {
         if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
         return saveLesson(request, env);
+      }
+
+      // Uploaded files (see src/files.js). Student files are public, the rest need the teacher.
+      const up = path.match(/^\/files\/([a-z0-9-]+\/[a-z0-9][a-z0-9.-]*)$/);
+      if (up) {
+        const d = await db(env);
+        const res = d ? await serveFile(d, up[1], await teacher(request, env)) : null;
+        if (res === "signin") return redirect("/auth/login?next=" + encodeURIComponent(path));
+        if (res) return res;
+      }
+
+      if (path.startsWith("/api/teacher/files")) {
+        if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
+        const d = await db(env);
+        if (!d) return json({ error: "The database is not connected." }, 503);
+        if (path === "/api/teacher/files" && request.method === "GET") {
+          return json({ files: await listFiles(d, url.searchParams.get("class") || "") });
+        }
+        if (path === "/api/teacher/files" && request.method === "POST") {
+          const r = await uploadFile(d, request, catalog.classes.map(c => c.id));
+          return json(r.body, r.status);
+        }
+        if (path === "/api/teacher/files/versions") {
+          const v = await fileVersions(d, String(url.searchParams.get("path") || "").replace(/^\/files\//, ""));
+          return v ? json(v) : json({ error: "No such file." }, 404);
+        }
+        if (request.method === "POST" && (path === "/api/teacher/files/restore" || path === "/api/teacher/files/update")) {
+          let b; try { b = await request.json(); } catch { return json({ error: "Send JSON." }, 400); }
+          const fp = String(b.path || "").replace(/^\/files\//, "");
+          const ok = path.endsWith("restore") ? await restoreVersion(d, fp, Number(b.version)) : await updateFile(d, fp, b.title, b.for);
+          return ok ? json({ ok: true }) : json({ error: "No such file or version." }, 404);
+        }
+        return json({ error: "Not found." }, 404);
       }
 
       // Student calendar data for one class. Teacher-only fields are removed.

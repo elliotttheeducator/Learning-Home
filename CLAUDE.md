@@ -43,6 +43,13 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
 4. Updating an existing resource: edit the file in place and keep its path, so links in
    Elliott's planner and OneNote keep working.
 
+## Uploaded files (from any chat)
+Files Elliott uploads in the planner (drop zone in a lesson, or the Files button) are stored in
+D1 (tables `files`, `file_versions`, `file_chunks`, max 20 MB, last 10 versions kept) and served
+at `/files/<class-id>/<name>`. Files tagged `students` are public; `teacher` and `print` uploads
+need the teacher password. A new version keeps the same link. Prefer the repo for anything that
+needs code changes; uploads are for finished standalone pages and PDFs.
+
 ## Porting resources built on claude.ai
 Decks built on the Woodcroft Deck Kit and apps published as claude.ai artifacts use artifact
 runtime features (window.claude, the `db` and `downloads` capabilities, window.storage) that

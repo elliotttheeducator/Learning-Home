@@ -22,6 +22,7 @@
     --mono:"IBM Plex Mono", ui-monospace, monospace;
   }
   * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
   body { margin:0; background:var(--ground); color:var(--ink);
     font-family:"Public Sans", "Segoe UI", system-ui, sans-serif; font-size:15px; line-height:1.5; }
   h1,h2,h3 { font-family:"Fraunces", Georgia, serif; font-weight:600; margin:0; letter-spacing:-.01em; }
@@ -187,6 +188,24 @@
   .res-row select.au { font-weight:700; color:var(--gc); }
   .res-row input.u { grid-column:1 / -1; border-top:1px solid var(--line); font-family:var(--mono); font-size:12px; color:var(--accent); }
   .res-row .bad { color:var(--warn); }
+  .res-row .fx { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:6px 10px; border-top:1px solid var(--line); background:#fff; }
+  .res-row .fx .hint { margin-left:auto; }
+  .hist { grid-column:1 / -1; padding:6px 10px 10px; display:flex; flex-direction:column; gap:4px; background:#fff; }
+  .hist .hv { display:flex; gap:10px; align-items:center; font-size:12.5px; }
+  .hist .hv b { font-family:var(--mono); font-size:11.5px; }
+  .drop { border:2px dashed var(--line-2); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--surface-2); }
+  .drop.over { border-color:var(--accent); background:var(--accent-soft); }
+  .drop .row select { width:auto; }
+  .linkbtn { border:0; background:none; padding:0; color:var(--accent); font-weight:700; cursor:pointer; text-decoration:underline; }
+  .msg-ok { font-size:13px; color:var(--ok); font-weight:600; }
+  .msg-bad { font-size:13px; color:var(--warn); font-weight:600; }
+  .warnbox { border:1px solid #F5C77E; background:#FFF4E5; color:#7A4A00; border-radius:10px; padding:8px 12px; font-size:12.5px; }
+  .warnbox ul { margin:4px 0 0; padding-left:18px; }
+  .frow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; padding:10px 12px; border:1px solid var(--line); border-left:5px solid var(--gc, var(--line)); border-radius:11px; background:var(--surface-2); }
+  .frow.teach { --gc:var(--teach); } .frow.stu { --gc:var(--stu); } .frow.print { --gc:var(--print); }
+  .frow .ft { font-weight:700; font-size:14px; }
+  .frow .fm { font-size:11.5px; color:var(--muted); font-family:var(--mono); overflow-wrap:anywhere; }
+  .frow .fb { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
   .icon-btn { border:0; background:none; cursor:pointer; color:var(--muted); font-size:16px; }
   .icon-btn:hover { color:var(--warn); }
   .chk { display:flex; align-items:center; gap:9px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:6px 8px 6px 10px; }
@@ -244,6 +263,7 @@
         <button id="nextWk" title="Next week" aria-label="Next week">&#8250;</button>
       </div>
       <button class="btn" id="todayBtn">This week</button>
+      <button class="btn" id="filesBtn" title="Every file uploaded to the site">Files</button>
       <span class="savestate" id="saveState" aria-live="polite"></span>
       <a class="btn" href="/" target="_blank" rel="noopener">Student site</a>
       <a class="btn quiet" href="/auth/logout">Sign out</a>
@@ -267,7 +287,8 @@
   <div class="legend" id="legend"></div>
   <p class="footnote">Everything saves as you type. Press <b>L</b> to launch the lesson in the panel at the top.
     Resources are tagged <b>Students</b> (on the student calendar once the lesson is published), <b>Teacher only</b> (decks, answer keys, teacher versions)
-    or <b>To print</b> (opens ready to print). Teacher notes, prep and anything not tagged Students never leave the teacher area.</p>
+    or <b>To print</b> (opens ready to print).
+    To put a file from any chat on the site, open a lesson and drop it into its <b>Upload</b> box; the <b>Files</b> button lists every upload, with new versions and history. Teacher notes, prep and anything not tagged Students never leave the teacher area.</p>
 </main>
 
 <div class="scrim" id="scrim"></div>
@@ -647,6 +668,10 @@
       '<div class="sect">Resources <small>tag each one: for students, teacher only, or to print</small></div>' +
       '<div class="stack" id="resList"></div>' +
       '<div class="row"><button class="btn" data-add="students">+ Student resource</button><button class="btn" data-add="teacher">+ Teacher only</button><button class="btn" data-add="print">+ To print</button>' + libraryPicker(c) + "</div>" +
+      '<div class="drop" id="drop"><div><b>Upload a file</b> made in any chat (a lesson page, deck, PDF, worksheet): drop it here, or <button class="linkbtn" id="dropPick" type="button">choose a file</button>.</div>' +
+      '<div class="row"><span class="hint">It is for</span><select id="dropFor">' + AUD.map(function (x) { return '<option value="' + x[0] + '">' + x[1] + "</option>"; }).join("") + "</select>" +
+      '<input type="text" id="dropTitle" placeholder="Title (optional: the file name is used)" style="flex:1;min-width:180px"></div>' +
+      '<input type="file" id="dropIn" hidden><div id="dropMsg"></div></div>' +
       '<div class="sect">Teacher only <small>never sent to students</small></div>' +
       field("Notes and lesson shape", '<textarea id="f-notes" class="mono" rows="10">' + esc(p.notes) + "</textarea>") +
       '<div class="field"><span class="lab">Prep</span><div class="stack" id="prepList"></div><div class="row"><button class="btn" id="addPrep">Add a prep item</button></div></div>' +
@@ -685,12 +710,35 @@
         var ins = drawer.querySelectorAll("#resList input.t"); if (ins.length) ins[ins.length - 1].focus();
       });
     });
-    var pick = $("libPick");
+    var pick = $("libPick"), uploads = [];
+    // Uploaded files for this class join the library list.
+    getFiles(l.classId).then(function (list) {
+      uploads = list; if (!pick || !list.length) return;
+      var og = document.createElement("optgroup"); og.label = "Uploaded files";
+      list.forEach(function (f, i) { var o = document.createElement("option"); o.value = "f:" + i; o.textContent = f.title + " (v" + f.version + ")"; og.appendChild(o); });
+      pick.appendChild(og);
+    });
     if (pick) pick.addEventListener("change", function () {
-      var r = (c.resources || [])[+pick.value]; if (!r) return;
-      var nr = { title: r.title, url: r.path, type: r.type || "link" }; nr.for = r.for || aud(nr);
+      var v = pick.value, nr;
+      if (v.indexOf("f:") === 0) { var f = uploads[+v.slice(2)]; if (!f) return; nr = { title: f.title, url: f.url, type: f.type, for: f.for }; }
+      else { var r = (c.resources || [])[+v]; if (!r) return; nr = { title: r.title, url: r.path, type: r.type || "link" }; nr.for = r.for || aud(nr); }
       p.resources.push(nr); pick.value = ""; drawRes(l, drawLaunch); drawLaunch(); changed(l);
     });
+    var drop = $("drop");
+    function sendNew(file) {
+      if (!file) return;
+      var msg = $("dropMsg"); msg.innerHTML = '<span class="hint">Uploading ' + esc(file.name) + "...</span>";
+      sendFile(file, { classId: l.classId, for: $("dropFor").value, title: $("dropTitle").value }).then(function (j) {
+        p.resources.push({ title: j.title, url: j.url, type: j.type, for: j.for });
+        $("dropTitle").value = ""; drawRes(l, drawLaunch); drawLaunch(); changed(l); filesCache = {};
+        msg.innerHTML = '<div class="msg-ok">Uploaded and added to this lesson: ' + esc(j.title) + "</div>" + warnHTML(j.warnings);
+      }, function (e) { msg.innerHTML = '<div class="msg-bad">' + esc(e.message) + "</div>"; });
+    }
+    $("dropPick").addEventListener("click", function () { $("dropIn").click(); });
+    $("dropIn").addEventListener("change", function () { sendNew(this.files && this.files[0]); this.value = ""; });
+    drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", function () { drop.classList.remove("over"); });
+    drop.addEventListener("drop", function (e) { e.preventDefault(); drop.classList.remove("over"); sendNew(e.dataTransfer.files && e.dataTransfer.files[0]); });
     $("addPrep").addEventListener("click", function () {
       p.prep.push({ t: "", d: false }); drawPrep(l);
       var ins = drawer.querySelectorAll("#prepList input[type=text]"); if (ins.length) ins[ins.length - 1].focus();
@@ -715,14 +763,23 @@
       }).join("") + '</select><input type="text" class="t" value="' + esc(r.title) + '" placeholder="Title">' +
         '<select class="au" aria-label="Who it is for">' + AUD.map(function (x) { return '<option value="' + x[0] + '"' + (a === x[0] ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select>" +
         '<button class="icon-btn" title="Remove" aria-label="Remove resource">&#10005;</button>' +
-        '<input type="text" class="u' + (okUrl(r.url) ? "" : " bad") + '" value="' + esc(r.url) + '" placeholder="/y7-science/booklet.html or https://..."></div>';
+        '<input type="text" class="u' + (okUrl(r.url) ? "" : " bad") + '" value="' + esc(r.url) + '" placeholder="/y7-science/booklet.html or https://...">' +
+        (isUpload(r.url) ? '<div class="fx"><button class="btn small" data-newver type="button">Upload a new version</button><button class="btn small" data-hist type="button">History</button><span class="hint" data-fmsg>Uploaded file</span></div><div class="hist" hidden></div>' : "") +
+        "</div>";
     }).join("") : '<p class="hint" style="margin:0">No resources yet.</p>';
     Array.prototype.forEach.call(box.querySelectorAll(".res-row"), function (row) {
       var i = +row.dataset.i;
       row.querySelector(".ty").addEventListener("change", function (e) { p.resources[i].type = e.target.value; changed(l); });
       row.querySelector(".au").addEventListener("change", function (e) {
         p.resources[i].for = e.target.value; row.className = "res-row " + AUD_CLASS[e.target.value]; changed(l); if (after) after();
+        // An uploaded file follows its tag: student files are public, the others need the teacher.
+        if (isUpload(p.resources[i].url)) postJSON("/api/teacher/files/update", { path: p.resources[i].url, for: e.target.value });
       });
+      var nv = row.querySelector("[data-newver]");
+      if (nv) {
+        nv.addEventListener("click", function () { newVersion(p.resources[i].url, row.querySelector("[data-fmsg]")); });
+        row.querySelector("[data-hist]").addEventListener("click", function () { toggleHistory(p.resources[i].url, row.querySelector(".hist")); });
+      }
       row.querySelector(".t").addEventListener("input", function (e) { p.resources[i].title = e.target.value; changed(l); if (after) after(); });
       row.querySelector(".u").addEventListener("input", function (e) {
         p.resources[i].url = e.target.value.trim(); e.target.classList.toggle("bad", !okUrl(p.resources[i].url)); changed(l); if (after) after();
@@ -730,6 +787,91 @@
       row.querySelector(".icon-btn").addEventListener("click", function () { p.resources.splice(i, 1); drawRes(l, after); changed(l); if (after) after(); });
     });
   }
+
+  // ---------- uploaded files ----------
+  var filesCache = {};
+  function isUpload(u) { return /^\/files\//.test(u || ""); }
+  function getFiles(classId) {
+    var k = classId || "*";
+    if (!filesCache[k]) filesCache[k] = fetch("/api/teacher/files" + (classId ? "?class=" + encodeURIComponent(classId) : ""), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : { files: [] }; }).then(function (j) { return j.files || []; }, function () { return []; });
+    return filesCache[k];
+  }
+  function sendFile(file, fields) {
+    var fd = new FormData(); fd.append("file", file);
+    Object.keys(fields).forEach(function (k) { if (fields[k] != null) fd.append(k, fields[k]); });
+    return fetch("/api/teacher/files", { method: "POST", body: fd }).then(function (r) {
+      if (r.status === 401) throw new Error("Signed out. Sign in again, then upload.");
+      return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "Upload failed"); return j; });
+    });
+  }
+  function postJSON(url, body) {
+    return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "Failed"); return j; }); });
+  }
+  function warnHTML(w) {
+    return w && w.length ? '<div class="warnbox"><b>Worth checking:</b><ul>' + w.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>" : "";
+  }
+  // Upload a new version over an existing file: the address stays the same, so every link keeps working.
+  function newVersion(url, msgEl) {
+    var inp = document.createElement("input"); inp.type = "file";
+    inp.addEventListener("change", function () {
+      var f = inp.files && inp.files[0]; if (!f) return;
+      if (msgEl) msgEl.textContent = "Uploading...";
+      sendFile(f, { replace: url }).then(function (j) {
+        filesCache = {};
+        if (msgEl) msgEl.innerHTML = '<span class="msg-ok">Version ' + j.version + " is live</span>" + (j.warnings && j.warnings.length ? " (" + j.warnings.length + " to check)" : "");
+        if (j.warnings && j.warnings.length) toast(j.warnings[0]); else toast("New version is live");
+      }, function (e) { if (msgEl) msgEl.innerHTML = '<span class="msg-bad">' + esc(e.message) + "</span>"; });
+    });
+    inp.click();
+  }
+  function toggleHistory(url, box) {
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false; box.innerHTML = '<span class="hint">Loading...</span>';
+    fetch("/api/teacher/files/versions?path=" + encodeURIComponent(url), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) {
+      box.innerHTML = (j.versions || []).map(function (v) {
+        var d = new Date(v.uploadedAt);
+        return '<div class="hv"><b>v' + v.version + "</b><span>" + esc(d.toLocaleDateString("en-AU") + " " + d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })) + " · " +
+          esc(v.name) + " · " + Math.max(1, Math.round(v.size / 1024)) + " KB</span>" +
+          (v.version === j.current ? '<span class="msg-ok">live</span>' : '<button class="btn small" data-restore="' + v.version + '" type="button">Make this the live version</button>') + "</div>";
+      }).join("") || '<span class="hint">No versions.</span>';
+      Array.prototype.forEach.call(box.querySelectorAll("[data-restore]"), function (b) {
+        b.addEventListener("click", function () {
+          postJSON("/api/teacher/files/restore", { path: url, version: +b.dataset.restore }).then(function () { toast("Version " + b.dataset.restore + " is live again"); box.hidden = true; toggleHistory(url, box); filesCache = {}; },
+            function (e) { toast(e.message); });
+        });
+      });
+    }, function () { box.innerHTML = '<span class="msg-bad">Could not load the history.</span>'; });
+  }
+  function openFiles() {
+    openDrawer("#3474F5", '<div class="dr-head"><div class="eyebrow">Uploaded to the site</div><h2>Files</h2>' +
+      '<div class="links"><span class="hint">Upload new files from a lesson, so they are attached to it. Here you can update or roll back any of them.</span></div>' +
+      '<button class="dr-close" aria-label="Close">&#10005;</button></div><div class="dr-body"><div class="stack" id="fileList"><span class="hint">Loading...</span></div></div>');
+    filesCache = {};
+    getFiles("").then(function (list) {
+      var box = $("fileList"); if (!box) return;
+      if (!list.length) { box.innerHTML = '<p class="hint">Nothing uploaded yet. Open a lesson and drop a file into its Upload box.</p>'; return; }
+      var h = "", last = "";
+      // one group per class, newest first inside each
+      list = list.slice().sort(function (a, b) { return a.classId === b.classId ? (b.updatedAt || "").localeCompare(a.updatedAt || "") : a.classId.localeCompare(b.classId); });
+      list.forEach(function (f, i) {
+        if (f.classId !== last) { last = f.classId; h += '<div class="wkh">' + esc((classes[f.classId] || {}).name || f.classId) + "</div>"; }
+        h += '<div class="frow ' + AUD_CLASS[f.for] + '" data-i="' + i + '"><div><div class="ft">' + esc(f.title) + "</div>" +
+          '<div class="fm">' + esc(f.url) + " · v" + f.version + " · " + Math.max(1, Math.round(f.size / 1024)) + " KB · " + esc(AUD.filter(function (x) { return x[0] === f.for; })[0][1]) + "</div>" +
+          '<span data-fmsg class="hint"></span></div><div class="fb"><a class="btn small" href="' + esc(f.for === "print" ? "/teacher/print?u=" + encodeURIComponent(f.url) + "&t=" + encodeURIComponent(f.title) : f.url) + '" target="_blank" rel="noopener">Open</a>' +
+          '<button class="btn small" data-copy="' + esc(f.url) + '">Copy link</button><button class="btn small" data-newver type="button">New version</button><button class="btn small" data-hist type="button">History</button></div>' +
+          '<div class="hist" hidden style="grid-column:1 / -1"></div></div>';
+      });
+      box.innerHTML = h;
+      Array.prototype.forEach.call(box.querySelectorAll(".frow"), function (row) {
+        var f = list[+row.dataset.i];
+        row.querySelector("[data-newver]").addEventListener("click", function () { newVersion(f.url, row.querySelector("[data-fmsg]")); });
+        row.querySelector("[data-hist]").addEventListener("click", function () { toggleHistory(f.url, row.querySelector(".hist")); });
+      });
+    });
+  }
+  $("filesBtn").addEventListener("click", openFiles);
 
   function drawPrep(l) {
     var p = l.plan, box = $("prepList");
