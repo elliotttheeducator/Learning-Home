@@ -199,6 +199,17 @@
   .linkbtn { border:0; background:none; padding:0; color:var(--accent); font-weight:700; cursor:pointer; text-decoration:underline; }
   .msg-ok { font-size:13px; color:var(--ok); font-weight:600; }
   .msg-bad { font-size:13px; color:var(--warn); font-weight:600; }
+  .drop.big { padding:22px; align-items:flex-start; }
+  .drop.big > b { font-size:16px; }
+  .pk { display:flex; flex-direction:column; gap:8px; padding:12px; border:1px solid var(--line); border-left:5px solid var(--gc, var(--line)); border-radius:12px; background:var(--surface-2); }
+  .pk.teach { --gc:var(--teach); } .pk.stu { --gc:var(--stu); } .pk.print { --gc:var(--print); }
+  .pk.off { opacity:.55; }
+  .pk-on { display:flex; align-items:center; gap:6px; font-size:14px; overflow-wrap:anywhere; }
+  .pk-how { align-self:flex-start; font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:99px; background:#E3F5EA; color:#1F7A45; }
+  .pk-how.g { background:#FFF4E5; color:#7A4A00; }
+  .pk-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .pk-row select { width:auto; flex:1 1 160px; min-width:0; }
+  .pk-act { font-size:12.5px; color:var(--muted); }
   .warnbox { border:1px solid #F5C77E; background:#FFF4E5; color:#7A4A00; border-radius:10px; padding:8px 12px; font-size:12.5px; }
   .warnbox ul { margin:4px 0 0; padding-left:18px; }
   .frow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; padding:10px 12px; border:1px solid var(--line); border-left:5px solid var(--gc, var(--line)); border-radius:11px; background:var(--surface-2); }
@@ -263,6 +274,7 @@
         <button id="nextWk" title="Next week" aria-label="Next week">&#8250;</button>
       </div>
       <button class="btn" id="todayBtn">This week</button>
+      <button class="btn" id="packBtn" title="Put files from any chat where they belong">Import pack</button>
       <button class="btn" id="filesBtn" title="Every file uploaded to the site">Files</button>
       <span class="savestate" id="saveState" aria-live="polite"></span>
       <a class="btn" href="/" target="_blank" rel="noopener">Student site</a>
@@ -288,7 +300,7 @@
   <p class="footnote">Everything saves as you type. Press <b>L</b> to launch the lesson in the panel at the top.
     Resources are tagged <b>Students</b> (on the student calendar once the lesson is published), <b>Teacher only</b> (decks, answer keys, teacher versions)
     or <b>To print</b> (opens ready to print).
-    To put a file from any chat on the site, open a lesson and drop it into its <b>Upload</b> box; the <b>Files</b> button lists every upload, with new versions and history. Teacher notes, prep and anything not tagged Students never leave the teacher area.</p>
+    To put files from any chat on the site, use <b>Import pack</b> (drop a zip or several files and each goes to its lesson), or drop one file into a lesson's <b>Upload</b> box; the <b>Files</b> button lists every upload, with new versions and history. Teacher notes, prep and anything not tagged Students never leave the teacher area.</p>
 </main>
 
 <div class="scrim" id="scrim"></div>
@@ -872,6 +884,382 @@
     });
   }
   $("filesBtn").addEventListener("click", openFiles);
+
+  // ---------- import a pack ----------
+  // Drop a zip or a handful of files made in any chat. Each file says where it goes with a label:
+  //   in an HTML page: <meta name="learning-home" content="class=y7-enrichment; lesson=2026-10-20; for=students; type=app; title=Angle hunt">
+  //   or for any file: a learning-home.json in the zip (see packHelp below).
+  // Files without a label are sorted by their name and contents. Nothing is placed until the teacher checks the list.
+  var MIME_EXT = { html: "text/html", htm: "text/html", pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif",
+    svg: "image/svg+xml", webp: "image/webp", css: "text/css", js: "text/javascript", json: "application/json", txt: "text/plain",
+    mp4: "video/mp4", mp3: "audio/mpeg", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+  var IMG = /\.(png|jpe?g|gif|svg|webp)$/i;
+  function extOf(n) { var m = String(n).toLowerCase().match(/\.([a-z0-9]+)$/); return m ? m[1] : ""; }
+  function baseName(n) { return String(n).split("/").pop(); }
+  function prettyName(n) { var s = baseName(n).replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // A small zip reader (stored and deflated entries), using the browser's own decompressor.
+  function unzip(buf) {
+    var dv = new DataView(buf), e = buf.byteLength - 22;
+    while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) return Promise.reject(new Error("That zip file could not be read."));
+    var n = dv.getUint16(e + 10, true), p = dv.getUint32(e + 16, true), jobs = [], dec = new TextDecoder();
+    for (var i = 0; i < n; i++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) break;
+      var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+      var nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      var name = dec.decode(new Uint8Array(buf, p + 46, nlen));
+      p += 46 + nlen + elen + clen;
+      if (/\/$/.test(name) || /(^|\/)(__MACOSX|\.)/.test(name)) continue;
+      var start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+      var data = new Uint8Array(buf.slice(start, start + csize));
+      jobs.push((function (name, method, data) {
+        if (method === 0) return Promise.resolve({ name: name, bytes: data });
+        if (method !== 8) return Promise.resolve(null);
+        return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer()
+          .then(function (b) { return { name: name, bytes: new Uint8Array(b) }; });
+      })(name, method, data));
+    }
+    return Promise.all(jobs).then(function (l) { return l.filter(Boolean); });
+  }
+
+  // Everything dropped, as { name (path inside the pack), bytes }.
+  function readDropped(fileList) {
+    return Promise.all(Array.prototype.map.call(fileList, function (f) {
+      return f.arrayBuffer().then(function (b) {
+        if (extOf(f.name) === "zip") return unzip(b);
+        return [{ name: f.name, bytes: new Uint8Array(b) }];
+      });
+    })).then(function (ls) { return [].concat.apply([], ls); });
+  }
+
+  // "class=y7-science; lesson=2026-10-21 P1; for=print" into an object.
+  function parseLabel(s) {
+    var o = {};
+    String(s || "").split(";").forEach(function (part) {
+      var m = part.match(/^\s*([a-z]+)\s*[=:]\s*(.*?)\s*$/i); if (m) o[m[1].toLowerCase()] = m[2];
+    });
+    return o;
+  }
+  function htmlLabel(text) {
+    var m = text.match(/<meta[^>]+name=["']learning-home["'][^>]*>/i) || text.match(/<meta[^>]+content=["'][^"']*["'][^>]+name=["']learning-home["'][^>]*>/i);
+    if (!m) return null;
+    var c = m[0].match(/content=(["'])([\s\S]*?)\1/i);
+    return c ? parseLabel(c[2]) : null;
+  }
+  function htmlTitle(text) { var m = text.match(/<title>([^<]+)<\/title>/i); return m ? m[1].replace(/\s+/g, " ").trim() : ""; }
+
+  // Which class a label means: the id, the timetable code, or the name, written loosely ("7 enrichment", "Y10 sci").
+  function findClass(v) {
+    if (!v) return "";
+    var s = String(v).toLowerCase().replace(/[^a-z0-9]/g, ""), best = "", bestScore = 0;
+    Object.keys(classes).forEach(function (id) {
+      var c = classes[id], keys = [id, c.code || "", c.name || ""].map(function (x) { return x.toLowerCase().replace(/[^a-z0-9]/g, ""); });
+      var score = keys.indexOf(s) >= 0 ? 100 : 0;
+      if (!score) {
+        var yr = (s.match(/\d+/) || [""])[0], idYr = (id.match(/\d+/) || [""])[0], words = s.replace(/\d+/g, "").replace(/^y(ear)?/, "");
+        if (yr && yr.replace(/^0/, "") === idYr && words) {
+          if (keys.some(function (k) { return k.indexOf(words) >= 0; })) score = 50;
+          else if (keys.some(function (k) { return k.indexOf(words.slice(0, 3)) >= 0; })) score = 20;
+        }
+      }
+      if (score > bestScore) { bestScore = score; best = id; }
+    });
+    return best;
+  }
+  function classLessons(id) {
+    return D.lessons.filter(function (l) { return l.classId === id; }).sort(function (a, b) { return (a.date + a.start).localeCompare(b.date + b.start); });
+  }
+  // Which lesson a label means: "2026-10-20", "20 Oct", either with "P6", or "week 2 lesson 3".
+  function findLesson2(classId, v) {
+    if (!classId || !v) return "";
+    var ls = classLessons(classId), s = String(v), date = "";
+    var wl = s.match(/week\s*(\d+)\D+?lesson\s*(\d+)/i);
+    if (wl) {
+      var inWk = ls.filter(function (l) { return l.week === +wl[1]; });
+      return inWk[+wl[2] - 1] ? key(inWk[+wl[2] - 1]) : "";
+    }
+    var iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) date = iso[0];
+    else {
+      var dm = s.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*/i);
+      if (dm) {
+        var mi = MONTH.map(function (x) { return x.toLowerCase(); }).indexOf(dm[2].toLowerCase()) + 1;
+        var y = (s.match(/\b(20\d\d)\b/) || [, (ls[0] || { date: String(new Date().getFullYear()) }).date.slice(0, 4)])[1];
+        date = y + "-" + String(mi).padStart(2, "0") + "-" + String(+dm[1]).padStart(2, "0");
+      }
+    }
+    if (!date) return "";
+    var onDay = ls.filter(function (l) { return l.date === date; });
+    var per = s.match(/\bP\s?([1-7])\b/i) || s.match(/period\s*([1-7])/i);
+    if (per) { var hit = onDay.filter(function (l) { return l.periods.indexOf("P" + per[1]) >= 0; })[0]; if (hit) return key(hit); }
+    return onDay[0] ? key(onDay[0]) : "";
+  }
+
+  // Sorting a file with no label: from its name, its page title and what is inside.
+  function guessKind(name, title, text) {
+    var s = (baseName(name) + " " + title).toLowerCase(), e = extOf(name), html = e === "html" || e === "htm";
+    if (/answer|solution|\bkey\b|marking|mark scheme/.test(s)) return { type: "key", for: "teacher" };
+    if (/\bdeck\b|slides?\b|slideshow|presentation|lesson ppt/.test(s) || e === "pptx" || (html && (text.match(/class="slide[\s"]/g) || []).length >= 5)) return { type: "deck", for: "teacher" };
+    if (/teacher/.test(s)) return { type: html ? "app" : "sheet", for: "teacher" };
+    if (/worksheet|printout|print|handout|\bsheet\b|exit ticket|cut ?out|poster/.test(s)) return { type: "sheet", for: "print" };
+    if (/booklet/.test(s)) return { type: "booklet", for: e === "pdf" || e === "docx" ? "print" : "students" };
+    if (/\bsim\b|simulation|simulator/.test(s)) return { type: "sim", for: "students" };
+    if (e === "pdf" || e === "docx") return { type: "sheet", for: "print" };
+    if (html) return { type: "app", for: "students" };
+    return { type: "link", for: "students" };
+  }
+
+  function dataURI(bytes, mime) {
+    var bin = "", step = 0x8000;
+    for (var i = 0; i < bytes.length; i += step) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + step));
+    return "data:" + mime + ";base64," + btoa(bin);
+  }
+  function joinPath(dir, rel) {
+    var parts = (dir ? dir.split("/") : []).concat(rel.split("/")), out = [];
+    parts.forEach(function (x) { if (x === "..") out.pop(); else if (x && x !== ".") out.push(x); });
+    return out.join("/");
+  }
+  // Pictures, stylesheets and scripts next to a page are folded into it, so it works as one file on the site.
+  function foldIn(page, byName, used) {
+    var dir = page.name.indexOf("/") >= 0 ? page.name.replace(/\/[^\/]*$/, "") : "";
+    function local(ref) {
+      if (/^(https?:|data:|\/\/|#|mailto:|javascript:)/i.test(ref) || ref.charAt(0) === "/") return null;
+      var p = joinPath(dir, decodeURI(ref.split(/[?#]/)[0]));
+      return byName[p] ? p : null;
+    }
+    var dec = new TextDecoder(), t = page.text;
+    t = t.replace(/<link\b[^>]*?href=(["'])([^"']+)\1[^>]*>/gi, function (m, q, ref) {
+      var p = /stylesheet/i.test(m) && local(ref); if (!p) return m;
+      used[p] = page.name; return "<style>\n" + dec.decode(byName[p].bytes) + "\n</style>";
+    });
+    t = t.replace(/<script\b([^>]*?)\ssrc=(["'])([^"']+)\2([^>]*)>\s*<\/script>/gi, function (m, a, q, ref, b) {
+      var p = local(ref); if (!p) return m;
+      used[p] = page.name; return "<script" + a + b + ">\n" + dec.decode(byName[p].bytes).replace(/<\/script/gi, "<\\/script") + "\n<\/script>";
+    });
+    t = t.replace(/(\s(?:src|href|poster)=)(["'])([^"']+)\2/gi, function (m, a, q, ref) {
+      var p = local(ref); if (!p || !IMG.test(p)) return m;
+      used[p] = page.name; return a + q + dataURI(byName[p].bytes, MIME_EXT[extOf(p)]) + q;
+    });
+    t = t.replace(/url\((["']?)([^"')]+)\1\)/gi, function (m, q, ref) {
+      var p = local(ref); if (!p || !IMG.test(p)) return m;
+      used[p] = page.name; return "url(\"" + dataURI(byName[p].bytes, MIME_EXT[extOf(p)]) + "\")";
+    });
+    return t;
+  }
+
+  // Turn the dropped files into a list of things to place, each with where it will go.
+  function sortPack(raw) {
+    var dec = new TextDecoder(), byName = {}, manifest = null, notes = [];
+    raw.forEach(function (f) {
+      var n = f.name.replace(/\\/g, "/").replace(/^\/+/, "");
+      if (/(^|\/)learning-home\.json$/i.test(n)) {
+        try { manifest = JSON.parse(dec.decode(f.bytes)); } catch (e) { notes.push("learning-home.json could not be read, so it was ignored."); }
+        return;
+      }
+      if (byName[n]) n = n.replace(/(\.[^.]+)?$/, "-" + Object.keys(byName).length + "$1");
+      byName[n] = { name: n, bytes: f.bytes };
+    });
+    // Shared top folder from a zip ("pack/x.html") is ignored when matching the manifest.
+    var names = Object.keys(byName), top = names.length && names.every(function (n) { return n.indexOf("/") > 0 && n.split("/")[0] === names[0].split("/")[0]; }) ? names[0].split("/")[0] + "/" : "";
+    var man = {}, defaults = {};
+    if (manifest) {
+      Object.keys(manifest).forEach(function (k) { if (typeof manifest[k] === "string") defaults[k.toLowerCase()] = manifest[k]; });
+      (Array.isArray(manifest.files) ? manifest.files : []).forEach(function (m) {
+        if (!m || !m.file) return;
+        var lab = {}; Object.keys(m).forEach(function (k) { lab[k.toLowerCase()] = m[k]; });
+        man[String(m.file).replace(/^\.?\//, "")] = lab;
+      });
+    }
+    var used = {}, items = [];
+    names.forEach(function (n) {
+      var f = byName[n], e = extOf(n);
+      if (e === "html" || e === "htm") { f.text = dec.decode(f.bytes); f.folded = foldIn(f, byName, used); }
+    });
+    names.forEach(function (n) {
+      var f = byName[n], e = extOf(n), rel = top && n.indexOf(top) === 0 ? n.slice(top.length) : n;
+      if (used[n] && !man[rel] && !man[baseName(n)]) return;   // folded into a page
+      if (!MIME_EXT[e]) { notes.push(baseName(n) + " was left out: the site does not serve ." + (e || "files with no ending") + " files."); return; }
+      var html = e === "html" || e === "htm", text = html ? f.folded : "";
+      var lab = man[rel] || man[baseName(n)] || (html && htmlLabel(text)) || null, how = man[rel] || man[baseName(n)] ? "pack list" : lab ? "label" : "guessed";
+      lab = Object.assign({}, defaults, lab || {});
+      delete lab.files;
+      var title = String(lab.title || (html && htmlTitle(text)) || prettyName(n)).trim();
+      var g = guessKind(n, title, text);
+      var aud = (lab["for"] || "").toLowerCase(); aud = /stud/.test(aud) ? "students" : /teach/.test(aud) ? "teacher" : /print/.test(aud) ? "print" : g.for;
+      var type = TYPES.some(function (t) { return t[0] === String(lab.type || "").toLowerCase(); }) ? String(lab.type).toLowerCase() : g.type;
+      var classId = findClass(lab["class"] || lab.classid);
+      var lk = findLesson2(classId, lab.lesson || lab.date);
+      var it = { name: n, ext: e, bytes: html ? new TextEncoder().encode(text) : f.bytes, title: title, for: aud, type: type, classId: classId, lessonKey: lk, how: how, on: true,
+        wanted: lab.lesson || lab.date || "", folded: Object.keys(used).filter(function (u) { return used[u] === n; }).length, warn: [] };
+      if ((lab["class"] || lab.classid) && !classId) it.warn.push('No class matches "' + (lab["class"] || lab.classid) + '". Pick one.');
+      if (it.wanted && !lk && classId) it.warn.push('No lesson matches "' + it.wanted + '". Pick one, or leave it in Files only.');
+      items.push(it);
+    });
+    return { items: items, notes: notes, hasDefaults: !!(defaults["class"] || defaults.lesson) };
+  }
+
+  function packHelp() {
+    var ids = Object.keys(classes).map(function (id) { return "  " + id + " (" + classes[id].name + ")"; }).join("\n");
+    return [
+      "When you make resources for my Learning Home site, label each one so the site can put it in the right place.",
+      "",
+      "For an HTML page, put this inside <head>:",
+      '<meta name="learning-home" content="class=y7-enrichment; lesson=2026-10-20; for=students; type=app; title=Angle hunt">',
+      "",
+      "class: one of",
+      ids,
+      "lesson: the lesson date as YYYY-MM-DD. Add the period (for example 2026-10-20 P6) if the class has two lessons that day. \"week 3 lesson 2\" also works.",
+      "for: students (students open it from their calendar), teacher (slides, answer keys, teacher versions) or print (worksheets and handouts).",
+      "type: deck, app, sim, booklet, sheet, key or link.",
+      "title: what it is called in the planner.",
+      "",
+      "For a PDF, Word file or several files at once, put everything in one zip with a learning-home.json like this:",
+      "{",
+      '  "class": "y7-enrichment",',
+      '  "lesson": "2026-10-20",',
+      '  "files": [',
+      '    { "file": "angle-hunt.html", "for": "students", "type": "app", "title": "Angle hunt" },',
+      '    { "file": "angles-deck.html", "for": "teacher", "type": "deck", "title": "Angles slides" },',
+      '    { "file": "angles-worksheet.pdf", "for": "print", "type": "sheet", "title": "Angles worksheet" },',
+      '    { "file": "angles-answers.pdf", "for": "teacher", "type": "key", "title": "Angles answers" }',
+      "  ]",
+      "}",
+      "Anything at the top (class, lesson) applies to every file unless the file says otherwise.",
+      "",
+      "Rules for the files:",
+      "- Each page must work on its own: one HTML file. Pictures, CSS and scripts in the same zip are folded in automatically, but nothing can load from claude.ai.",
+      "- Do not use window.claude, window.storage or artifact capabilities. Save anything (like ink) to localStorage.",
+      "- No em-dashes anywhere. Australian spelling.",
+      "- Keep the same title when you make a new version, so it replaces the old one instead of adding a copy."
+    ].join("\n");
+  }
+
+  function openPack() {
+    openDrawer("#7C5CE0", '<div class="dr-head"><div class="eyebrow">From any chat</div><h2>Import a pack</h2>' +
+      '<div class="links"><span class="hint">Drop a zip, or several files at once. Each file goes where its label says, or where its name suggests. You check the list before anything moves.</span></div>' +
+      '<button class="dr-close" aria-label="Close">&#10005;</button></div><div class="dr-body">' +
+      '<div class="drop big" id="packDrop"><b>Drop files or a zip here</b><span class="hint">Slides, student pages, worksheets, answer keys: HTML, PDF, Word, pictures. Up to 20 MB each.</span>' +
+      '<div class="row"><button class="btn primary" id="packPick" type="button">Choose files</button><button class="btn" id="packHelp" type="button">Copy instructions for other chats</button></div>' +
+      '<input type="file" id="packIn" multiple hidden></div><div id="packOut" class="stack"></div></div>');
+    $("packHelp").addEventListener("click", function () {
+      var t = packHelp();
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { toast("Copied: paste it into the chat making the resources"); }, function () { prompt("Copy this into the chat:", t); });
+    });
+    var drop = $("packDrop");
+    $("packPick").addEventListener("click", function () { $("packIn").click(); });
+    $("packIn").addEventListener("change", function () { takePack(this.files); this.value = ""; });
+    drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", function () { drop.classList.remove("over"); });
+    drop.addEventListener("drop", function (e) { e.preventDefault(); drop.classList.remove("over"); takePack(e.dataTransfer.files); });
+  }
+
+  var pack = null;
+  function takePack(fileList) {
+    if (!fileList || !fileList.length) return;
+    $("packOut").innerHTML = '<span class="hint">Reading...</span>';
+    readDropped(fileList).then(function (raw) {
+      pack = sortPack(raw);
+      return getFiles("").then(function (existing) { pack.existing = existing; pack.items.forEach(matchExisting); drawPack(); });
+    }).catch(function (e) { $("packOut").innerHTML = '<div class="msg-bad">' + esc(e.message || "Those files could not be read.") + "</div>"; });
+  }
+  // Same class, same title, same kind of file: it is a new version of an upload that is already there.
+  function matchExisting(it) {
+    it.replace = null;
+    (pack.existing || []).forEach(function (f) {
+      if (f.classId === it.classId && f.title.toLowerCase() === it.title.toLowerCase() && extOf(f.path) === it.ext) it.replace = f;
+    });
+  }
+
+  function drawPack() {
+    var box = $("packOut"); if (!box || !pack) return;
+    var h = pack.notes.map(function (n) { return '<div class="warnbox">' + esc(n) + "</div>"; }).join("");
+    if (!pack.items.length) { box.innerHTML = h + '<p class="hint">Nothing to place.</p>'; return; }
+    h += pack.items.map(function (it, i) {
+      var ls = it.classId ? classLessons(it.classId) : [];
+      return '<div class="pk ' + AUD_CLASS[it.for] + (it.on ? "" : " off") + '" data-i="' + i + '">' +
+        '<label class="pk-on"><input type="checkbox"' + (it.on ? " checked" : "") + ' data-f="on"> <b>' + esc(baseName(it.name)) + "</b></label>" +
+        '<span class="pk-how ' + (it.how === "guessed" ? "g" : "") + '">' + (it.how === "guessed" ? (pack.hasDefaults ? "Lesson from the pack list, kind sorted by name" : "Sorted by name") : it.how === "label" ? "Labelled" : "From the pack list") + "</span>" +
+        '<input type="text" data-f="title" value="' + esc(it.title) + '" aria-label="Title">' +
+        '<div class="pk-row"><select data-f="classId" aria-label="Class"><option value="">Pick a class...</option>' +
+          Object.keys(classes).map(function (id) { return '<option value="' + id + '"' + (id === it.classId ? " selected" : "") + ">" + esc(classes[id].name) + "</option>"; }).join("") + "</select>" +
+        '<select data-f="lessonKey" aria-label="Lesson"' + (it.classId ? "" : " disabled") + '><option value="">Files only (no lesson)</option>' +
+          ls.map(function (l) {
+            return '<option value="' + esc(key(l)) + '"' + (key(l) === it.lessonKey ? " selected" : "") + ">" + esc(l.day + " " + fmt(l.date) + " P" + l.periods.map(function (x) { return x.slice(1); }).join("-") + " · " + (l.plan.topic || "No topic yet")) + "</option>";
+          }).join("") + "</select></div>" +
+        '<div class="pk-row"><select data-f="for" aria-label="Who it is for">' + AUD.map(function (x) { return '<option value="' + x[0] + '"' + (it.for === x[0] ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select>" +
+        '<select data-f="type" aria-label="Kind">' + TYPES.map(function (t) { return '<option value="' + t[0] + '"' + (it.type === t[0] ? " selected" : "") + ">" + t[1] + "</option>"; }).join("") + "</select>" +
+        '<span class="pk-act">' + (it.replace ? "Updates the upload already there (now v" + it.replace.version + ")" : "New file") + "</span></div>" +
+        (it.folded ? '<span class="hint">' + it.folded + " picture" + (it.folded === 1 ? "" : "s") + " or style file" + (it.folded === 1 ? "" : "s") + " folded into this page</span>" : "") +
+        it.warn.map(function (w) { return '<div class="warnbox">' + esc(w) + "</div>"; }).join("") +
+        '<div class="pk-msg" data-msg></div></div>';
+    }).join("");
+    var n = pack.items.filter(function (it) { return it.on; }).length;
+    h += '<div class="row"><button class="btn primary" id="packGo" type="button"' + (n ? "" : " disabled") + ">Put " + n + " file" + (n === 1 ? "" : "s") + ' in place</button>' +
+      '<span class="hint">Nothing is published: students see a lesson only after you press Publish.</span></div><div id="packDone"></div>';
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll(".pk"), function (row) {
+      var it = pack.items[+row.dataset.i];
+      Array.prototype.forEach.call(row.querySelectorAll("[data-f]"), function (el) {
+        el.addEventListener(el.type === "text" ? "input" : "change", function () {
+          var f = el.dataset.f;
+          it[f] = el.type === "checkbox" ? el.checked : el.value;
+          if (f === "classId") { it.lessonKey = findLesson2(it.classId, it.wanted); it.warn = []; }
+          if (f === "classId" || f === "title") matchExisting(it);
+          if (f !== "title") drawPack();
+          else row.querySelector(".pk-act").textContent = it.replace ? "Updates the upload already there (now v" + it.replace.version + ")" : "New file";
+        });
+      });
+    });
+    $("packGo").addEventListener("click", placePack);
+  }
+
+  function placePack() {
+    var todo = pack.items.filter(function (it) { return it.on; });
+    var missing = todo.filter(function (it) { return !it.classId; });
+    if (missing.length) { toast("Pick a class for " + baseName(missing[0].name)); return; }
+    $("packGo").disabled = true;
+    var done = [], i = 0;
+    function row(it) { return $("packOut").querySelector('.pk[data-i="' + pack.items.indexOf(it) + '"] [data-msg]'); }
+    function next() {
+      if (i >= todo.length) return finish();
+      var it = todo[i++], el = row(it);
+      el.innerHTML = '<span class="hint">Uploading...</span>';
+      var file = new File([it.bytes], baseName(it.name), { type: MIME_EXT[it.ext] });
+      var send = it.replace ? sendFile(file, { replace: it.replace.url }).then(function (j) {
+          return (it.for !== it.replace.for || it.title !== it.replace.title ? postJSON("/api/teacher/files/update", { path: it.replace.url, title: it.title, for: it.for }) : Promise.resolve())
+            .then(function () { return { url: it.replace.url, version: j.version, warnings: j.warnings }; });
+        })
+        : sendFile(file, { classId: it.classId, for: it.for, title: it.title, type: it.type });
+      send.then(function (j) {
+        var where = "";
+        var l = it.lessonKey && findLesson(it.lessonKey);
+        if (l) {
+          var p = l.plan; p.resources = p.resources || [];
+          var had = p.resources.filter(function (r) { return r.url === j.url; })[0];
+          if (had) { had.title = it.title; had.for = it.for; had.type = it.type; }
+          else p.resources.push({ title: it.title, url: j.url, type: it.type, for: it.for });
+          changed(l);
+          where = " and added to " + l.day + " " + fmt(l.date);
+        }
+        done.push({ it: it, url: j.url, l: l });
+        el.innerHTML = '<span class="msg-ok">' + (it.replace ? "Version " + j.version + " is live" : "Uploaded") + esc(where) + "</span>" + warnHTML(j.warnings);
+        next();
+      }, function (e) { el.innerHTML = '<span class="msg-bad">' + esc(e.message) + "</span>"; next(); });
+    }
+    function finish() {
+      filesCache = {};
+      var lessons = {};
+      done.forEach(function (d) { if (d.l) lessons[key(d.l)] = d.l; });
+      var ks = Object.keys(lessons);
+      $("packDone").innerHTML = '<div class="msg-ok" style="margin-top:6px">' + done.length + " of " + todo.length + " placed." + "</div>" +
+        (ks.length ? '<div class="row">' + ks.map(function (k) { var l = lessons[k]; return '<button class="btn small" data-open="' + esc(k) + '" type="button">Open ' + esc(classes[l.classId].name + ", " + l.day + " " + fmt(l.date)) + "</button>"; }).join("") + "</div>" : "");
+      Array.prototype.forEach.call($("packDone").querySelectorAll("[data-open]"), function (b) { b.addEventListener("click", function () { openLesson(b.dataset.open, false); }); });
+    }
+    next();
+  }
+  $("packBtn").addEventListener("click", openPack);
 
   function drawPrep(l) {
     var p = l.plan, box = $("prepList");

@@ -50,6 +50,13 @@ at `/files/<class-id>/<name>`. Files tagged `students` are public; `teacher` and
 need the teacher password. A new version keeps the same link. Prefer the repo for anything that
 needs code changes; uploads are for finished standalone pages and PDFs.
 
+The planner's **Import pack** takes a zip or several files and puts each in its lesson. Label files
+made for it: in an HTML `<head>`,
+`<meta name="learning-home" content="class=y7-enrichment; lesson=2026-10-20 P6; for=students; type=app; title=Angle hunt">`,
+or a `learning-home.json` in the zip: `{ "class": "...", "lesson": "...", "files": [ { "file": "x.pdf", "for": "print", "type": "sheet", "title": "..." } ] }`.
+Pictures, CSS and JS next to a page in the zip are folded into it. Same class and title as an
+existing upload means a new version. The planner's "Copy instructions for other chats" button gives the full text.
+
 ## Porting resources built on claude.ai
 Decks built on the Woodcroft Deck Kit and apps published as claude.ai artifacts use artifact
 runtime features (window.claude, the `db` and `downloads` capabilities, window.storage) that
