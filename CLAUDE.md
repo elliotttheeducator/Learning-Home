@@ -56,6 +56,9 @@ made for it: in an HTML `<head>`,
 or a `learning-home.json` in the zip: `{ "class": "...", "lesson": "...", "files": [ { "file": "x.pdf", "for": "print", "type": "sheet", "title": "..." } ] }`.
 Pictures, CSS and JS next to a page in the zip are folded into it. Same class and title as an
 existing upload means a new version. The planner's "Copy instructions for other chats" button gives the full text.
+The same rules live in the Claude skill `skills/learning-home-pack/SKILL.md`, which Elliott adds to his
+claude.ai account so every chat follows them. When classes, timetables, term dates or the label
+format change, update that skill (and tell Elliott to re-upload it) as well as the planner's copy text.
 
 ## Porting resources built on claude.ai
 Decks built on the Woodcroft Deck Kit and apps published as claude.ai artifacts use artifact
