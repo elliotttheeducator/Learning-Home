@@ -11,6 +11,11 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
 - `public/catalog.json` holds the classes, their timetable, bell times, term dates and each
   class's resource library. Lesson plans live in `src/plans/` (outlines) and D1 (planner edits).
 - A push to `main` deploys the site. Any other branch gets its own preview URL.
+- Students add a class by typing its class code (default format year + EH + subject + year, for
+  example 07EHMATH26) on the home page, or by opening `/join/<code>`. The browser keeps the list
+  in localStorage (`lh-classes`) and the class calendar API needs the code (`X-Class-Code` header)
+  unless the teacher is signed in. Codes live in D1 (`class_codes`, `src/codes.js`); Elliott can
+  change one in the planner's class panel. Files in `public/` are still open to anyone with the URL.
 - Students only see what Elliott publishes. Lessons are unpublished until he presses Publish in the
   teacher planner (`/teacher/`); until then students see only the time and room. So new files and
   outlines can go live on the site without students seeing them.

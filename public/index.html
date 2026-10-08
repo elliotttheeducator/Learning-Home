@@ -45,6 +45,26 @@
   .cls .nm { font-size: 22px; font-weight: 700; line-height: 1.2; }
   .cls .ct { font-size: 17px; opacity: .9; }
 
+  .join { background: var(--panel); border: 2px solid var(--line); border-radius: 22px; padding: 26px 28px; margin: 0 0 32px; max-width: 760px; }
+  .join h2 { font-size: 30px; margin: 0 0 6px; }
+  .join p { margin: 0 0 16px; color: var(--ink-soft); font-size: 22px; }
+  .join form { display: flex; gap: 12px; flex-wrap: wrap; }
+  .join input { flex: 1 1 280px; min-width: 0; font: 700 32px/1.2 var(--font); letter-spacing: .08em; text-transform: uppercase;
+    padding: 12px 18px; border: 3px solid var(--line); border-radius: 14px; color: var(--ink); background: #fff; }
+  .join input:focus { border-color: #3474F5; outline: none; }
+  .join button { font: 800 26px/1 var(--font); padding: 16px 28px; border: 0; border-radius: 14px; background: #3474F5; color: #fff; cursor: pointer; }
+  .join button:hover { filter: brightness(1.08); }
+  .join button:disabled { opacity: .6; cursor: wait; }
+  .join .err { color: #C2261D; font-weight: 700; font-size: 22px; margin: 12px 0 0; min-height: 1em; }
+  .join.small { padding: 18px 22px; margin: 36px 0 0; }
+  .join.small h2 { font-size: 24px; }
+  .join.small input { font-size: 26px; }
+  .join.small button { font-size: 22px; padding: 12px 22px; }
+  .tile { position: relative; }
+  .tile .rm { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: rgba(255,255,255,.25); color: #fff; font: 700 20px/1 var(--font); cursor: pointer; }
+  .tile .rm:hover { background: rgba(255,255,255,.45); }
+  .tile .cls { width: 100%; }
   .hint { font-size: 22px; color: var(--ink-soft); text-align: center; margin-top: 44px; }
   .again { display: inline-block; margin: 0 0 28px; font-size: 22px; font-weight: 700; text-decoration: none;
     padding: 10px 20px; border-radius: 999px; background: var(--c); color: #fff; }
@@ -62,40 +82,95 @@
 <body>
 <main class="wrap">
   <h1>Learning Home</h1>
-  <p class="lede">Pick your class to see your lessons, slides, apps and booklets.</p>
+  <p class="lede" id="lede">Your lessons, slides, apps and booklets.</p>
   <div id="again"></div>
-  <nav class="classes" id="classes" aria-label="Classes"></nav>
+  <nav class="classes" id="classes" aria-label="My classes"></nav>
+  <section class="join" id="join">
+    <h2 id="joinH">Add your class</h2>
+    <p id="joinP">Type the class code your teacher gave you. You only need to do it once on this computer.</p>
+    <form id="joinF" autocomplete="off">
+      <input id="code" name="code" placeholder="Class code" aria-label="Class code" maxlength="20" spellcheck="false" autocapitalize="characters">
+      <button id="joinB">Add class</button>
+    </form>
+    <div class="err" id="err" role="alert"></div>
+  </section>
 </main>
 <footer><a href="/teacher/">Teacher sign in</a></footer>
 
 <script>
 const DAY_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const KEY = "lh-classes";
 function yearOf(name) { const m = name.match(/Year\s*(\d+)/i); return m ? m[1] : ""; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function days(c) {
   const d = [...new Set((c.timetable || []).map(s => s.day))].sort((a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b));
   return d.length ? d.join(", ") : "";
 }
+// The classes this browser has joined: [{ id, code }]. Kept until the student removes one.
+function mine() {
+  try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v.filter(x => x && x.id && x.code) : []; } catch (e) { return []; }
+}
+function keep(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} }
+
+let catalog = null;
+function draw() {
+  const list = mine(), byId = Object.fromEntries((catalog ? catalog.classes : []).map(c => [c.id, c]));
+  const have = list.filter(x => byId[x.id]);
+  document.getElementById("classes").innerHTML = have.map(x => {
+    const c = byId[x.id];
+    return `<div class="tile"><a class="cls" style="--c:${esc(c.colour)}" href="/${esc(c.id)}">
+        <span class="yr">${esc(yearOf(c.name))}</span>
+        <span><span class="nm">${esc(c.name.replace(/^Year\s*\d+\s*/i, ""))}</span><br>
+        <span class="ct">${esc(days(c))}</span></span>
+      </a><button class="rm" data-rm="${esc(c.id)}" title="Remove this class from this computer" aria-label="Remove ${esc(c.name)}">&#10005;</button></div>`;
+  }).join("");
+  const join = document.getElementById("join");
+  join.classList.toggle("small", have.length > 0);
+  document.getElementById("joinH").textContent = have.length ? "Add another class" : "Add your class";
+  document.getElementById("lede").textContent = have.length ? "Pick your class to see your lessons, slides, apps and booklets." : "Your lessons, slides, apps and booklets.";
+  let last = "";
+  try { last = localStorage.getItem("lh-class") || ""; } catch (e) {}
+  const c = have.length > 1 && byId[last] && have.some(x => x.id === last) ? byId[last] : null;
+  document.getElementById("again").innerHTML = c ? `<a class="again" style="--c:${esc(c.colour)}" href="/${esc(c.id)}">Back to ${esc(c.name)} &#8594;</a>` : "";
+}
+
+function join(code) {
+  const err = document.getElementById("err"), b = document.getElementById("joinB");
+  code = String(code || "").trim();
+  if (!code) { err.textContent = "Type your class code first."; return; }
+  err.textContent = ""; b.disabled = true;
+  fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) })
+    .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || "That code did not work."); return j; }))
+    .then(j => {
+      const list = mine().filter(x => x.id !== j.id);
+      list.push({ id: j.id, code: j.code });
+      keep(list);
+      location.href = "/" + j.id;
+    })
+    .catch(e => { err.textContent = e.message; b.disabled = false; document.getElementById("code").focus(); });
+}
+
+document.getElementById("joinF").addEventListener("submit", e => { e.preventDefault(); join(document.getElementById("code").value); });
+document.getElementById("classes").addEventListener("click", e => {
+  const b = e.target.closest("[data-rm]"); if (!b) return;
+  const c = catalog.classes.find(x => x.id === b.dataset.rm);
+  if (!confirm("Remove " + (c ? c.name : "this class") + " from this computer? You will need the class code to add it again.")) return;
+  keep(mine().filter(x => x.id !== b.dataset.rm)); draw();
+});
 
 fetch("/catalog.json", { cache: "no-store" })
   .then(r => r.json())
   .then(data => {
-    document.getElementById("classes").innerHTML = data.classes.map(c => `
-      <a class="cls" style="--c:${esc(c.colour)}" href="/${esc(c.id)}">
-        <span class="yr">${esc(yearOf(c.name))}</span>
-        <span><span class="nm">${esc(c.name.replace(/^Year\s*\d+\s*/i, ""))}</span><br>
-        <span class="ct">${esc(days(c))}</span></span>
-      </a>`).join("");
+    catalog = data;
     // Old links used /#class-id. Send them to the class calendar.
     const old = data.classes.find(x => "#" + x.id === location.hash);
     if (old) { location.replace("/" + old.id); return; }
-    let last = "";
-    try { last = localStorage.getItem("lh-class") || ""; } catch (e) {}
-    const c = data.classes.find(x => x.id === last);
-    if (c) document.getElementById("again").innerHTML =
-      `<a class="again" style="--c:${esc(c.colour)}" href="/${esc(c.id)}">Back to ${esc(c.name)} &#8594;</a>`;
+    draw();
+    // A join link (/join/CODE or /?code=CODE) adds the class straight away.
+    const q = new URLSearchParams(location.search).get("code");
+    if (q) { document.getElementById("code").value = q; history.replaceState(null, "", "/"); join(q); }
   })
-  .catch(() => { document.getElementById("classes").outerHTML = '<p class="hint">The class list did not load. Refresh the page to try again.</p>'; });
+  .catch(() => { document.getElementById("classes").outerHTML = '<p class="hint">Learning Home did not load. Refresh the page to try again.</p>'; });
 </script>
 </body>
 </html>

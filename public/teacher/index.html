@@ -210,6 +210,18 @@
   .pk-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .pk-row select { width:auto; flex:1 1 160px; min-width:0; }
   .pk-act { font-size:12.5px; color:var(--muted); }
+  .codecard { display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:14px 16px; margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:var(--surface-2); }
+  .codecard > div:first-child { flex:1 1 260px; min-width:0; }
+  .cc-lab { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .cc-code { font-family:var(--mono); font-size:30px; font-weight:800; letter-spacing:.08em; overflow-wrap:anywhere; }
+  .cc-btns { display:flex; gap:6px; flex-wrap:wrap; }
+  .codeboard { position:fixed; inset:0; z-index:100; background:var(--cc); color:#fff; display:flex; align-items:center; justify-content:center; text-align:center; cursor:pointer; padding:24px; }
+  .cb-in { max-width:100%; }
+  .cb-cls { font-size:clamp(28px, 4vw, 56px); font-weight:800; }
+  .cb-say { font-size:clamp(22px, 2.6vw, 38px); margin-top:12px; }
+  .cb-code { font-family:var(--mono); font-weight:800; font-size:clamp(64px, 11vw, 190px); letter-spacing:.06em; background:#fff; color:#17233D; border-radius:28px; padding:.12em .4em; margin:28px auto; display:inline-block; max-width:100%; overflow-wrap:anywhere; }
+  .cb-hint { font-size:clamp(20px, 2vw, 30px); opacity:.95; }
+  .cb-x { position:absolute; top:18px; right:22px; width:52px; height:52px; border-radius:50%; border:0; background:rgba(255,255,255,.25); color:#fff; font-size:24px; cursor:pointer; }
   .warnbox { border:1px solid #F5C77E; background:#FFF4E5; color:#7A4A00; border-radius:10px; padding:8px 12px; font-size:12.5px; }
   .warnbox ul { margin:4px 0 0; padding-left:18px; }
   .frow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; padding:10px 12px; border:1px solid var(--line); border-left:5px solid var(--gc, var(--line)); border-radius:11px; background:var(--surface-2); }
@@ -629,7 +641,8 @@
       '<div class="dr-head"><div class="eyebrow">' + esc(c.code) + " · " + esc(tt) + "</div><h2>" + esc(c.name) + "</h2>" +
       '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a><button class="copy" data-copy="/' + esc(id) + '">Copy the calendar link</button></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
-      '<div class="dr-body"><div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
+      '<div class="dr-body"><div class="codecard" id="codeCard"><span class="hint">Loading the class code...</span></div><div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
+    drawCode(id);
     Array.prototype.forEach.call(drawer.querySelectorAll(".lesson-row"), function (b) {
       b.addEventListener("click", function (e) { if (e.target.closest("a")) return; openLesson(b.dataset.k, true); });
       b.addEventListener("keydown", function (e) { if (e.target === b && e.key === "Enter") openLesson(b.dataset.k, true); });
@@ -884,6 +897,42 @@
     });
   }
   $("filesBtn").addEventListener("click", openFiles);
+
+  // ---------- class codes ----------
+  // Students type the code once; their browser keeps it and shows only their classes.
+  var codes = null;
+  function getCodes(body) {
+    return fetch("/api/teacher/codes", body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "Could not load the codes"); codes = j.codes; return j.codes; }); });
+  }
+  function drawCode(id) {
+    var box = $("codeCard"); if (!box) return;
+    (codes ? Promise.resolve(codes) : getCodes()).then(function (cs) {
+      var code = cs[id] || "", link = "/join/" + code;
+      box.innerHTML = '<div><div class="cc-lab">Class code</div><div class="cc-code">' + esc(code) + "</div>" +
+        '<div class="hint">Students type it on the Learning Home page once, or open the join link. Only students with the code see this class.</div></div>' +
+        '<div class="cc-btns"><button class="btn primary" id="ccShow" type="button">Show on the board</button>' +
+        '<button class="btn" data-copy="' + esc(link) + '" type="button">Copy join link</button>' +
+        '<button class="btn quiet" id="ccEdit" type="button">Change code</button></div>';
+      $("ccShow").addEventListener("click", function () { showCode(id, code); });
+      $("ccEdit").addEventListener("click", function () {
+        var v = prompt("New code for " + classes[id].name + ". Students who already added the class will be asked for the new one.", code);
+        if (v == null || !v.trim() || v.trim().toUpperCase() === code) return;
+        getCodes({ classId: id, code: v }).then(function () { toast("Code changed"); drawCode(id); }, function (e) { toast(e.message); });
+      });
+    }, function (e) { box.innerHTML = '<span class="msg-bad">' + esc(e.message) + "</span>"; });
+  }
+  function showCode(id, code) {
+    var c = classes[id], o = document.createElement("div");
+    o.className = "codeboard"; o.style.setProperty("--cc", c.colour);
+    o.innerHTML = '<div class="cb-in"><div class="cb-cls">' + esc(c.name) + '</div><div class="cb-say">Go to <b>' + esc(location.host) + "</b> and type the class code</div>" +
+      '<div class="cb-code">' + esc(code) + '</div><div class="cb-hint">You only need to do this once on your computer.</div></div>' +
+      '<button class="cb-x" aria-label="Close">&#10005;</button>';
+    function close() { o.remove(); removeEventListener("keydown", esc2); }
+    function esc2(e) { if (e.key === "Escape") close(); }
+    o.addEventListener("click", close); addEventListener("keydown", esc2);
+    document.body.appendChild(o);
+  }
 
   // ---------- import a pack ----------
   // Drop a zip or a handful of files made in any chat. Each file says where it goes with a label:
