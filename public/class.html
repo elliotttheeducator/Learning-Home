@@ -97,6 +97,41 @@
   .les .tag { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; color: #fff; background: #E0457B;
     padding: 1px 8px; border-radius: 999px; }
 
+  .tabs { display: flex; gap: 8px; margin: 0 0 20px; flex-wrap: wrap; }
+  .tabs button { all: unset; cursor: pointer; font-size: 22px; font-weight: 700; padding: 10px 22px; border-radius: 999px;
+    background: var(--panel); border: 2px solid var(--line); color: var(--ink); }
+  .tabs button:hover { border-color: var(--c); }
+  .tabs button.on { background: var(--c); border-color: var(--c); color: #fff; }
+  .tabs button:focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+  .objs { background: var(--panel); border-radius: 24px; padding: 28px 32px 32px; border-top: 12px solid var(--c); box-shadow: 0 2px 0 var(--line); }
+  .obj-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 8px; }
+  .obj-head h2 { font-size: clamp(32px, 3.4vw, 44px); margin: 0 0 4px; }
+  .obj-head p { margin: 0; color: var(--ink-soft); font-size: 21px; }
+  .obj-head input { font: 500 22px var(--font); padding: 10px 16px; border: 2px solid var(--line); border-radius: 12px; min-width: 0; width: 320px; max-width: 100%; }
+  .obj-head input:focus { border-color: var(--c); outline: none; }
+  .ounit { margin-top: 26px; }
+  .ounit h3 { font-size: 20px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin: 0 0 10px; }
+  .olist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .oi { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; padding: 14px 18px;
+    border-radius: 16px; background: color-mix(in srgb, var(--c) 7%, #fff); border-left: 6px solid var(--c); }
+  .oi .on { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--c); color: #fff; font-weight: 800; font-size: 22px;
+    display: flex; align-items: center; justify-content: center; }
+  .oi.todo { background: #F6F8FB; border-left-color: var(--line); }
+  .oi.todo .on { background: #B7C2D4; }
+  .notyet { font-size: 18px; color: var(--ink-soft); font-style: italic; }
+  .ounit h3 .prog { margin-left: 12px; text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--live); }
+  .obj-sub { font-size: 30px; margin: 36px 0 0; }
+  .ot { font-size: 26px; font-weight: 600; line-height: 1.3; flex: 1 1 340px; min-width: 0; }
+  .ols { display: flex; flex-wrap: wrap; gap: 8px; }
+  .olink { all: unset; cursor: pointer; display: inline-flex; flex-direction: column; padding: 8px 14px; border-radius: 12px; background: #fff;
+    border: 2px solid var(--line); font-size: 18px; line-height: 1.25; max-width: 260px; }
+  .olink:hover { border-color: var(--c); }
+  .olink:focus-visible { outline: 4px solid var(--focus); outline-offset: 2px; }
+  .olink b { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--live); }
+  .olink.future b { color: var(--ink-soft); }
+  .olink .olt { font-size: 15px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #toObj { float: left; margin-right: 12px; }
+  @media (max-width: 760px) { .objs { padding: 22px 18px; } .ot { font-size: 22px; } .tabs button { font-size: 19px; padding: 8px 16px; } }
   .msg { font-size: 24px; text-align: center; color: var(--ink-soft); padding: 60px 0; }
 
   @media (max-width: 1000px) {
@@ -153,6 +188,8 @@
   if (!classId || classId === "class" || classId === "class.html") classId = new URLSearchParams(location.search).get("c") || "";
 
   var data = null, selected = null, loadedAt = 0;
+  // Two views: the calendar, and every learning objective so far with links to the lessons that taught it.
+  var view = location.hash === "#objectives" ? "obj" : "cal", fromObj = false;
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -222,7 +259,7 @@
       : why === "picked" ? (state(f, n) === "past" ? "Past lesson" : "Coming up")
       : f.date === n.date ? "Next lesson, today" : "Next lesson";
     var topic = p.published ? (p.topic || "Lesson") : "Lesson";
-    var back = selected ? '<button class="to-now" id="toNow">Back to now</button>' : "";
+    var back = selected ? (fromObj ? '<button class="to-now" id="toObj">&#8592; Back to learning objectives</button>' : "") + '<button class="to-now" id="toNow">Back to now</button>' : "";
 
     var left = "";
     if (!p.published) left = '<p class="muted">' + esc(data.teacher) + ' will post the details for this lesson soon.</p>';
@@ -277,19 +314,101 @@
     return html;
   }
 
+  // Every objective from the lessons posted so far, grouped by unit, each linked to the lessons it came up in.
+  function objectivesHTML(n) {
+    var units = [], byUnit = {};
+    data.lessons.forEach(function (l) {
+      var p = l.plan || {};
+      if (!p.published || !(p.objectives || []).length) return;
+      var u = p.unit || "Other lessons";
+      if (!byUnit[u]) { byUnit[u] = { name: u, items: [], byText: {} }; units.push(byUnit[u]); }
+      p.objectives.forEach(function (o) {
+        var t = String(o).trim(), k = t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        if (!k) return;
+        var it = byUnit[u].byText[k];
+        if (!it) { it = byUnit[u].byText[k] = { text: t, lessons: [] }; byUnit[u].items.push(it); }
+        if (it.lessons.indexOf(l) < 0) it.lessons.push(l);
+      });
+    });
+    var total = units.reduce(function (a, u) { return a + u.items.length; }, 0);
+    // The class's unit objectives (from the course outline), each linked to the posted lessons that teach it.
+    var course = (data.class.units || []).filter(function (u) { return (u.objectives || []).length; });
+    function chip(l) {
+      var st = state(l, n), word = st === "past" ? "Taught" : st === "live" ? "On now" : "Coming up";
+      return '<button class="olink ' + st + '" data-k="' + esc(key(l)) + '"><b>' + esc(word) + "</b> " + esc(DAY_FULL[l.day].slice(0, 3) + " " + shortDate(l.date)) +
+        (l.plan.topic ? '<span class="olt">' + esc(l.plan.topic) + "</span>" : "") + "</button>";
+    }
+    var courseHTML = course.map(function (u) {
+      var taught = 0;
+      var rows = u.objectives.map(function (o, i) {
+        var id = u.id + "-" + (i + 1);
+        var ls = data.lessons.filter(function (l) { return l.plan && l.plan.published && (l.plan.covers || []).indexOf(id) >= 0; });
+        if (ls.some(function (l) { return state(l, n) !== "future"; })) taught++;
+        return '<li class="oi' + (ls.length ? "" : " todo") + '" data-t="' + esc(String(o).toLowerCase()) + '"><span class="on">' + (i + 1) + '</span><span class="ot">' + esc(o) + '</span><span class="ols">' +
+          (ls.length ? ls.map(chip).join("") : '<span class="notyet">Not taught yet</span>') + "</span></li>";
+      }).join("");
+      return '<div class="ounit"><h3>' + esc(u.name) + '<span class="prog">' + taught + " of " + u.objectives.length + " taught</span></h3><ul class=\"olist\">" + rows + "</ul></div>";
+    }).join("");
+    total += course.reduce(function (a, u) { return a + u.objectives.length; }, 0);
+    var h = '<section class="objs"><div class="obj-head"><div><h2>Learning objectives</h2><p>Everything we have learnt so far. Click a lesson to open its slides, apps and booklets again.</p></div>' +
+      (total > 6 ? '<input type="search" id="objFind" placeholder="Find an objective" aria-label="Find an objective">' : "") + "</div>";
+    if (!total) return h + '<p class="msg">Learning objectives appear here as ' + esc(data.teacher) + " posts lessons.</p></section>";
+    h += courseHTML;
+    if (course.length && units.length) h += '<h2 class="obj-sub">Lesson by lesson</h2>';
+    units.forEach(function (u) {
+      h += '<div class="ounit"><h3>' + esc(u.name) + '</h3><ul class="olist">' + u.items.map(function (it) {
+        return '<li class="oi" data-t="' + esc(it.text.toLowerCase()) + '"><span class="ot">' + esc(it.text) + '</span><span class="ols">' +
+          it.lessons.map(chip).join("") + "</span></li>";
+      }).join("") + "</ul></div>";
+    });
+    return h + '<p class="msg" id="objNone" hidden>No objective matches that.</p></section>';
+  }
+
+  function tabsHTML() {
+    return '<nav class="tabs" aria-label="View"><button data-view="cal"' + (view === "cal" ? ' class="on" aria-current="page"' : "") + ">Calendar</button>" +
+      '<button data-view="obj"' + (view === "obj" ? ' class="on" aria-current="page"' : "") + ">Learning objectives</button></nav>";
+  }
+
   var lastDraw = "";
   function render(force) {
     var n = now();
     tickClock();
-    var sig = n.date + n.hm + selected + loadedAt;
+    if (view === "obj" && !force) return; // keep the search box and scroll position while reading
+    var sig = n.date + n.hm + selected + loadedAt + view;
     if (!force && sig === lastDraw) return;
     lastDraw = sig;
     var y = scrollY;
-    document.getElementById("main").innerHTML = heroHTML(n) + calendarHTML(n);
+    document.getElementById("main").innerHTML = tabsHTML() + (view === "obj" ? objectivesHTML(n) : heroHTML(n) + calendarHTML(n));
     scrollTo(0, y);
   }
+  function setView(v) {
+    view = v;
+    history.replaceState(null, "", location.pathname + location.search + (v === "obj" ? "#objectives" : ""));
+    render(true); scrollTo(0, 0);
+  }
 
+  document.getElementById("main").addEventListener("input", function (e) {
+    if (e.target.id !== "objFind") return;
+    var q = e.target.value.trim().toLowerCase(), any = false;
+    Array.prototype.forEach.call(document.querySelectorAll(".oi"), function (li) {
+      var hit = !q || li.dataset.t.indexOf(q) >= 0 || li.textContent.toLowerCase().indexOf(q) >= 0;
+      li.hidden = !hit; if (hit) any = true;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".ounit"), function (u) { u.hidden = !u.querySelector(".oi:not([hidden])"); });
+    document.getElementById("objNone").hidden = any;
+  });
   document.getElementById("main").addEventListener("click", function (e) {
+    var tb = e.target.closest("[data-view]");
+    if (tb) { fromObj = false; setView(tb.dataset.view); return; }
+    var ol = e.target.closest(".olink");
+    if (ol) {
+      selected = ol.dataset.k; fromObj = true; view = "cal";
+      history.replaceState(null, "", location.pathname + location.search);
+      render(true);
+      document.querySelector(".hero").scrollIntoView({ behavior: "auto" });
+      return;
+    }
+    if (e.target.closest("#toObj")) { selected = null; fromObj = false; setView("obj"); return; }
     var b = e.target.closest(".les");
     if (b) {
       selected = b.dataset.k;
@@ -297,7 +416,7 @@
       document.querySelector(".hero").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
       return;
     }
-    if (e.target.closest("#toNow")) { selected = null; render(true); }
+    if (e.target.closest("#toNow")) { selected = null; fromObj = false; render(true); }
   });
 
   function load(first) {

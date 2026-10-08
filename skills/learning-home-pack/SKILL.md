@@ -48,6 +48,7 @@ If you don't know the class or lesson, ask Elliott once rather than guessing.
   "assess": "",
   "notes": "Timings: 10 min warm up, 25 min walkthrough, 30 min practice, 10 min exit ticket. Watch for students adding to 360 instead of 180.",
   "prep": ["Set up the mini whiteboards"],
+  "covers": [3, 4],
   "files": [
     { "file": "angle-hunt.html", "for": "students", "type": "app", "title": "Angle hunt" },
     { "file": "angles-deck.html", "for": "teacher", "type": "deck", "title": "Angles slides" },
@@ -62,6 +63,10 @@ If you don't know the class or lesson, ask Elliott once rather than guessing.
   "We will"), `bring`, `studentNote`, `assess` (for example "Quiz" or "Investigation due"), and the
   teacher-only `notes` and `prep` (a checklist). Students see topic, objectives, bring, note and
   assessment once Elliott publishes; notes and prep never reach them.
+- **Unit objectives**: some classes have a numbered unit objectives list (Elliott pastes it, or it
+  is in the planner). Add `"covers": [3, 4]` with the numbers of the objectives the lesson teaches,
+  so students can jump from each objective on their Learning objectives page to this lesson. For
+  several units, name the lesson's `unit` so the numbers match it.
 - **Printing**: every file with `"for": "print"` is added to the lesson's prep list automatically.
   Give `copies` (class size if you don't know: about 28) and `paper` (A4 or A3, single or
   double-sided, colour if it matters). Anything else to print or set up goes in `prep`.

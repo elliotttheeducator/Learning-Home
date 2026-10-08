@@ -154,7 +154,7 @@ function calendarBase() {
 }
 
 function publicClass(c) {
-  return { id: c.id, name: c.name, code: c.code, colour: c.colour, timetable: c.timetable, resources: c.resources || [] };
+  return { id: c.id, name: c.name, code: c.code, colour: c.colour, timetable: c.timetable, resources: c.resources || [], units: c.units || [] };
 }
 
 function addDays(isoDate, n) {
@@ -252,6 +252,8 @@ function clean(p) {
     unit: str(p.unit, 200),
     topic: str(p.topic, 300),
     objectives: strList(p.objectives),
+    // Unit objectives (ids like "genetics-3", from the class's units in catalog.json) this lesson teaches.
+    covers: strList(p.covers, 60),
     bring: strList(p.bring, 100),
     resources: (Array.isArray(p.resources) ? p.resources : []).slice(0, 30).map(r => ({
       title: str(r && r.title, 200), url: str(r && r.url, 1000), type: str(r && r.type, 20),
@@ -272,7 +274,7 @@ function forStudents(p) {
   const c = clean(p);
   if (!c.published) return { published: false };
   return {
-    published: true, unit: c.unit, topic: c.topic, objectives: c.objectives, bring: c.bring, studentNote: c.studentNote,
+    published: true, unit: c.unit, topic: c.topic, objectives: c.objectives, covers: c.covers, bring: c.bring, studentNote: c.studentNote,
     assess: c.assess,
     // Only resources tagged for students go out. Teacher versions and printouts never do.
     resources: c.resources.filter(r => audience(r) === "students")

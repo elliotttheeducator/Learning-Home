@@ -48,7 +48,29 @@
         { "day": "Tue", "periods": ["P2"],       "room": "39" },
         { "day": "Thu", "periods": ["P6", "P7"], "room": "7" }
       ],
-      "resources": [] },
+      "resources": [],
+      "units": [
+        { "id": "genetics", "name": "Biology (Genetics & Evolution)",
+          "objectives": [
+            "Be able to define the following terms: gene, allele, dominant, recessive, genotype, phenotype, homozygous, heterozygous.",
+            "Be able to use a Punnett square to determine the genotype and phenotype of traits.",
+            "Understand that an individual can be a carrier of a recessive disease, and that a sufferer must be homozygous recessive for it.",
+            "Be able to complete a Punnett square to predict the probability of a recessive disease.",
+            "Know that a mutation is a permanent change to a DNA sequence, and that it can change the proteins produced by transcription and translation.",
+            "Know that a mutation can change an organism's genotype, and therefore its phenotype.",
+            "Recognise that pedigree charts are used to trace a family history of showing or carrying certain traits, and to work out how likely offspring are to show or carry them.",
+            "Be able to interpret pedigree charts for autosomal dominant and autosomal recessive traits.",
+            "Be able to identify carriers in a pedigree chart.",
+            "Understand the difference between a genetic and an acquired trait.",
+            "Be able to explain how a new variant of a genetic trait can arise in a population.",
+            "Define evolution and explain why variation is needed for evolution to occur.",
+            "Define natural selection and give examples of selection pressures and how they may affect a population.",
+            "Be able to explain how species evolve adaptations through natural selection.",
+            "Be able to tell the difference between behavioural, physiological and structural adaptations.",
+            "Be able to describe the main types of evidence that support the theory of evolution.",
+            "Define species and be able to summarise the process of speciation."
+          ] }
+      ] },
     { "id": "y10-ess-maths", "name": "Year 10 Essential Maths", "code": "10EssMt2A",    "colour": "#7B55E0",
       "timetable": [
         { "day": "Mon", "periods": ["P6", "P7"], "room": "31" },

@@ -20,6 +20,11 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
   teacher planner (`/teacher/`); until then students see only the time and room. So new files and
   outlines can go live on the site without students seeing them.
 
+- Unit objectives: a class in `catalog.json` can have `units: [{ id, name, objectives: [...] }]`. Lessons
+  tick the ones they teach (`covers: ["genetics-3"]` in the plan, ticked in the planner or set by an
+  Import pack). Students see every unit objective on their class's Learning objectives view
+  (`/<class-id>#objectives`), each linked to the published lessons that cover it.
+
 ## Workflow (always)
 1. Work on a new branch, never directly on `main`.
 2. Push the branch and open a pull request. Cloudflare posts the preview URL on the PR.

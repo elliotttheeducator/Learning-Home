@@ -236,6 +236,20 @@
   .frow .fb { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
   .icon-btn { border:0; background:none; cursor:pointer; color:var(--muted); font-size:16px; }
   .icon-btn:hover { color:var(--warn); }
+  .coverage { border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:14px; background:var(--surface-2); }
+  .coverage summary { cursor:pointer; font-weight:700; font-size:14px; }
+  .coverage summary small { font-weight:500; color:var(--muted); margin-left:6px; }
+  .cv-row { display:grid; grid-template-columns:22px 1fr auto; gap:8px; align-items:start; font-size:13px; line-height:1.4; padding:6px 0; border-top:1px solid var(--line); }
+  .cv-row.gap .cv-ls { color:#B54708; font-weight:600; }
+  .cv-ls { display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; font-size:12px; }
+  .covers { border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--surface-2); margin:-4px 0 14px; }
+  .covers summary { cursor:pointer; font-weight:700; font-size:13.5px; }
+  .covers summary small { font-weight:500; color:var(--muted); margin-left:6px; }
+  .cov-u { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:10px 0 4px; }
+  .cov { display:flex; gap:8px; align-items:flex-start; font-size:13px; line-height:1.4; padding:4px 6px; border-radius:8px; }
+  .cov input { margin-top:3px; flex:none; }
+  .cov.on { background:var(--accent-soft); }
+  .cov small { display:block; color:var(--muted); font-size:11.5px; }
   .chk { display:flex; align-items:center; gap:9px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:6px 8px 6px 10px; }
   .chk input[type=text] { border:0; background:none; padding:2px 0; }
   .chk.done input[type=text] { color:var(--muted); text-decoration:line-through; }
@@ -644,10 +658,11 @@
     var tt = (c.timetable || []).map(function (s) { return s.day + " " + s.periods.map(function (p) { return p.slice(1); }).join("/"); }).join(", ");
     openDrawer(c.colour,
       '<div class="dr-head"><div class="eyebrow">' + esc(c.code) + " · " + esc(tt) + "</div><h2>" + esc(c.name) + "</h2>" +
-      '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a><button class="copy" data-copy="/' + esc(id) + '">Copy the calendar link</button></div>' +
+      '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a><button class="copy" data-copy="/' + esc(id) + '">Copy the calendar link</button><a href="/' + esc(id) + '#objectives" target="_blank" rel="noopener">Learning objectives</a></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
-      '<div class="dr-body"><div class="codecard" id="codeCard"><span class="hint">Loading the class code...</span></div><div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
+      '<div class="dr-body"><div class="codecard" id="codeCard"><span class="hint">Loading the class code...</span></div>' + coverageHTML(c) + '<div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
     drawCode(id);
+    Array.prototype.forEach.call(drawer.querySelectorAll("[data-lesson]"), function (b) { b.addEventListener("click", function () { openLesson(b.dataset.lesson, true); }); });
     Array.prototype.forEach.call(drawer.querySelectorAll(".lesson-row"), function (b) {
       b.addEventListener("click", function (e) { if (e.target.closest("a")) return; openLesson(b.dataset.k, true); });
       b.addEventListener("keydown", function (e) { if (e.target === b && e.key === "Enter") openLesson(b.dataset.k, true); });
@@ -692,6 +707,7 @@
       field("Topic", '<input type="text" id="f-topic" value="' + esc(p.topic) + '" placeholder="What the lesson is about">') +
       field("Unit", '<input type="text" id="f-unit" value="' + esc(p.unit) + '" placeholder="Topic 9: Geometry">') +
       field("We will (one per line)", '<textarea id="f-obj" rows="4">' + esc(p.objectives.join("\n")) + "</textarea>") +
+      coversHTML(c, p) +
       field("Bring (one per line)", '<textarea id="f-bring" rows="3">' + esc(p.bring.join("\n")) + "</textarea>") +
       field("Note for students", '<textarea id="f-snote" rows="2" placeholder="Optional, for example: homework, or where to start">' + esc(p.studentNote) + "</textarea>") +
       field("Assessment tag", '<input type="text" id="f-assess" value="' + esc(p.assess) + '" placeholder="Leave blank, or Test, Investigation due...">') +
@@ -712,6 +728,13 @@
     bindText("f-topic", function (v) { p.topic = v; });
     bindText("f-unit", function (v) { p.unit = v; });
     bindText("f-obj", function (v) { p.objectives = lines(v); });
+    Array.prototype.forEach.call(drawer.querySelectorAll("[data-cov]"), function (b) {
+      b.addEventListener("change", function () {
+        var id = b.dataset.cov; p.covers = (p.covers || []).filter(function (x) { return x !== id; });
+        if (b.checked) p.covers.push(id);
+        b.closest(".cov").classList.toggle("on", b.checked); changed(l);
+      });
+    });
     bindText("f-bring", function (v) { p.bring = lines(v); });
     bindText("f-snote", function (v) { p.studentNote = v; });
     bindText("f-assess", function (v) { p.assess = v; });
@@ -773,6 +796,37 @@
       p.prep.push({ t: "", d: false }); drawPrep(l);
       var ins = drawer.querySelectorAll("#prepList input[type=text]"); if (ins.length) ins[ins.length - 1].focus();
     });
+  }
+
+  // Unit objectives from the class's course outline (catalog.json). Ticking one links this lesson to it
+  // on the students' Learning objectives page.
+  // Which unit objectives have a lesson yet, so gaps show up while planning.
+  function coverageHTML(c) {
+    var units = (c.units || []).filter(function (u) { return (u.objectives || []).length; });
+    return units.map(function (u) {
+      var rows = u.objectives.map(function (o, i) {
+        var id = u.id + "-" + (i + 1);
+        var ls = D.lessons.filter(function (x) { return x.classId === c.id && (x.plan.covers || []).indexOf(id) >= 0; });
+        return '<div class="cv-row' + (ls.length ? "" : " gap") + '"><b>' + (i + 1) + ".</b><span>" + esc(o) + "</span><span class=\"cv-ls\">" +
+          (ls.length ? ls.map(function (x) { return '<button class="btn small" data-lesson="' + esc(key(x)) + '">' + esc(x.day + " " + fmt(x.date)) + "</button>"; }).join("") : "No lesson yet") + "</span></div>";
+      }).join("");
+      var done = u.objectives.filter(function (o, i) { var id = u.id + "-" + (i + 1); return D.lessons.some(function (x) { return x.classId === c.id && (x.plan.covers || []).indexOf(id) >= 0; }); }).length;
+      return '<details class="coverage"><summary>' + esc(u.name) + " <small>" + done + " of " + u.objectives.length + " objectives have a lesson</small></summary>" + rows + "</details>";
+    }).join("");
+  }
+  function coversHTML(c, p) {
+    var units = (c.units || []).filter(function (u) { return (u.objectives || []).length; });
+    if (!units.length) return "";
+    var cov = p.covers || [], n = cov.length;
+    return '<details class="covers"' + (n ? "" : "") + '><summary>Unit objectives this lesson teaches <small>' + (n ? n + " ticked" : "none ticked yet") + "</small></summary>" +
+      units.map(function (u) {
+        return '<div class="cov-u">' + esc(u.name) + "</div>" + u.objectives.map(function (o, i) {
+          var id = u.id + "-" + (i + 1), on = cov.indexOf(id) >= 0;
+          var other = D.lessons.filter(function (x) { return x.classId === c.id && x.plan !== p && (x.plan.covers || []).indexOf(id) >= 0; });
+          return '<label class="cov' + (on ? " on" : "") + '"><input type="checkbox" data-cov="' + esc(id) + '"' + (on ? " checked" : "") + "><span><b>" + (i + 1) + ".</b> " + esc(o) +
+            (other.length ? '<small>Also: ' + esc(other.map(function (x) { return x.day + " " + fmt(x.date); }).join(", ")) + "</small>" : "") + "</span></label>";
+        }).join("");
+      }).join("") + "</details>";
   }
 
   function field(label, control) { return '<div class="field"><label>' + esc(label) + "</label>" + control + "</div>"; }
@@ -1159,11 +1213,26 @@
   // Lesson plan details in learning-home.json: at the top for the pack's lesson, or in "lessons" for several.
   var PLAN_FIELDS = [
     ["topic", "Topic", "set"], ["unit", "Unit", "set"], ["objectives", "We will", "list"], ["bring", "Bring", "add"],
-    ["studentNote", "Note for students", "set"], ["assess", "Assessment tag", "set"], ["notes", "Teacher notes", "append"], ["prep", "Prep", "add"]
+    ["studentNote", "Note for students", "set"], ["assess", "Assessment tag", "set"], ["notes", "Teacher notes", "append"], ["prep", "Prep", "add"], ["covers", "Unit objectives", "add"]
   ];
   var PLAN_ALIASES = { topic: "topic", title: "", unit: "unit", objectives: "objectives", "we will": "objectives", learningintentions: "objectives", intentions: "objectives",
     bring: "bring", studentnote: "studentNote", note: "studentNote", assess: "assess", assessment: "assess", notes: "notes", teachernotes: "notes",
-    prep: "prep", toprint: "prep", successcriteria: "notes" };
+    prep: "prep", toprint: "prep", successcriteria: "notes", covers: "covers", unitobjectives: "covers" };
+  // "covers": [3, 4] or ["genetics-3"]. Numbers count within the lesson's unit (matched by name), else the class's first unit.
+  function resolveCovers(classId, list, unitName) {
+    var units = ((classes[classId] || {}).units || []).filter(function (u) { return (u.objectives || []).length; });
+    if (!units.length) return [];
+    var u = units.filter(function (x) { return unitName && (x.name.toLowerCase().indexOf(String(unitName).toLowerCase()) >= 0 || String(unitName).toLowerCase().indexOf(x.name.toLowerCase()) >= 0); })[0] || units[0];
+    return list.map(function (v) {
+      v = String(v).trim();
+      if (/^\d+$/.test(v)) return +v >= 1 && +v <= u.objectives.length ? u.id + "-" + (+v) : "";
+      return units.some(function (x) { var m = v.match(/^(.+)-(\d+)$/); return m && m[1] === x.id && +m[2] >= 1 && +m[2] <= x.objectives.length; }) ? v : "";
+    }).filter(Boolean);
+  }
+  function coverText(classId, id) {
+    var m = id.match(/^(.+)-(\d+)$/), u = ((classes[classId] || {}).units || []).filter(function (x) { return m && x.id === m[1]; })[0];
+    return u ? m[2] + ". " + u.objectives[+m[2] - 1] : id;
+  }
   function asList(v) { return (Array.isArray(v) ? v : String(v == null ? "" : v).split("\n")).map(function (x) { return String(x).trim(); }).filter(Boolean).slice(0, 30); }
   function readPlans(m, defaults) {
     var entries = Array.isArray(m.lessons) ? m.lessons.slice() : [];
@@ -1184,15 +1253,17 @@
       if (!any) return;
       var cls = findClass(lc["class"] || lc.classid || (idx ? defaults["class"] : "") || defaults["class"]);
       var wanted = String(lc.lesson || lc.date || (idx ? "" : defaults.lesson) || "");
+      var raw = f.covers;
+      if (raw) { f.covers = resolveCovers(cls, raw, f.unit); if (!f.covers.length) delete f.covers; }
       var on = {}; Object.keys(f).forEach(function (k) { on[k] = true; });
-      out.push({ classId: cls, lessonKey: findLesson2(cls, wanted), wanted: wanted, fields: f, on: on });
+      out.push({ classId: cls, lessonKey: findLesson2(cls, wanted), wanted: wanted, fields: f, on: on, rawCovers: raw });
     });
     return out;
   }
   function planPreview(pl, fk) {
     var v = pl.fields[fk], kind = PLAN_FIELDS.filter(function (x) { return x[0] === fk; })[0][2];
     var l = pl.lessonKey && findLesson(pl.lessonKey), old = l ? l.plan[fk] : null;
-    var shown = Array.isArray(v) ? v.join(" · ") : v;
+    var shown = fk === "covers" ? v.map(function (id) { return coverText(pl.classId, id); }).join(" · ") : Array.isArray(v) ? v.join(" · ") : v;
     var extra = "";
     if (kind === "add") extra = "added to the list";
     else if (kind === "append") extra = old ? "added to your notes" : "";
@@ -1209,6 +1280,7 @@
       else if (x[2] === "append") { if ((p.notes || "").indexOf(v) < 0) p.notes = p.notes ? p.notes + "\n\n" + v : v; }
       else if (k === "bring") v.forEach(function (t) { if (p.bring.indexOf(t) < 0) p.bring.push(t); });
       else if (k === "prep") v.forEach(function (t) { addPrep(p, t); });
+      else if (k === "covers") { p.covers = p.covers || []; v.forEach(function (t) { if (p.covers.indexOf(t) < 0) p.covers.push(t); }); }
     });
     changed(l);
     return l;
@@ -1254,6 +1326,7 @@
       "}",
       "Anything at the top (class, lesson) applies to every file unless the file says otherwise.",
       "topic, unit, objectives (shown to students as \"We will\"), bring, studentNote and assess (for example \"Quiz\") fill in the lesson plan. notes and prep are teacher only.",
+      "If the class has a unit objectives list, add \"covers\": [3, 4] with the numbers of the unit objectives the lesson teaches. Students can then jump from each objective to this lesson.",
       "Every file for print is added to the prep list (with copies and paper if given), so say how many copies are needed.",
       "For several lessons in one zip, add \"lessons\": [ { \"lesson\": \"2026-10-22\", \"topic\": \"...\", \"objectives\": [...] }, ... ] and give each file its own \"lesson\".",
       "Never include anything that publishes a lesson: the teacher publishes it.",
@@ -1353,7 +1426,10 @@
       Array.prototype.forEach.call(row.querySelectorAll("[data-pf]"), function (el) {
         el.addEventListener("change", function () {
           pl[el.dataset.pf] = el.value;
-          if (el.dataset.pf === "classId") pl.lessonKey = findLesson2(pl.classId, pl.wanted);
+          if (el.dataset.pf === "classId") {
+            pl.lessonKey = findLesson2(pl.classId, pl.wanted);
+            if (pl.rawCovers) { var cv = resolveCovers(pl.classId, pl.rawCovers, pl.fields.unit); if (cv.length) { pl.fields.covers = cv; pl.on.covers = true; } else delete pl.fields.covers; }
+          }
           drawPack();
         });
       });
