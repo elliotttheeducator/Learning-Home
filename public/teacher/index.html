@@ -381,6 +381,7 @@
   function t12(hm) { var h = +hm.slice(0, 2); return (h % 12 || 12) + ":" + hm.slice(3); }
   function t12ap(hm) { var h = +hm.slice(0, 2); return t12(hm) + (h < 12 ? " am" : " pm"); }
   function key(l) { return l.classId + "|" + l.date + "|" + l.slot; }
+  function topicOr(p) { return p.topic || ((p.resources || []).length ? "No topic yet (" + p.resources.length + " resource" + (p.resources.length === 1 ? "" : "s") + ")" : "Nothing planned yet"); }
   function lines(v) { return v.split("\n").map(function (x) { return x.trim(); }).filter(Boolean); }
   function okUrl(u) { return !u || /^https:\/\//i.test(u) || /^\/(?!\/)/.test(u); }
 
@@ -509,7 +510,7 @@
       if (!groups) groups = '<p class="empty-res">No slides, apps or printouts on this lesson yet. Open the plan to add them.</p>';
       hero = '<div class="hero" style="--c:' + esc(c.colour) + '">' +
         '<span class="state' + (why === "live" ? " live" : "") + '">' + esc(label) + "</span>" +
-        '<div><div class="cls">' + esc(c.name) + "</div><h2>" + esc(p.topic || "Nothing planned yet") + "</h2></div>" +
+        '<div><div class="cls">' + esc(c.name) + "</div><h2>" + esc(topicOr(p)) + "</h2></div>" +
         '<div class="meta">' + esc(["Period" + (l.periods.length > 1 ? "s " : " ") + l.periods.map(function (x) { return x.slice(1); }).join(" and "),
           t12ap(l.start) + " to " + t12ap(l.end), l.room ? "Room " + l.room : "", p.unit].filter(Boolean).join(" · ")) + "</div>" +
         '<div class="groups">' + groups + "</div>" +
@@ -527,7 +528,7 @@
       return '<div class="dl' + (padLesson && key(x) === key(padLesson) ? " sel" : "") + (st === "past" ? " done" : "") + '" style="--c:' + esc(c.colour) + '" data-focus="' + esc(key(x)) + '" tabindex="0" role="button">' +
         '<span class="tm">' + esc(t12(x.start)) + "<br>P" + x.periods.map(function (q) { return q.slice(1); }).join("-") + "</span>" +
         '<span style="min-width:0"><span class="tt" style="display:block">' + esc(c.name) + (st === "live" ? ' <span class="pill now" style="--c:' + esc(c.colour) + '">NOW</span>' : "") + "</span>" +
-        '<span class="tp" style="display:block">' + esc(p.topic || "Nothing planned yet") + "</span></span>" +
+        '<span class="tp" style="display:block">' + esc(topicOr(p)) + "</span></span>" +
         '<span class="mini">' + chips(p) + "</span></div>";
     }).join("") : '<p class="nolessons">Nothing on the timetable.</p>') + "</div>";
     $("pad").innerHTML = hero + dayHtml;
@@ -585,7 +586,7 @@
       '" style="--c:' + esc(c.colour) + ";" + style + '" data-k="' + esc(key(l)) + '" tabindex="0" role="button" aria-label="' + esc(c.name + ", " + (p.topic || "nothing planned")) + '">' +
       '<span class="code"><span>' + esc(c.code) + '</span><span class="room">' + esc(l.room ? "Rm " + l.room : "") + "</span></span>" +
       '<span class="cname">' + esc(c.name) + "</span>" +
-      '<span class="topic' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
+      '<span class="topic' + (p.topic ? "" : " blank") + '">' + esc(topicOr(p)) + "</span>" +
       '<span class="foot">' + chips(p) + (st === "live" ? '<span class="pill now">NOW</span>' : "") + (p.assess ? '<span class="pill assess">' + esc(p.assess) + "</span>" : "") +
       (p.published ? "" : '<span class="pill">NOT PUBLISHED</span>') + (prepCount(p) ? '<span class="pill">' + esc(prepCount(p)) + "</span>" : "") + "</span></div>";
   }
@@ -651,7 +652,7 @@
       }
       var p = l.plan || {};
       body += '<div class="lesson-row' + (l.date < t ? " past" : "") + '" data-k="' + esc(key(l)) + '" role="button" tabindex="0"><span class="when">' + esc(l.day + " " + fmt(l.date)) + "<br>" +
-        esc(l.periods.length > 1 ? "Double" : "Single") + '</span><span><span class="tt' + (p.topic ? "" : " blank") + '">' + esc(p.topic || "Nothing planned yet") + "</span>" +
+        esc(l.periods.length > 1 ? "Double" : "Single") + '</span><span><span class="tt' + (p.topic ? "" : " blank") + '">' + esc(topicOr(p)) + "</span>" +
         '<span class="meta">' + esc([p.unit, p.assess, p.published ? "Published" : "Not published", prepCount(p)].filter(Boolean).join(" · ")) + "</span></span>" +
         '<span class="mini">' + chips(p) + "</span></div>";
     });
@@ -1180,7 +1181,7 @@
         man[String(m.file).replace(/^\.?\//, "")] = lab;
       });
     }
-    var plans = manifest ? readPlans(manifest, defaults) : [];
+    var plans = manifest ? readPlans(manifest, defaults) : [], labelPlans = [];
     var used = {}, items = [];
     names.forEach(function (n) {
       var f = byName[n], e = extOf(n);
@@ -1192,6 +1193,7 @@
       if (!MIME_EXT[e]) { notes.push(baseName(n) + " was left out: the site does not serve ." + (e || "files with no ending") + " files."); return; }
       var html = e === "html" || e === "htm", text = html ? f.folded : "";
       var lab = man[rel] || man[baseName(n)] || (html && htmlLabel(text)) || null, how = man[rel] || man[baseName(n)] ? "pack list" : lab ? "label" : "guessed";
+      var own = lab || {};
       lab = Object.assign({}, defaults, lab || {});
       delete lab.files;
       var title = String(lab.title || (html && htmlTitle(text)) || prettyName(n)).trim();
@@ -1200,12 +1202,37 @@
       var type = TYPES.some(function (t) { return t[0] === String(lab.type || "").toLowerCase(); }) ? String(lab.type).toLowerCase() : g.type;
       var classId = findClass(lab["class"] || lab.classid);
       var lk = findLesson2(classId, lab.lesson || lab.date);
-      var it = { name: n, ext: e, bytes: html ? new TextEncoder().encode(text) : f.bytes, title: title, for: aud, type: type, classId: classId, lessonKey: lk, how: how, on: true,
+      // A label can also carry the lesson plan: topic=...; objectives=a | b; covers=2,4
+      var fromLabel = {}, anyPlan = false;
+      Object.keys(own).forEach(function (k) {
+        var to = PLAN_ALIASES[k.toLowerCase().replace(/[\s_-]+/g, "")]; if (!to) return;
+        var v = own[k];
+        if (typeof v === "string" && ["objectives", "bring", "prep", "covers"].indexOf(to) >= 0) v = v.split(to === "covers" ? /[|,]/ : "|");
+        fromLabel[k] = v; anyPlan = true;
+      });
+      if (anyPlan) labelPlans.push(Object.assign({ "class": own["class"] || own.classid || lab["class"] || "", lesson: own.lesson || own.date || lab.lesson || "" }, fromLabel));
+      var it = { name: n, ext: e, pageTitle: html ? htmlTitle(text) : "", bytes: html ? new TextEncoder().encode(text) : f.bytes, title: title, for: aud, type: type, classId: classId, lessonKey: lk, how: how, on: true,
         copies: Math.max(0, Math.round(+lab.copies || 0)), paper: String(lab.paper || "").slice(0, 80),
         wanted: lab.lesson || lab.date || "", folded: Object.keys(used).filter(function (u) { return used[u] === n; }).length, warn: [] };
       if ((lab["class"] || lab.classid) && !classId) it.warn.push('No class matches "' + (lab["class"] || lab.classid) + '". Pick one.');
       if (it.wanted && !lk && classId) it.warn.push('No lesson matches "' + it.wanted + '". Pick one, or leave it in Files only.');
       items.push(it);
+    });
+    if (labelPlans.length) plans = plans.concat(readPlans({ lessons: labelPlans }, defaults));
+    plans = mergePlans(plans);
+    // No topic anywhere in the pack and none on the lesson yet: borrow the slides' title.
+    var seen = {};
+    items.forEach(function (it) {
+      if (!it.lessonKey || seen[it.lessonKey]) return;
+      var l = findLesson(it.lessonKey), pl = plans.filter(function (x) { return x.lessonKey === it.lessonKey; })[0];
+      if (!l || (l.plan.topic || "").trim() || (pl && pl.fields.topic)) return;
+      var mine = items.filter(function (x) { return x.lessonKey === it.lessonKey; });
+      var deck = mine.filter(function (x) { return x.type === "deck"; })[0] || mine[0];
+      var t = (deck.pageTitle || deck.title).replace(/\s+(slides?|deck|quiz|answers?|answer key|key|worksheet|sheet|app)$/i, "").trim();
+      if (!t) return;
+      seen[it.lessonKey] = true;
+      if (pl) { pl.fields.topic = t; pl.on.topic = true; pl.topicGuess = true; }
+      else plans.push({ classId: it.classId, lessonKey: it.lessonKey, wanted: it.wanted, fields: { topic: t }, on: { topic: true }, topicGuess: true });
     });
     return { items: items, plans: plans, notes: notes, hasDefaults: !!(defaults["class"] || defaults.lesson) };
   }
@@ -1260,12 +1287,30 @@
     });
     return out;
   }
+  // Several plan entries for the same lesson (pack list and file labels) become one card.
+  function mergePlans(list) {
+    var out = [], byKey = {};
+    list.forEach(function (pl) {
+      var k = pl.lessonKey;
+      if (!k) { out.push(pl); return; }
+      var into = byKey[k];
+      if (!into) { byKey[k] = pl; out.push(pl); return; }
+      Object.keys(pl.fields).forEach(function (f) {
+        var a = into.fields[f], b = pl.fields[f];
+        if (a == null) { into.fields[f] = b; into.on[f] = true; }
+        else if (Array.isArray(a) && Array.isArray(b)) b.forEach(function (x) { if (a.indexOf(x) < 0) a.push(x); });
+      });
+      if (pl.rawCovers && !into.rawCovers) into.rawCovers = pl.rawCovers;
+    });
+    return out;
+  }
   function planPreview(pl, fk) {
     var v = pl.fields[fk], kind = PLAN_FIELDS.filter(function (x) { return x[0] === fk; })[0][2];
     var l = pl.lessonKey && findLesson(pl.lessonKey), old = l ? l.plan[fk] : null;
     var shown = fk === "covers" ? v.map(function (id) { return coverText(pl.classId, id); }).join(" · ") : Array.isArray(v) ? v.join(" · ") : v;
     var extra = "";
-    if (kind === "add") extra = "added to the list";
+    if (fk === "topic" && pl.topicGuess) extra = "from the slides' title, since the pack did not give a topic";
+    else if (kind === "add") extra = "added to the list";
     else if (kind === "append") extra = old ? "added to your notes" : "";
     else if (old && (Array.isArray(old) ? old.join("\n") !== v.join("\n") && old.length : old !== v)) extra = "replaces: " + (Array.isArray(old) ? old.join(" · ") : old);
     return { shown: shown, extra: extra };
@@ -1299,6 +1344,7 @@
       "For an HTML page, put this inside <head>:",
       '<meta name="learning-home" content="class=y7-enrichment; lesson=2026-10-20; for=students; type=app; title=Angle hunt">',
       "",
+      "The label can also carry the lesson plan when there is no learning-home.json: topic=...; objectives=first | second; covers=2,4",
       "class: one of",
       ids,
       "lesson: the lesson date as YYYY-MM-DD. Add the period (for example 2026-10-20 P6) if the class has two lessons that day. \"week 3 lesson 2\" also works.",

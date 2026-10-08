@@ -27,6 +27,16 @@ Every HTML page gets this tag inside `<head>`:
 - **type**: `deck`, `app`, `sim`, `booklet`, `sheet`, `key` or `link`.
 - **title**: what it is called in the planner. Keep it short and plain.
 
+The main file for a lesson (usually the slides) should also carry the lesson plan in its label, so
+the plan arrives even without a json file:
+
+```html
+<meta name="learning-home" content="class=y10-science; lesson=2026-10-15; for=teacher; type=deck; title=Punnett squares slides; topic=Punnett squares; objectives=Use a Punnett square to predict offspring | Work out the probability of a recessive disease; covers=2,4">
+```
+
+Separate list items with `|` (and `covers` numbers with commas). Put a `learning-home.json` in
+the zip as well whenever there is more to say (bring, notes, prep, copies to print).
+
 If you don't know the class or lesson, ask Elliott once rather than guessing.
 
 ## 2. Package, with the lesson plan baked in
