@@ -1326,17 +1326,32 @@
       "}",
       "Anything at the top (class, lesson) applies to every file unless the file says otherwise.",
       "topic, unit, objectives (shown to students as \"We will\"), bring, studentNote and assess (for example \"Quiz\") fill in the lesson plan. notes and prep are teacher only.",
-      "If the class has a unit objectives list, add \"covers\": [3, 4] with the numbers of the unit objectives the lesson teaches. Students can then jump from each objective to this lesson.",
+      "If the class has a unit objectives list (below), add \"covers\": [3, 4] with the numbers of the unit objectives the lesson teaches, and write the lesson's objectives so they work towards those. Students can then jump from each unit objective to this lesson.",
       "Every file for print is added to the prep list (with copies and paper if given), so say how many copies are needed.",
       "For several lessons in one zip, add \"lessons\": [ { \"lesson\": \"2026-10-22\", \"topic\": \"...\", \"objectives\": [...] }, ... ] and give each file its own \"lesson\".",
       "Never include anything that publishes a lesson: the teacher publishes it.",
       "",
+      unitsHelp(),
       "Rules for the files:",
       "- Each page must work on its own: one HTML file. Pictures, CSS and scripts in the same zip are folded in automatically, but nothing can load from claude.ai.",
       "- Do not use window.claude, window.storage or artifact capabilities. Save anything (like ink) to localStorage.",
       "- No em-dashes anywhere. Australian spelling.",
       "- Keep the same title when you make a new version, so it replaces the old one instead of adding a copy."
     ].join("\n");
+  }
+
+  // Each class's unit objectives, numbered, so a chat can fill in "covers".
+  function unitsHelp() {
+    var out = [];
+    Object.keys(classes).forEach(function (id) {
+      ((classes[id].units || [])).forEach(function (u) {
+        if (!(u.objectives || []).length) return;
+        out.push("Unit objectives for " + id + ", unit \"" + u.name + "\" (use these numbers in covers):");
+        u.objectives.forEach(function (o, i) { out.push("  " + (i + 1) + ". " + o); });
+        out.push("");
+      });
+    });
+    return out.length ? out.join("\n") : "No class has a unit objectives list yet.\n";
   }
 
   function openPack() {

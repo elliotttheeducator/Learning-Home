@@ -24,6 +24,8 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
   tick the ones they teach (`covers: ["genetics-3"]` in the plan, ticked in the planner or set by an
   Import pack). Students see every unit objective on their class's Learning objectives view
   (`/<class-id>#objectives`), each linked to the published lessons that cover it.
+  When a unit list is added or changed, update the "Unit objectives" section of the learning-home-pack
+  skill too (the planner's copy text picks it up from catalog.json by itself).
 
 ## Workflow (always)
 1. Work on a new branch, never directly on `main`.
