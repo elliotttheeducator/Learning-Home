@@ -209,6 +209,11 @@
   .pk-how.g { background:#FFF4E5; color:#7A4A00; }
   .pk-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .pk-row select { width:auto; flex:1 1 160px; min-width:0; }
+  .pk.plan { --gc:#7C5CE0; }
+  .pf { display:flex; gap:8px; align-items:flex-start; font-size:13.5px; line-height:1.4; }
+  .pf input { margin-top:3px; flex:none; }
+  .pf b { margin-right:4px; }
+  .pf-x { display:block; font-size:12px; color:var(--muted); }
   .pk-act { font-size:12.5px; color:var(--muted); }
   .codecard { display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:14px 16px; margin-bottom:14px; border:1px solid var(--line); border-radius:14px; background:var(--surface-2); }
   .codecard > div:first-child { flex:1 1 260px; min-width:0; }
@@ -1121,6 +1126,7 @@
         man[String(m.file).replace(/^\.?\//, "")] = lab;
       });
     }
+    var plans = manifest ? readPlans(manifest, defaults) : [];
     var used = {}, items = [];
     names.forEach(function (n) {
       var f = byName[n], e = extOf(n);
@@ -1141,13 +1147,77 @@
       var classId = findClass(lab["class"] || lab.classid);
       var lk = findLesson2(classId, lab.lesson || lab.date);
       var it = { name: n, ext: e, bytes: html ? new TextEncoder().encode(text) : f.bytes, title: title, for: aud, type: type, classId: classId, lessonKey: lk, how: how, on: true,
+        copies: Math.max(0, Math.round(+lab.copies || 0)), paper: String(lab.paper || "").slice(0, 80),
         wanted: lab.lesson || lab.date || "", folded: Object.keys(used).filter(function (u) { return used[u] === n; }).length, warn: [] };
       if ((lab["class"] || lab.classid) && !classId) it.warn.push('No class matches "' + (lab["class"] || lab.classid) + '". Pick one.');
       if (it.wanted && !lk && classId) it.warn.push('No lesson matches "' + it.wanted + '". Pick one, or leave it in Files only.');
       items.push(it);
     });
-    return { items: items, notes: notes, hasDefaults: !!(defaults["class"] || defaults.lesson) };
+    return { items: items, plans: plans, notes: notes, hasDefaults: !!(defaults["class"] || defaults.lesson) };
   }
+
+  // Lesson plan details in learning-home.json: at the top for the pack's lesson, or in "lessons" for several.
+  var PLAN_FIELDS = [
+    ["topic", "Topic", "set"], ["unit", "Unit", "set"], ["objectives", "We will", "list"], ["bring", "Bring", "add"],
+    ["studentNote", "Note for students", "set"], ["assess", "Assessment tag", "set"], ["notes", "Teacher notes", "append"], ["prep", "Prep", "add"]
+  ];
+  var PLAN_ALIASES = { topic: "topic", title: "", unit: "unit", objectives: "objectives", "we will": "objectives", learningintentions: "objectives", intentions: "objectives",
+    bring: "bring", studentnote: "studentNote", note: "studentNote", assess: "assess", assessment: "assess", notes: "notes", teachernotes: "notes",
+    prep: "prep", toprint: "prep", successcriteria: "notes" };
+  function asList(v) { return (Array.isArray(v) ? v : String(v == null ? "" : v).split("\n")).map(function (x) { return String(x).trim(); }).filter(Boolean).slice(0, 30); }
+  function readPlans(m, defaults) {
+    var entries = Array.isArray(m.lessons) ? m.lessons.slice() : [];
+    entries.unshift(m);
+    var out = [];
+    entries.forEach(function (e, idx) {
+      if (!e || typeof e !== "object") return;
+      var f = {}, any = false, lc = {};
+      Object.keys(e).forEach(function (k) { lc[k.toLowerCase().replace(/[\s_-]+/g, "")] = e[k]; });
+      Object.keys(lc).forEach(function (k) {
+        var to = PLAN_ALIASES[k]; if (!to || lc[k] == null || lc[k] === "") return;
+        var kind = PLAN_FIELDS.filter(function (x) { return x[0] === to; })[0][2];
+        var v = kind === "list" || kind === "add" ? asList(lc[k]) : (to === "notes" && Array.isArray(lc[k]) ? lc[k].join("\n") : String(lc[k]).slice(0, 4000));
+        if (k === "successcriteria") v = "Success criteria:\n" + asList(lc[k]).map(function (x) { return "- " + x; }).join("\n");
+        if (to === "notes" && f.notes) v = f.notes + "\n\n" + v;
+        if ((Array.isArray(v) && v.length) || (!Array.isArray(v) && v)) { f[to] = v; any = true; }
+      });
+      if (!any) return;
+      var cls = findClass(lc["class"] || lc.classid || (idx ? defaults["class"] : "") || defaults["class"]);
+      var wanted = String(lc.lesson || lc.date || (idx ? "" : defaults.lesson) || "");
+      var on = {}; Object.keys(f).forEach(function (k) { on[k] = true; });
+      out.push({ classId: cls, lessonKey: findLesson2(cls, wanted), wanted: wanted, fields: f, on: on });
+    });
+    return out;
+  }
+  function planPreview(pl, fk) {
+    var v = pl.fields[fk], kind = PLAN_FIELDS.filter(function (x) { return x[0] === fk; })[0][2];
+    var l = pl.lessonKey && findLesson(pl.lessonKey), old = l ? l.plan[fk] : null;
+    var shown = Array.isArray(v) ? v.join(" · ") : v;
+    var extra = "";
+    if (kind === "add") extra = "added to the list";
+    else if (kind === "append") extra = old ? "added to your notes" : "";
+    else if (old && (Array.isArray(old) ? old.join("\n") !== v.join("\n") && old.length : old !== v)) extra = "replaces: " + (Array.isArray(old) ? old.join(" · ") : old);
+    return { shown: shown, extra: extra };
+  }
+  function applyPlan(pl) {
+    var l = findLesson(pl.lessonKey); if (!l) return null;
+    var p = l.plan;
+    p.objectives = p.objectives || []; p.bring = p.bring || []; p.prep = p.prep || [];
+    PLAN_FIELDS.forEach(function (x) {
+      var k = x[0], v = pl.fields[k]; if (v == null || !pl.on[k]) return;
+      if (x[2] === "set" || x[2] === "list") p[k] = Array.isArray(v) ? v.slice() : v;
+      else if (x[2] === "append") { if ((p.notes || "").indexOf(v) < 0) p.notes = p.notes ? p.notes + "\n\n" + v : v; }
+      else if (k === "bring") v.forEach(function (t) { if (p.bring.indexOf(t) < 0) p.bring.push(t); });
+      else if (k === "prep") v.forEach(function (t) { addPrep(p, t); });
+    });
+    changed(l);
+    return l;
+  }
+  function addPrep(p, t) {
+    p.prep = p.prep || [];
+    if (!p.prep.some(function (x) { return (x.t || "").toLowerCase() === t.toLowerCase(); })) p.prep.push({ t: t, d: false });
+  }
+  function printJob(it) { return "Print " + (it.copies ? it.copies + " x " : "") + it.title + (it.paper ? " (" + it.paper + ")" : ""); }
 
   function packHelp() {
     var ids = Object.keys(classes).map(function (id) { return "  " + id + " (" + classes[id].name + ")"; }).join("\n");
@@ -1164,18 +1234,29 @@
       "type: deck, app, sim, booklet, sheet, key or link.",
       "title: what it is called in the planner.",
       "",
-      "For a PDF, Word file or several files at once, put everything in one zip with a learning-home.json like this:",
+      "For a whole lesson, a PDF, a Word file or several files at once, put everything in one zip with a learning-home.json like this:",
       "{",
       '  "class": "y7-enrichment",',
       '  "lesson": "2026-10-20",',
+      '  "topic": "Angles on a straight line",',
+      '  "unit": "Topic 9: Geometry",',
+      '  "objectives": ["Name angle pairs", "Find missing angles on a straight line"],',
+      '  "bring": ["Booklet 1", "Protractor"],',
+      '  "studentNote": "Start on page 4 if you finish early.",',
+      '  "notes": "Teacher notes: timings, misconceptions, differentiation.",',
+      '  "prep": ["Set up the mini whiteboards"],',
       '  "files": [',
       '    { "file": "angle-hunt.html", "for": "students", "type": "app", "title": "Angle hunt" },',
       '    { "file": "angles-deck.html", "for": "teacher", "type": "deck", "title": "Angles slides" },',
-      '    { "file": "angles-worksheet.pdf", "for": "print", "type": "sheet", "title": "Angles worksheet" },',
+      '    { "file": "angles-worksheet.pdf", "for": "print", "type": "sheet", "title": "Angles worksheet", "copies": 28, "paper": "A4 double-sided" },',
       '    { "file": "angles-answers.pdf", "for": "teacher", "type": "key", "title": "Angles answers" }',
       "  ]",
       "}",
       "Anything at the top (class, lesson) applies to every file unless the file says otherwise.",
+      "topic, unit, objectives (shown to students as \"We will\"), bring, studentNote and assess (for example \"Quiz\") fill in the lesson plan. notes and prep are teacher only.",
+      "Every file for print is added to the prep list (with copies and paper if given), so say how many copies are needed.",
+      "For several lessons in one zip, add \"lessons\": [ { \"lesson\": \"2026-10-22\", \"topic\": \"...\", \"objectives\": [...] }, ... ] and give each file its own \"lesson\".",
+      "Never include anything that publishes a lesson: the teacher publishes it.",
       "",
       "Rules for the files:",
       "- Each page must work on its own: one HTML file. Pictures, CSS and scripts in the same zip are folded in automatically, but nothing can load from claude.ai.",
@@ -1224,7 +1305,24 @@
   function drawPack() {
     var box = $("packOut"); if (!box || !pack) return;
     var h = pack.notes.map(function (n) { return '<div class="warnbox">' + esc(n) + "</div>"; }).join("");
-    if (!pack.items.length) { box.innerHTML = h + '<p class="hint">Nothing to place.</p>'; return; }
+    if (!pack.items.length && !pack.plans.length) { box.innerHTML = h + '<p class="hint">Nothing to place.</p>'; return; }
+    h += pack.plans.map(function (pl, i) {
+      var ls = pl.classId ? classLessons(pl.classId) : [];
+      return '<div class="pk plan" data-p="' + i + '"><b class="pk-on">Lesson plan</b>' +
+        '<div class="pk-row"><select data-pf="classId" aria-label="Class"><option value="">Pick a class...</option>' +
+          Object.keys(classes).map(function (id) { return '<option value="' + id + '"' + (id === pl.classId ? " selected" : "") + ">" + esc(classes[id].name) + "</option>"; }).join("") + "</select>" +
+        '<select data-pf="lessonKey" aria-label="Lesson"' + (pl.classId ? "" : " disabled") + '><option value="">Pick a lesson...</option>' +
+          ls.map(function (l) {
+            return '<option value="' + esc(key(l)) + '"' + (key(l) === pl.lessonKey ? " selected" : "") + ">" + esc(l.day + " " + fmt(l.date) + " P" + l.periods.map(function (x) { return x.slice(1); }).join("-") + " · " + (l.plan.topic || "No topic yet")) + "</option>";
+          }).join("") + "</select></div>" +
+        PLAN_FIELDS.filter(function (x) { return pl.fields[x[0]] != null; }).map(function (x) {
+          var pv = planPreview(pl, x[0]);
+          return '<label class="pf"><input type="checkbox" data-pon="' + x[0] + '"' + (pl.on[x[0]] ? " checked" : "") + "><span><b>" + esc(x[1]) + "</b> " + esc(pv.shown) +
+            (pv.extra ? '<span class="pf-x">' + esc(pv.extra) + "</span>" : "") + "</span></label>";
+        }).join("") +
+        (pl.lessonKey ? "" : '<div class="warnbox">' + esc(pl.wanted ? 'No lesson matches "' + pl.wanted + '". Pick one.' : "Pick the lesson this plan is for.") + "</div>") +
+        '<div class="pk-msg" data-msg></div></div>';
+    }).join("");
     h += pack.items.map(function (it, i) {
       var ls = it.classId ? classLessons(it.classId) : [];
       return '<div class="pk ' + AUD_CLASS[it.for] + (it.on ? "" : " off") + '" data-i="' + i + '">' +
@@ -1240,15 +1338,30 @@
         '<div class="pk-row"><select data-f="for" aria-label="Who it is for">' + AUD.map(function (x) { return '<option value="' + x[0] + '"' + (it.for === x[0] ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select>" +
         '<select data-f="type" aria-label="Kind">' + TYPES.map(function (t) { return '<option value="' + t[0] + '"' + (it.type === t[0] ? " selected" : "") + ">" + t[1] + "</option>"; }).join("") + "</select>" +
         '<span class="pk-act">' + (it.replace ? "Updates the upload already there (now v" + it.replace.version + ")" : "New file") + "</span></div>" +
+        (it.for === "print" && it.lessonKey ? '<span class="hint">Adds to the prep list: ' + esc(printJob(it)) + "</span>" : "") +
         (it.folded ? '<span class="hint">' + it.folded + " picture" + (it.folded === 1 ? "" : "s") + " or style file" + (it.folded === 1 ? "" : "s") + " folded into this page</span>" : "") +
         it.warn.map(function (w) { return '<div class="warnbox">' + esc(w) + "</div>"; }).join("") +
         '<div class="pk-msg" data-msg></div></div>';
     }).join("");
-    var n = pack.items.filter(function (it) { return it.on; }).length;
-    h += '<div class="row"><button class="btn primary" id="packGo" type="button"' + (n ? "" : " disabled") + ">Put " + n + " file" + (n === 1 ? "" : "s") + ' in place</button>' +
+    var n = pack.items.filter(function (it) { return it.on; }).length, np = pack.plans.filter(function (pl) { return pl.lessonKey; }).length;
+    var what = [n ? n + " file" + (n === 1 ? "" : "s") : "", np ? np + " lesson plan" + (np === 1 ? "" : "s") : ""].filter(Boolean).join(" and ");
+    h += '<div class="row"><button class="btn primary" id="packGo" type="button"' + (n || np ? "" : " disabled") + ">Put " + (what || "nothing") + ' in place</button>' +
       '<span class="hint">Nothing is published: students see a lesson only after you press Publish.</span></div><div id="packDone"></div>';
     box.innerHTML = h;
-    Array.prototype.forEach.call(box.querySelectorAll(".pk"), function (row) {
+    Array.prototype.forEach.call(box.querySelectorAll(".pk.plan"), function (row) {
+      var pl = pack.plans[+row.dataset.p];
+      Array.prototype.forEach.call(row.querySelectorAll("[data-pf]"), function (el) {
+        el.addEventListener("change", function () {
+          pl[el.dataset.pf] = el.value;
+          if (el.dataset.pf === "classId") pl.lessonKey = findLesson2(pl.classId, pl.wanted);
+          drawPack();
+        });
+      });
+      Array.prototype.forEach.call(row.querySelectorAll("[data-pon]"), function (el) {
+        el.addEventListener("change", function () { pl.on[el.dataset.pon] = el.checked; });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".pk[data-i]"), function (row) {
       var it = pack.items[+row.dataset.i];
       Array.prototype.forEach.call(row.querySelectorAll("[data-f]"), function (el) {
         el.addEventListener(el.type === "text" ? "input" : "change", function () {
@@ -1269,7 +1382,14 @@
     var missing = todo.filter(function (it) { return !it.classId; });
     if (missing.length) { toast("Pick a class for " + baseName(missing[0].name)); return; }
     $("packGo").disabled = true;
-    var done = [], i = 0;
+    var done = [], i = 0, planned = [];
+    // Lesson plans first, so the files land in lessons that already have their topic.
+    pack.plans.forEach(function (pl, pi) {
+      var el = $("packOut").querySelector('.pk[data-p="' + pi + '"] [data-msg]');
+      var l = pl.lessonKey ? applyPlan(pl) : null;
+      if (l) planned.push(l);
+      if (el) el.innerHTML = l ? '<span class="msg-ok">Added to ' + esc(l.day + " " + fmt(l.date)) + "</span>" : '<span class="msg-bad">Skipped: no lesson picked</span>';
+    });
     function row(it) { return $("packOut").querySelector('.pk[data-i="' + pack.items.indexOf(it) + '"] [data-msg]'); }
     function next() {
       if (i >= todo.length) return finish();
@@ -1289,6 +1409,7 @@
           var had = p.resources.filter(function (r) { return r.url === j.url; })[0];
           if (had) { had.title = it.title; had.for = it.for; had.type = it.type; }
           else p.resources.push({ title: it.title, url: j.url, type: it.type, for: it.for });
+          if (it.for === "print") addPrep(p, printJob(it));
           changed(l);
           where = " and added to " + l.day + " " + fmt(l.date);
         }
@@ -1301,8 +1422,10 @@
       filesCache = {};
       var lessons = {};
       done.forEach(function (d) { if (d.l) lessons[key(d.l)] = d.l; });
+      planned.forEach(function (l) { lessons[key(l)] = l; });
       var ks = Object.keys(lessons);
-      $("packDone").innerHTML = '<div class="msg-ok" style="margin-top:6px">' + done.length + " of " + todo.length + " placed." + "</div>" +
+      $("packDone").innerHTML = '<div class="msg-ok" style="margin-top:6px">' + (todo.length ? done.length + " of " + todo.length + " files placed" : "") +
+        (planned.length ? (todo.length ? ", " : "") + planned.length + " lesson plan" + (planned.length === 1 ? "" : "s") + " filled in" : "") + ". Nothing is published.</div>" +
         (ks.length ? '<div class="row">' + ks.map(function (k) { var l = lessons[k]; return '<button class="btn small" data-open="' + esc(k) + '" type="button">Open ' + esc(classes[l.classId].name + ", " + l.day + " " + fmt(l.date)) + "</button>"; }).join("") + "</div>" : "");
       Array.prototype.forEach.call($("packDone").querySelectorAll("[data-open]"), function (b) { b.addEventListener("click", function () { openLesson(b.dataset.open, false); }); });
     }

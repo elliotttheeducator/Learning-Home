@@ -29,26 +29,44 @@ Every HTML page gets this tag inside `<head>`:
 
 If you don't know the class or lesson, ask Elliott once rather than guessing.
 
-## 2. Package
+## 2. Package, with the lesson plan baked in
 
-- **One HTML file only**: label it and hand it over as the single file.
-- **Several files, or any PDF, Word or image file**: put them all in one zip with a
-  `learning-home.json` at the top level:
+- **One HTML file only, nothing else to say about the lesson**: label it and hand it over.
+- **Anything more** (a whole lesson, several files, any PDF, Word or image file): put them all in
+  one zip with a `learning-home.json` at the top level. Fill in the lesson plan whenever you made
+  the lesson: the planner shows it to Elliott and fills in the lesson for him.
 
 ```json
 {
   "class": "y7-enrichment",
   "lesson": "2026-10-20",
+  "topic": "Angles on a straight line",
+  "unit": "Topic 9: Geometry",
+  "objectives": ["Name angle pairs", "Find missing angles on a straight line"],
+  "bring": ["Booklet 1", "Protractor"],
+  "studentNote": "Start on page 4 if you finish early.",
+  "assess": "",
+  "notes": "Timings: 10 min warm up, 25 min walkthrough, 30 min practice, 10 min exit ticket. Watch for students adding to 360 instead of 180.",
+  "prep": ["Set up the mini whiteboards"],
   "files": [
     { "file": "angle-hunt.html", "for": "students", "type": "app", "title": "Angle hunt" },
     { "file": "angles-deck.html", "for": "teacher", "type": "deck", "title": "Angles slides" },
-    { "file": "angles-worksheet.pdf", "for": "print", "type": "sheet", "title": "Angles worksheet" },
+    { "file": "angles-worksheet.pdf", "for": "print", "type": "sheet", "title": "Angles worksheet", "copies": 28, "paper": "A4 double-sided" },
     { "file": "angles-answers.pdf", "for": "teacher", "type": "key", "title": "Angles answers" }
   ]
 }
 ```
 
-`class` and `lesson` at the top apply to every file unless a file gives its own. Name the zip
+- `class` and `lesson` at the top apply to every file unless a file gives its own.
+- Lesson plan fields (all optional): `topic`, `unit`, `objectives` (students see these as
+  "We will"), `bring`, `studentNote`, `assess` (for example "Quiz" or "Investigation due"), and the
+  teacher-only `notes` and `prep` (a checklist). Students see topic, objectives, bring, note and
+  assessment once Elliott publishes; notes and prep never reach them.
+- **Printing**: every file with `"for": "print"` is added to the lesson's prep list automatically.
+  Give `copies` (class size if you don't know: about 28) and `paper` (A4 or A3, single or
+  double-sided, colour if it matters). Anything else to print or set up goes in `prep`.
+- **Several lessons in one zip**: add `"lessons": [ { "lesson": "2026-10-22", "topic": "...",
+  "objectives": [...] }, ... ]` and give each file its own `"lesson"`. Name the zip
 after the lesson, for example `y7-enrichment-2026-10-20.zip`, and give Elliott the download.
 Tell him: "In the planner, press Import pack and drop this in."
 
@@ -97,7 +115,9 @@ Double periods (for example P6-7) are about 80 minutes; single periods about 45.
 
 ## Checklist before handing over
 
-1. Every HTML file has the `learning-home` meta tag (or is listed in `learning-home.json`).
-2. Class id, date and `for` are right; answer keys and slides are `teacher`, handouts `print`.
+1. Every HTML file has the `learning-home` meta tag (or is listed in `learning-home.json`), and
+   the lesson plan (topic, objectives, notes, prep) is in `learning-home.json` if you made the lesson.
+2. Class id, date and `for` are right; answer keys and slides are `teacher`, handouts `print`
+   with copies and paper.
 3. No em-dashes, no `window.claude`, no `window.storage`.
 4. One zip (or one HTML file), with a one-line note telling Elliott to use Import pack.

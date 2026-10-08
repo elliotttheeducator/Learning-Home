@@ -59,6 +59,8 @@ The planner's **Import pack** takes a zip or several files and puts each in its 
 made for it: in an HTML `<head>`,
 `<meta name="learning-home" content="class=y7-enrichment; lesson=2026-10-20 P6; for=students; type=app; title=Angle hunt">`,
 or a `learning-home.json` in the zip: `{ "class": "...", "lesson": "...", "files": [ { "file": "x.pdf", "for": "print", "type": "sheet", "title": "..." } ] }`.
+The json can also carry the lesson plan (topic, unit, objectives, bring, studentNote, assess, notes, prep,
+or a `lessons` array for several) and `copies`/`paper` on print files, which become prep items.
 Pictures, CSS and JS next to a page in the zip are folded into it. Same class and title as an
 existing upload means a new version. The planner's "Copy instructions for other chats" button gives the full text.
 The same rules live in the Claude skill `skills/learning-home-pack/SKILL.md`, which Elliott adds to his
