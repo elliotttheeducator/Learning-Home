@@ -7,6 +7,7 @@ import catalog from "../public/catalog.json";
 import y7Enrichment from "./plans/y7-enrichment.json";
 import y7Science from "./plans/y7-science.json";
 import { serveFile, listFiles, uploadFile, fileVersions, restoreVersion, updateFile } from "./files.js";
+import { allCodes, setCode, classForCode, normalise } from "./codes.js";
 
 // Starting plans written in the repo. Anything saved from the teacher planner
 // is stored in D1 and replaces the starting plan for that lesson.
@@ -83,11 +84,48 @@ export default {
         return json({ error: "Not found." }, 404);
       }
 
-      // Student calendar data for one class. Teacher-only fields are removed.
+      // Class codes: a student types the code once and the browser keeps it.
+      if (path === "/api/join" && request.method === "POST") {
+        let b; try { b = await request.json(); } catch { return json({ error: "Send JSON." }, 400); }
+        const d = await db(env);
+        if (!d) return json({ error: "The database is not connected." }, 503);
+        const id = await classForCode(d, b.code);
+        const cls = catalog.classes.find(c => c.id === id);
+        if (!cls) {
+          await new Promise(r => setTimeout(r, 400)); // slows down guessing
+          return json({ error: "That code does not match a class. Check it with your teacher." }, 404);
+        }
+        return json({ id: cls.id, code: normalise(b.code), name: cls.name, colour: cls.colour });
+      }
+      // Links like /join/K7QF3M add the class straight away.
+      const jn = path.match(/^\/join\/([A-Za-z0-9-]+)\/?$/);
+      if (jn) return redirect("/?code=" + encodeURIComponent(normalise(jn[1])));
+
+      if (path === "/api/teacher/codes") {
+        if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
+        const d = await db(env);
+        if (!d) return json({ error: "The database is not connected." }, 503);
+        if (request.method === "POST") {
+          let b; try { b = await request.json(); } catch { return json({ error: "Send JSON." }, 400); }
+          if (!catalog.classes.some(c => c.id === b.classId)) return json({ error: "No such class." }, 404);
+          const err = await setCode(d, b.classId, b.code);
+          if (err) return json({ error: err }, 400);
+        }
+        return json({ codes: await allCodes(d, catalog.classes, catalog.terms[0].year) });
+      }
+
+      // Student calendar data for one class, for someone with the class code (or the teacher).
+      // Teacher-only fields are removed.
       const cal = path.match(/^\/api\/calendar\/([a-z0-9-]+)$/);
       if (cal) {
         const cls = catalog.classes.find(c => c.id === cal[1]);
         if (!cls) return json({ error: "No such class." }, 404);
+        if (!(await teacher(request, env))) {
+          const d = await db(env);
+          if (d && (await classForCode(d, request.headers.get("X-Class-Code"))) !== cls.id) {
+            return json({ error: "code", class: { id: cls.id, name: cls.name, colour: cls.colour } }, 403, { "Cache-Control": "no-store" });
+          }
+        }
         const lessons = await allLessons(env, [cls.id], false);
         return json({ ...calendarBase(), class: publicClass(cls), lessons }, 200, { "Cache-Control": "no-store" });
       }

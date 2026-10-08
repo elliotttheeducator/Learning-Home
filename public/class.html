@@ -115,13 +115,24 @@
     .cell .dn { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .status.live::before { animation: none; } .launch a { transition: none; } }
+  .codebox { max-width: 760px; margin: 48px auto; background: var(--panel); border: 2px solid var(--line); border-top: 8px solid var(--c); border-radius: 22px; padding: 28px 30px; }
+  .codebox h2 { font-size: 32px; margin: 0 0 6px; }
+  .codebox p { margin: 0 0 18px; color: var(--ink-soft); font-size: 22px; }
+  .cbrow { display: flex; gap: 12px; flex-wrap: wrap; }
+  .cbrow input { flex: 1 1 280px; min-width: 0; font: 700 32px/1.2 var(--font); letter-spacing: .08em; text-transform: uppercase;
+    padding: 12px 18px; border: 3px solid var(--line); border-radius: 14px; color: var(--ink); background: #fff; }
+  .cbrow input:focus { border-color: var(--c); outline: none; }
+  .cbrow button { font: 800 26px/1 var(--font); padding: 16px 26px; border: 0; border-radius: 14px; background: var(--c); color: #fff; cursor: pointer; }
+  .cbrow button:disabled { opacity: .6; cursor: wait; }
+  .cberr { color: #C2261D; font-weight: 700; font-size: 22px; margin-top: 12px; min-height: 1em; }
+  @media (max-width: 560px) { .codebox { margin: 24px 16px; padding: 22px 18px; } }
 </style>
 </head>
 <body>
 <header>
   <div class="top">
     <div>
-      <a class="back" href="/">&#8592; All classes</a>
+      <a class="back" href="/">&#8592; My classes</a>
       <h1 id="title">Class calendar</h1>
       <div class="code" id="code"></div>
     </div>
@@ -290,8 +301,11 @@
   });
 
   function load(first) {
-    return fetch("/api/calendar/" + encodeURIComponent(classId), { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    return fetch("/api/calendar/" + encodeURIComponent(classId), { cache: "no-store", headers: { "X-Class-Code": myCode() } })
+      .then(function (r) {
+        if (r.status === 403) return r.json().then(function (j) { askCode(j.class); throw new Error("code"); });
+        if (!r.ok) throw new Error(r.status); return r.json();
+      })
       .then(function (j) {
         data = j; loadedAt = Date.now();
         document.title = j.class.name + " Calendar";
@@ -302,11 +316,49 @@
         if (first) { var w = document.getElementById("thisWeek"); if (w && innerWidth > 760) w.scrollIntoView({ block: "center" }); scrollTo(0, 0); }
       })
       .catch(function (err) {
+        if (String(err.message) === "code") return;
         if (data) return; // keep showing the last good copy
         document.getElementById("main").innerHTML = String(err.message) === "404"
           ? '<p class="msg">That class is not on Learning Home. <a href="/">Pick your class</a>.</p>'
           : '<p class="msg">The calendar did not load. Refresh the page to try again.</p>';
       });
+  }
+
+  // Class codes: the home page keeps the classes this browser has joined, each with its code.
+  function mine() {
+    try { var v = JSON.parse(localStorage.getItem("lh-classes") || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function myCode() { var x = mine().filter(function (c) { return c && c.id === classId; })[0]; return x ? x.code : ""; }
+  function askCode(cls) {
+    data = null;
+    if (cls) {
+      document.documentElement.style.setProperty("--c", cls.colour);
+      document.getElementById("title").textContent = cls.name;
+      document.title = cls.name + " Calendar";
+    }
+    var had = !!myCode();
+    document.getElementById("main").innerHTML = '<form class="codebox" id="codeF" autocomplete="off"><h2>' +
+      (had ? "This class has a new code" : "Enter your class code") + "</h2><p>" +
+      (had ? "Ask your teacher for the new code, then type it here." : "Your teacher gives you the code. You only need to type it once on this computer.") +
+      '</p><div class="cbrow"><input id="codeIn" placeholder="Class code" aria-label="Class code" maxlength="20" spellcheck="false" autocapitalize="characters">' +
+      '<button id="codeB">Open my class</button></div><div class="cberr" id="codeErr" role="alert"></div></form>';
+    var inp = document.getElementById("codeIn"); inp.focus();
+    document.getElementById("codeF").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var b = document.getElementById("codeB"), er = document.getElementById("codeErr");
+      if (!inp.value.trim()) { er.textContent = "Type your class code first."; return; }
+      b.disabled = true; er.textContent = "";
+      fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: inp.value }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "That code did not work."); return j; }); })
+        .then(function (j) {
+          var list = mine().filter(function (c) { return c && c.id !== j.id; });
+          list.push({ id: j.id, code: j.code });
+          try { localStorage.setItem("lh-classes", JSON.stringify(list)); } catch (e) {}
+          if (j.id !== classId) { location.href = "/" + j.id; return; }
+          load(true);
+        })
+        .catch(function (e) { er.textContent = e.message; b.disabled = false; inp.focus(); });
+    });
   }
 
   // Stay current: the clock and "on now" update every 15 seconds, and new
