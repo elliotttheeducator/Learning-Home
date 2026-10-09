@@ -37,7 +37,7 @@ Transport.prototype.open = function(){
     return;
   }
   var q = "?id=" + encodeURIComponent(T.id) + "&name=" + encodeURIComponent(T.name || "");
-  if(T.role === "student") q += "&code=" + encodeURIComponent(T.code || "");
+  if(T.role === "student") q += "&code=" + encodeURIComponent(T.code || "") + "&deck=" + encodeURIComponent(DECK);
   if(T.remote) q += "&remote=1";
   var ws;
   try{ ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/live/" + encodeURIComponent(T.room) + q); }
@@ -63,12 +63,56 @@ Transport.prototype.close = function(){ this.closed = true; if(this.bc){ this.se
 /* ---------- teacher side ---------- */
 var LIVE = {on: false, T: null, roster: {}, used: [], status: "off"};
 function liveData(){ var L = store.live || (store.live = {}); L.open = L.open || {}; L.polls = L.polls || {}; L.walls = L.walls || {}; L.pracs = L.pracs || {}; L.prog = L.prog || {}; return L; }
+/* ---------- live view: students see the teacher's slide as it is, ink and all ----------
+   The slide is sent whenever it changes (steps revealed, gaps filled, edits), and the ink on its
+   own, quickly, while drawing. Teacher notes are taken out before anything is sent. */
+var LV = {obs: null, inkT: 0, viewT: 0};
+function sendView(){
+  if(!LIVE.on || !LIVE.T) return;
+  var f = frames[cur]; if(!f) return;
+  var c = f.cloneNode(true); c.removeAttribute("style"); c.classList.remove("on");
+  qa("aside.script,.k2ink", c).forEach(function(n){ n.remove(); }); // ink travels on its own, as strokes
+  var html = c.outerHTML;
+  if(html.length < 300000) LIVE.T.send({t: "view", deck: DECK, i: cur, html: html}); // bigger: students use their own copy
+  sendInk();
+}
+// The slide's strokes (and the one being drawn), so students can watch it and replay it later.
+function sendInk(){
+  if(!LIVE.on || !LIVE.T) return;
+  var f = frames[cur]; if(!f) return;
+  var ss = (store.ink["f:" + f.dataset.id] || []).slice();
+  if(live_ink && !live_ink.erase && live_ink.surf === surfaces["f:" + f.dataset.id]) ss.push(live_ink.st);
+  var out = JSON.stringify(ss);
+  if(out.length > 300000) out = JSON.stringify(ss.map(function(st){ return {c: st.c, w: st.w, h: st.h, p: st.p.map(function(q){ return [Math.round(q[0]), Math.round(q[1])]; })}; }));
+  if(out.length > 380000) return;
+  LIVE.T.send({t: "ink", deck: DECK, i: cur, s: JSON.parse(out)});
+}
+function queueView(kind){
+  if(kind === "view"){ if(!LV.viewT) LV.viewT = setTimeout(function(){ LV.viewT = 0; clearTimeout(LV.inkT); LV.inkT = 0; sendView(); }, 350); }
+  else if(!LV.inkT && !LV.viewT) LV.inkT = setTimeout(function(){ LV.inkT = 0; sendInk(); }, 110);
+}
+function watchView(){
+  if(LV.obs || !W.MutationObserver) return;
+  LV.obs = new MutationObserver(function(list){
+    if(!LIVE.on) return;
+    var f = frames[cur], kind = "";
+    for(var i = 0; i < list.length; i++){
+      var m = list[i], t = m.target.nodeType === 1 ? m.target : m.target.parentNode;
+      if(!t || !f.contains(t)) continue;
+      if(t === f && m.type === "attributes") continue; // camera moves and the on class
+      if(t.closest && t.closest(".k2ink")){ if(!kind) kind = "ink"; } else { kind = "view"; break; }
+    }
+    if(kind) queueView(kind);
+  });
+  LV.obs.observe(deckHost(), {subtree: true, childList: true, attributes: true, characterData: true});
+}
+
 function startLive(){
   if(LIVE.on) return;
   LIVE.on = true; LIVE.T = new Transport("teacher", "Teacher", "t-" + rid());
   LIVE.T.on(onTeacherMsg); LIVE.T.open();
   $("k2liveb").setAttribute("aria-pressed", "true");
-  autoOpen(frames[cur]); sendState(); paintLive();
+  autoOpen(frames[cur]); sendState(); paintLive(); watchView(); setTimeout(sendView, 600);
   LIVE.tick = setInterval(sendState, 15000);
   store.liveOn = now(); save();
 }
@@ -78,7 +122,7 @@ function onTeacherMsg(m){
   if(m.t === "_status"){ LIVE.status = m.s; paintLive(); return; }
   if(m.t === "_open"){ sendState(); return; }
   if(m.t === "roster"){ (m.list || []).forEach(function(s){ R[s.id] = R[s.id] || {name: s.name, stuck: false}; }); paintLive(); return; }
-  if(m.t === "join" || (m.t === "hello" && f.role === "student")){ R[f.id] = R[f.id] || {name: f.name, stuck: false}; R[f.id].name = f.name; paintLive(); if(m.t === "join" || LIVE.T.mode === "bc") sendState(); return; }
+  if(m.t === "join" || (m.t === "hello" && f.role === "student")){ R[f.id] = R[f.id] || {name: f.name, stuck: false}; R[f.id].name = f.name; paintLive(); if(m.t === "join" || LIVE.T.mode === "bc"){ sendState(); if(LIVE.T.mode === "bc") sendView(); } return; }
   if(m.t === "hello" && f.role === "teacher"){ sendState(); return; }
   if(m.t === "leave"){ delete R[f.id]; paintLive(); return; }
   if(f.role === "teacher" && m.t === "cmd"){ runCmd(m); return; }

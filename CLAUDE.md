@@ -22,8 +22,11 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
   name on the list; decks take the name from there instead of asking.
 - Live lessons: when Elliott goes live in a deck, students in that class get a "Live lesson now" popup on
   the home page and class page (`/live/<class-id>/status`) until the timetabled lesson ends plus 5 minutes,
-  or until he stops. Student deck pages show the slides and follow his slide; students can go back but not
-  past his slide, and Go live returns them to it.
+  or until he stops. Student deck pages are one slide at a time, a live copy of his screen: his slide as it
+  is (reveals, gaps) and his ink as he draws, sent as strokes. Students go wherever he goes; they can step
+  back but not past his slide, and Go live returns them. The live room keeps every lesson's slides and
+  strokes (`v:<deck>|view|i`, `v:<deck>|ink|i` in the Durable Object) so students can look back and
+  Replay the drawing any time later. Activities open in a Your turn panel beside the slide.
 - Students only see what Elliott publishes. Lessons are unpublished until he presses Publish in the
   teacher planner (`/teacher/`); until then students see only the time and room. So new files and
   outlines can go live on the site without students seeing them.

@@ -11,7 +11,7 @@
 // teacher's first state until the timetabled lesson ends plus 5 minutes, or until the
 // teacher ends it. /live/<class-id>/status reports it.
 
-const MAX = 64 * 1024;
+const MAX = 400 * 1024; // a slide with a lot of ink, sent as strokes
 
 export class LiveRoom {
   constructor(ctx, env) {
@@ -19,6 +19,11 @@ export class LiveRoom {
     this.env = env;
     this.state = null;
     this.session = null;
+    // The teacher's latest copy of each slide and its strokes, per lesson (deck), kept so students
+    // can look back over a lesson and replay the drawing, live or any time later. Stored as
+    // "v:<deck>|view|3" and "v:<deck>|ink|3", written to storage every few seconds.
+    this.decks = new Map(); // deck -> Map(key -> message)
+    this.dirty = new Set();
     ctx.blockConcurrencyWhile(async () => {
       this.state = (await ctx.storage.get("state")) || null;
       this.session = (await ctx.storage.get("session")) || null;
@@ -42,12 +47,15 @@ export class LiveRoom {
     const [client, server] = Object.values(pair);
     this.ctx.acceptWebSocket(server, [role]);
     const until = +request.headers.get("X-Live-Until") || 0;
+    const deck = clean(request.headers.get("X-Live-Deck"), 80);
     server.serializeAttachment({ role, id, name, until });
     if (role === "student") {
       if (this.state) server.send(this.state);
+      if (deck) for (const v of (await this.deckViews(deck)).values()) server.send(v);
       this.toTeachers({ t: "join", from: { role, id, name } });
     } else {
       server.send(JSON.stringify({ t: "roster", list: this.students() }));
+      if (this.state) server.send(this.state); // the phone remote shows the lesson straight away
     }
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -98,6 +106,12 @@ export class LiveRoom {
         await this.ctx.storage.put("session", cur);
       }
     }
+    if ((m.t === "view" || m.t === "ink") && m.deck) {
+      const deck = clean(m.deck, 80), key = deck + "|" + m.t + "|" + (+m.i || 0);
+      (await this.deckViews(deck)).set(key, out);
+      this.dirty.add(key);
+      await this.flushSoon();
+    }
     if (m.t === "end") {
       this.state = null;
       this.session = null;
@@ -109,6 +123,30 @@ export class LiveRoom {
       const b = s.deserializeAttachment() || {};
       if (m.to && b.role === "student" && b.id !== m.to) continue;
       try { s.send(b.role === "student" ? forStudents : out); } catch { /* closed */ }
+    }
+  }
+
+  async flushSoon() {
+    if ((await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(Date.now() + 4000);
+  }
+
+  // One lesson's stored slides, loaded from storage the first time they are asked for.
+  async deckViews(deck) {
+    let map = this.decks.get(deck);
+    if (!map) {
+      map = new Map();
+      for (const [k, v] of await this.ctx.storage.list({ prefix: "v:" + deck + "|" })) map.set(k.slice(2), v);
+      this.decks.set(deck, map);
+    }
+    return map;
+  }
+
+  async alarm() {
+    const keys = [...this.dirty];
+    this.dirty.clear();
+    for (const k of keys) {
+      const map = this.decks.get(k.split("|")[0]);
+      if (map && map.has(k)) await this.ctx.storage.put("v:" + k, map.get(k));
     }
   }
 
@@ -170,6 +208,7 @@ export async function liveRoute(request, env, classId, url, { isTeacher, classFo
   h.set("X-Live-Role", role);
   h.set("X-Live-Id", url.searchParams.get("id") || "");
   h.set("X-Live-Name", name);
+  h.set("X-Live-Deck", url.searchParams.get("deck") || "");
   if (role === "teacher" && until) h.set("X-Live-Until", String(until));
   const stub = env.LIVE.get(env.LIVE.idFromName(classId));
   return stub.fetch(new Request(request.url, { headers: h }));

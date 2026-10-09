@@ -184,7 +184,7 @@ function go(i, first){
   store.pos = i; if(!first) save();
   if(layout !== "slide") loadWs();
   updateChrome();
-  if(LIVE.on){ autoOpen(f); sendState(); }
+  if(LIVE.on){ autoOpen(f); sendState(); sendView(); }
 }
 function next(){
   var f = frames[cur];
