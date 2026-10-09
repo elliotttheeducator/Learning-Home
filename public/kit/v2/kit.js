@@ -71,7 +71,7 @@ function renderTex(root){
 }
 
 /* ---------- which view: teacher deck or student page ---------- */
-var ON_LH = false, VIEW = "teacher";
+var ON_LH = false, VIEW = "teacher", PREVIEW = false;
 function decide(cb){
   var p = new URLSearchParams(location.search);
   var forced = p.get("view");
@@ -80,7 +80,9 @@ function decide(cb){
   var t = setTimeout(function(){ if(!done){ done = true; cb(forced === "student" ? "student" : "teacher"); } }, 2500);
   fetch("/api/me", {credentials: "same-origin", cache: "no-store"}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
     if(done) return; done = true; clearTimeout(t);
-    if(j && typeof j.teacher === "boolean"){ ON_LH = true; }
+    if(j && typeof j.teacher === "boolean"){ ON_LH = true; PREVIEW = !!j.preview; }
+    // ?view=student from the signed-in teacher is the student view: no code or name needed.
+    if(forced === "student" && j && j.teacher === true) PREVIEW = true;
     if(forced) return cb(forced === "student" ? "student" : "teacher");
     cb(ON_LH && j.teacher === false ? "student" : "teacher");
   }).catch(function(){ if(done) return; done = true; clearTimeout(t); cb(forced === "student" ? "student" : "teacher"); });
@@ -1096,6 +1098,7 @@ Transport.prototype.open = function(){
   }
   var q = "?id=" + encodeURIComponent(T.id) + "&name=" + encodeURIComponent(T.name || "");
   if(T.role === "student") q += "&code=" + encodeURIComponent(T.code || "") + "&deck=" + encodeURIComponent(DECK);
+  if(T.role === "student" && PREVIEW) q += "&as=student";
   if(T.remote) q += "&remote=1";
   var ws;
   try{ ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/live/" + encodeURIComponent(T.room) + q); }
@@ -1970,6 +1973,8 @@ function buildStudent(){
   initGaps(); initMedia();
   renderTex(BODY);
   paintName(); paintLocks();
+  // The teacher's student view: joins as "Student view" without a class code or name.
+  if(PREVIEW){ SV.name = "Student view"; previewPill(); paintName(); connectStudent(); return; }
   if(ON_LH && CLASS){ whoAmI(); return; }
   if(!SV.name) askName(connectStudent); else connectStudent();
 }
@@ -1990,6 +1995,11 @@ function whoAmI(){
       });
     }, function(){ setStat("off", "Offline: your answers still save on this computer"); });
 }
+function previewPill(){
+  var a = mk("a", "svpill svpv"); a.href = new URLSearchParams(location.search).get("view") === "student" ? location.pathname : "/auth/student-view?off=1"; a.title = "You are seeing this deck as a student. Click to go back to teacher view.";
+  a.textContent = "Student view: back to teacher";
+  var top = D.querySelector(".svtop"); top.insertBefore(a, $("svname")); $("svname").hidden = true;
+}
 function paintName(){
   var b = $("svname"); b.textContent = SV.name ? SV.name : "Add your name";
   if(ON_LH && CLASS){ b.onclick = null; b.disabled = !!SV.name; b.title = SV.name ? "Only your teacher can change your name" : ""; if(!SV.name) b.onclick = whoAmI; return; }
@@ -2008,7 +2018,7 @@ function classCode(){
 }
 function connectStudent(){
   if(!SV.name) return;
-  if(ON_LH && CLASS && !classCode()){ setStat("off", "Add this class on Learning Home to join"); return; }
+  if(ON_LH && CLASS && !classCode() && !PREVIEW){ setStat("off", "Add this class on Learning Home to join"); return; }
   var T = SV.T = new Transport("student", SV.name, SV.id, {code: classCode()});
   T.on(onStudentMsg); T.open();
   if(!SV.watch) SV.watch = setInterval(function(){

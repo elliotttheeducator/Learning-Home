@@ -27,6 +27,10 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
   back but not past his slide, and Go live returns them. The live room keeps every lesson's slides and
   strokes (`v:<deck>|view|i`, `v:<deck>|ink|i` in the Durable Object) so students can look back and
   Replay the drawing any time later. Activities open in a Your turn panel beside the slide.
+- Student view: the planner's Student view button (`/auth/student-view`, cookie `lh_view=student`) shows the
+  signed-in teacher every class exactly as a student sees it: published lessons and student files only, decks as
+  the student page (joining live rooms as "Student view"). Opening the planner ends it. Planner Teach links add
+  `?view=teacher`, so decks still open as the teacher deck while it is on; `?view=student` previews one deck.
 - Students only see what Elliott publishes. Lessons are unpublished until he presses Publish in the
   teacher planner (`/teacher/`); until then students see only the time and room. So new files and
   outlines can go live on the site without students seeing them.

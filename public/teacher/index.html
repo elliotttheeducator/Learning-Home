@@ -310,7 +310,7 @@
       <button class="btn" id="packBtn" title="Put files from any chat where they belong">Import pack</button>
       <button class="btn" id="filesBtn" title="Every file uploaded to the site">Files</button>
       <span class="savestate" id="saveState" aria-live="polite"></span>
-      <a class="btn" href="/" target="_blank" rel="noopener">Student site</a>
+      <a class="btn" href="/auth/student-view?next=/" target="_blank" rel="noopener" title="See every class exactly as a student does: only published lessons and student files">Student view</a>
       <a class="btn quiet" href="/auth/logout">Sign out</a>
     </div>
   </div>
@@ -394,9 +394,15 @@
     return /^\/teacher(\/|$)/.test(r.url || "") ? "teacher" : "students";
   }
   function usable(r) { return r.url && okUrl(r.url); }
-  function launchUrl(r) {
+  function launchUrl(r, asStudent) {
     // Site pages to print open in the print helper, which brings up the print dialog straight away.
     if (aud(r) === "print" && /^\/(?!\/)/.test(r.url)) return "/teacher/print?u=" + encodeURIComponent(r.url) + "&t=" + encodeURIComponent(r.title || "");
+    // Site decks always open as the teacher deck from here, even while student view is on in another tab.
+    // The Students chip opens the student page instead.
+    if (r.type === "deck" && /^\/(?!\/)[^?#]*\.html?(#.*)?$/.test(r.url)) {
+      var h = r.url.indexOf("#"), base = h < 0 ? r.url : r.url.slice(0, h), hash = h < 0 ? "" : r.url.slice(h);
+      return base + "?view=" + (asStudent ? "student" : "teacher") + hash;
+    }
     return r.url;
   }
   function byAud(p) {
@@ -408,9 +414,9 @@
     out.teacher = live.concat(out.teacher);
     return out;
   }
-  function goBtn(r, big, primaryKey) {
+  function goBtn(r, big, primaryKey, asStudent) {
     var a = aud(r), icon = a === "teacher" ? PLAY : a === "print" ? PRINTER : PEOPLE;
-    return '<a class="go ' + AUD_CLASS[a] + (big ? " big" : "") + '" href="' + esc(launchUrl(r)) + '" target="_blank" rel="noopener" title="' + esc(r.url) + '">' +
+    return '<a class="go ' + AUD_CLASS[a] + (big ? " big" : "") + '" href="' + esc(launchUrl(r, asStudent)) + '" target="_blank" rel="noopener" title="' + esc(r.url) + '">' +
       icon + "<span>" + esc(r.title || r.url) + "</span>" + (primaryKey ? '<span class="k">L</span>' : "") + "</a>";
   }
   function copyBtn(r) {
@@ -420,7 +426,7 @@
   function chips(p) {
     var g = byAud(p), h = "";
     if (g.teacher.length) h += '<a class="lx teach" href="' + esc(launchUrl(g.teacher[0])) + '" target="_blank" rel="noopener" title="' + esc(g.teacher[0].title) + '">' + PLAY + "Teach</a>";
-    if (g.students.length) h += '<a class="lx stu" href="' + esc(launchUrl(g.students[0])) + '" target="_blank" rel="noopener" title="' + esc(g.students[0].title) + '">Students</a>';
+    if (g.students.length) h += '<a class="lx stu" href="' + esc(launchUrl(g.students[0], true)) + '" target="_blank" rel="noopener" title="' + esc(g.students[0].title) + '">Students</a>';
     if (g.print.length) h += '<a class="lx print" href="' + esc(launchUrl(g.print[0])) + '" target="_blank" rel="noopener" title="' + esc(g.print.map(function (r) { return r.title; }).join(", ")) + '">' + PRINTER + (g.print.length > 1 ? g.print.length : "") + "</a>";
     return h;
   }
@@ -511,7 +517,7 @@
         : (l.date === n.date ? "Up next, today at " + t12ap(l.start) : "Up next, " + DAY_FULL[l.day] + " " + fmt(l.date) + " at " + t12ap(l.start));
       var groups = "";
       if (g.teacher.length) groups += '<div class="grp"><span class="gl">Teach</span><span class="gi">' + g.teacher.map(function (r, i) { return goBtn(r, i === 0, i === 0); }).join("") + "</span></div>";
-      if (g.students.length) groups += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r, i) { return goBtn(r, !g.teacher.length && i === 0, !g.teacher.length && i === 0) + copyBtn(r); }).join("") + "</span></div>";
+      if (g.students.length) groups += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r, i) { return goBtn(r, !g.teacher.length && i === 0, !g.teacher.length && i === 0, true) + copyBtn(r); }).join("") + "</span></div>";
       if (g.print.length) groups += '<div class="grp"><span class="gl">Print</span><span class="gi">' + g.print.map(function (r) { return goBtn(r, false); }).join("") + "</span></div>";
       if (!groups) groups = '<p class="empty-res">No slides, apps or printouts on this lesson yet. Open the plan to add them.</p>';
       hero = '<div class="hero" style="--c:' + esc(c.colour) + '">' +
@@ -690,7 +696,7 @@
   function launchHTML(p) {
     var g = byAud(p), h = "";
     if (g.teacher.length) h += '<div class="grp"><span class="gl">Teach</span><span class="gi">' + g.teacher.map(function (r, i) { return goBtn(r, i === 0); }).join("") + "</span></div>";
-    if (g.students.length) h += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r) { return goBtn(r, false) + copyBtn(r); }).join("") + "</span></div>";
+    if (g.students.length) h += '<div class="grp"><span class="gl">Students</span><span class="gi">' + g.students.map(function (r) { return goBtn(r, false, false, true) + copyBtn(r); }).join("") + "</span></div>";
     if (g.print.length) h += '<div class="grp"><span class="gl">Print</span><span class="gi">' + g.print.map(function (r) { return goBtn(r, false); }).join("") + "</span></div>";
     return h || '<p class="hint" style="margin:0">Nothing to launch yet. Add slides, apps, teacher versions and printouts under Resources below.</p>';
   }

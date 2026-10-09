@@ -38,6 +38,7 @@ Transport.prototype.open = function(){
   }
   var q = "?id=" + encodeURIComponent(T.id) + "&name=" + encodeURIComponent(T.name || "");
   if(T.role === "student") q += "&code=" + encodeURIComponent(T.code || "") + "&deck=" + encodeURIComponent(DECK);
+  if(T.role === "student" && PREVIEW) q += "&as=student";
   if(T.remote) q += "&remote=1";
   var ws;
   try{ ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/live/" + encodeURIComponent(T.room) + q); }

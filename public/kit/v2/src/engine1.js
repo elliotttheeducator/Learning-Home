@@ -67,7 +67,7 @@ function renderTex(root){
 }
 
 /* ---------- which view: teacher deck or student page ---------- */
-var ON_LH = false, VIEW = "teacher";
+var ON_LH = false, VIEW = "teacher", PREVIEW = false;
 function decide(cb){
   var p = new URLSearchParams(location.search);
   var forced = p.get("view");
@@ -76,7 +76,9 @@ function decide(cb){
   var t = setTimeout(function(){ if(!done){ done = true; cb(forced === "student" ? "student" : "teacher"); } }, 2500);
   fetch("/api/me", {credentials: "same-origin", cache: "no-store"}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
     if(done) return; done = true; clearTimeout(t);
-    if(j && typeof j.teacher === "boolean"){ ON_LH = true; }
+    if(j && typeof j.teacher === "boolean"){ ON_LH = true; PREVIEW = !!j.preview; }
+    // ?view=student from the signed-in teacher is the student view: no code or name needed.
+    if(forced === "student" && j && j.teacher === true) PREVIEW = true;
     if(forced) return cb(forced === "student" ? "student" : "teacher");
     cb(ON_LH && j.teacher === false ? "student" : "teacher");
   }).catch(function(){ if(done) return; done = true; clearTimeout(t); cb(forced === "student" ? "student" : "teacher"); });

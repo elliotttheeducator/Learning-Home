@@ -175,10 +175,10 @@ function clean(v, max) {
 }
 
 // Called by the Worker for /live/<class-id>. isTeacher and classForCode come from index.js.
-export async function liveRoute(request, env, classId, url, { isTeacher, classForCode, classes, studentName, until }) {
+export async function liveRoute(request, env, classId, url, { isTeacher, preview, classForCode, classes, studentName, until }) {
   if (url.pathname.endsWith("/status")) {
     if (!env.LIVE || !classes.some(c => c.id === classId)) return Response.json({ live: false });
-    if (!isTeacher && (await classForCode(request.headers.get("X-Class-Code"))) !== classId) return Response.json({ live: false }, { status: 403 });
+    if (!isTeacher && !preview && (await classForCode(request.headers.get("X-Class-Code"))) !== classId) return Response.json({ live: false }, { status: 403 });
     const stub = env.LIVE.get(env.LIVE.idFromName(classId));
     const res = await stub.fetch(new Request("https://live/status", { headers: { "X-Live-Status": "1" } }));
     return new Response(res.body, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -190,6 +190,8 @@ export async function liveRoute(request, env, classId, url, { isTeacher, classFo
   if (!classes.some(c => c.id === classId)) return new Response("No such class.", { status: 404 });
   let role = "student", name = url.searchParams.get("name") || "";
   if (isTeacher) role = "teacher";
+  // The teacher in student view joins as a student called "Student view", with no code needed.
+  else if (preview) name = "Student view";
   else {
     let ok = (await classForCode(url.searchParams.get("code"))) === classId;
     // Students go by the name on the class list, which only the teacher can change.
