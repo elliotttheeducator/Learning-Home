@@ -178,6 +178,8 @@ function showSlide(){
   var svg = D.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "k2ink"); f.appendChild(svg);
   stopReplay(); drawInk();
   renderTex(f);
+  // a deck's own animations (its own script) can bind to this copy of the slide
+  try{ D.dispatchEvent(new CustomEvent("kit2:frame", {detail: f})); }catch(e){}
   SL.P.target = f; SL.P.kind = f.dataset.kind === "map" ? "map" : f.dataset.kind || "slide";
   SL.P.fit();
 }

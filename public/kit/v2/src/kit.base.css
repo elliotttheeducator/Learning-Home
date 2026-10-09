@@ -500,3 +500,13 @@ body.k2-student #deck{display:none!important}
 #k2ws .wstitle{font:800 15px Figtree,system-ui,sans-serif}
 #k2view.split #k2ws .wsbar,#k2view.wsonly #k2ws .wsbar{right:240px}
 figure.img .imwrap>svg,figure.img .imwrap>img{display:block}
+
+/* live tally: class totals as percentage bars, with the prediction marked */
+.tally{display:flex;flex-direction:column;gap:22px;padding:10px 4px}
+.tally .trow{display:grid;grid-template-columns:minmax(120px,auto) 1fr 80px;gap:16px;align-items:center}
+.tally .tl{font:800 26px var(--body)}
+.tally .tbar{position:relative;height:44px;border-radius:12px;background:var(--soft);overflow:visible}
+.tally .tbar i{position:absolute;left:0;top:0;bottom:0;border-radius:12px;background:var(--accent);transition:width .4s}
+.tally .tbar .tex2{position:absolute;top:-8px;bottom:-8px;width:5px;margin-left:-2px;border-radius:3px;background:var(--ink)}
+.tally .tp{font:800 28px var(--mono);text-align:right}
+table.t tr.tot td{border-top:3px solid var(--ink)}
