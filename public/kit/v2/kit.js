@@ -1150,7 +1150,7 @@ function sendState(){
   qa(".live-wall").forEach(function(e){ walls[itemId(e)] = {open: !!L.open[itemId(e)]}; });
   qa(".live-prac").forEach(function(e){ pracs[itemId(e)] = {open: !!L.open[itemId(e)]}; });
   var R = LIVE.roster, ids = Object.keys(R);
-  LIVE.T.send({t: "state", at: now(), deck: DECK, title: D.title,
+  LIVE.T.send({t: "state", at: now(), deck: DECK, title: D.title, url: location.pathname, mins: +BODY.dataset.mins || 80,
     frame: {i: cur, n: frames.length, id: f.dataset.id, title: frameTitle(f), kind: f.dataset.kind, mode: f.dataset.mode, script: sc ? sc.textContent.trim().slice(0, 1500) : "", hasSteps: !!f.querySelector(".stepbtn"), items: liveItems(f).map(itemId)},
     next: frames[cur + 1] ? frameTitle(frames[cur + 1]) : "",
     open: Object.keys(L.open).filter(function(k){ return L.open[k]; }), polls: polls, walls: walls, pracs: pracs,
@@ -1873,6 +1873,7 @@ function buildStudent(){
   var top = mk("div", "svtop");
   top.innerHTML = '<span class="ttl">' + esc(D.title) + '</span><span class="sp"></span><span class="svpill off" id="svstat">Not live</span><button class="svpill" type="button" id="svname"></button>';
   BODY.appendChild(top);
+  buildSlides();
   var main = mk("main", "sv"); main.id = "svmain"; BODY.appendChild(main);
   var tf = frames[0], sub = tf && tf.querySelector(".title-frame p");
   main.innerHTML = '<h1>' + esc(D.title) + '</h1><p class="intro">' + (sub ? esc(sub.textContent) : "Work through each part when your teacher opens it. Your answers save in this browser.") + '</p>';
@@ -1891,12 +1892,34 @@ function buildStudent(){
   initGaps(); initMedia();
   renderTex(BODY);
   paintName(); paintLocks();
+  if(ON_LH && CLASS){ whoAmI(); return; }
   if(!SV.name) askName(connectStudent); else connectStudent();
 }
-function paintName(){ var b = $("svname"); b.textContent = SV.name ? SV.name : "Add your name"; b.onclick = function(){ askName(function(){ if(SV.T){ SV.T.close(); SV.T = null; } connectStudent(); }); }; }
+// On Learning Home the name comes from the class list: typed once when joining the class,
+// and only the teacher can change it.
+function whoAmI(){
+  var code = classCode();
+  if(!code){ setStat("off", "Add this class on Learning Home to join"); return; }
+  fetch("/api/join", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: code, id: SV.id})})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){
+      if(!j){ setStat("off", "Check your class code on Learning Home"); return; }
+      if(j.student){ SV.name = j.student; lsSet("kit2-name", j.student); paintName(); connectStudent(); return; }
+      askName(function(){
+        fetch("/api/join", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({code: code, id: SV.id, student: SV.name})})
+          .then(function(r){ return r.ok ? r.json() : null; })
+          .then(function(k){ if(k && k.student){ SV.name = k.student; lsSet("kit2-name", k.student); } paintName(); connectStudent(); });
+      });
+    }, function(){ setStat("off", "Offline: your answers still save on this computer"); });
+}
+function paintName(){
+  var b = $("svname"); b.textContent = SV.name ? SV.name : "Add your name";
+  if(ON_LH && CLASS){ b.onclick = null; b.disabled = !!SV.name; b.title = SV.name ? "Only your teacher can change your name" : ""; if(!SV.name) b.onclick = whoAmI; return; }
+  b.onclick = function(){ askName(function(){ if(SV.T){ SV.T.close(); SV.T = null; } connectStudent(); }); };
+}
 function askName(done){
   var o = mk("div", "svmodal");
-  o.innerHTML = '<form class="box"><b>What is your first name?</b><label for="svnm" style="color:#4d5872">Your teacher sees this when you answer. This browser remembers it.</label><input id="svnm" type="text" maxlength="30" autocomplete="given-name" value="' + esc(SV.name) + '"><button class="svbtn" type="submit">Save</button></form>';
+  o.innerHTML = '<form class="box"><b>What is your name?</b><label for="svnm" style="color:#4d5872">' + (ON_LH && CLASS ? "Your first and last name. You only do this once, and only your teacher can change it." : "Your teacher sees this when you answer. This browser remembers it.") + '</label><input id="svnm" type="text" maxlength="30" autocomplete="given-name" value="' + esc(SV.name) + '"><button class="svbtn" type="submit">Save</button></form>';
   BODY.appendChild(o);
   var inp = o.querySelector("input"); setTimeout(function(){ inp.focus(); }, 50);
   o.querySelector("form").onsubmit = function(e){ e.preventDefault(); var v = inp.value.trim().replace(/\s+/g, " ").slice(0, 30); if(!v){ inp.focus(); return; } SV.name = v; lsSet("kit2-name", v); o.remove(); paintName(); if(done) done(); };
@@ -1911,8 +1934,101 @@ function connectStudent(){
   var T = SV.T = new Transport("student", SV.name, SV.id, {code: classCode()});
   T.on(onStudentMsg); T.open();
   if(!SV.watch) SV.watch = setInterval(function(){
-    if(SV.state && now() - SV.at > 50000){ SV.state = null; setStat("off", "Not live yet: work at your own pace"); paintLocks(); turnBanner(null); }
+    if(SV.state && now() - SV.at > 50000){ SV.state = null; setStat("off", "Not live yet: work at your own pace"); paintLocks(); turnBanner(null); slidesLive(); }
   }, 10000);
+}
+/* ---------- the slides, keeping up with the teacher ----------
+   Live: the student follows the teacher's slide. They can go back to earlier slides, never past
+   the teacher's, and Go live takes them back to it. Not live: every slide, to look back over. */
+var SL = {i: 0, follow: true, made: {}};
+function liveIdx(){ var st = SV.state; return st && st.frame && st.frame.i != null && st.frame.i < frames.length ? +st.frame.i : -1; }
+function buildSlides(){
+  if(!frames.length) return;
+  var sec = mk("section", "svslides"); sec.id = "svslides"; sec.setAttribute("aria-label", "Slides");
+  sec.innerHTML = '<div class="svsbox" id="svsbox"><div class="svsstage" id="svstage"></div></div>' +
+    '<div class="svsbar"><button type="button" class="svsnav" id="svprev" aria-label="Previous slide">&#8249; Back</button>' +
+    '<span class="svspos" id="svpos"></span>' +
+    '<button type="button" class="svsnav" id="svnext" aria-label="Next slide">Next &#8250;</button>' +
+    '<span class="sp"></span><span class="svsflag" id="svflag"></span>' +
+    '<button type="button" class="svgolive" id="svgolive" hidden>Go live</button></div>';
+  BODY.appendChild(sec);
+  $("svprev").onclick = function(){ slideGo(SL.i - 1, false); };
+  $("svnext").onclick = function(){ slideGo(SL.i + 1, false); };
+  $("svgolive").onclick = function(){ var L = liveIdx(); if(L >= 0) slideGo(L, true); };
+  sec.addEventListener("click", function(e){
+    var b = e.target.closest("[data-goact]"); if(!b) return;
+    var c = D.querySelector('.svcard[data-act="' + b.dataset.goact + '"]');
+    if(c){ c.hidden = false; c.scrollIntoView({behavior: "smooth", block: "start"}); }
+  });
+  D.addEventListener("keydown", function(e){
+    if(e.target.closest && e.target.closest("input,textarea,select,[contenteditable]")) return;
+    if(e.key === "ArrowLeft"){ slideGo(SL.i - 1, false); e.preventDefault(); }
+    else if(e.key === "ArrowRight"){ slideGo(SL.i + 1, false); e.preventDefault(); }
+  });
+  W.addEventListener("resize", slideFit);
+  slideGo(0, true);
+}
+// A copy of a frame for students: no teacher notes, ink or teacher buttons; activities point to the page below.
+function studentFrame(i){
+  if(SL.made[i]) return SL.made[i];
+  var f = frames[i].cloneNode(true);
+  f.removeAttribute("style"); f.classList.remove("on");
+  qa("aside.script,.work,.k2ink,.stepbtn,.ansall,.gapall,.k2pieceflag,.vctl", f).forEach(function(n){ n.remove(); });
+  qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){
+    var b = mk("button", "svgoact"); b.type = "button"; b.dataset.goact = e.dataset.id || "";
+    b.textContent = e.classList.contains("activity") ? "Answer this below \u2193" : "Join in below \u2193";
+    e.replaceWith(b);
+  });
+  qa("video", f).forEach(function(v){ v.controls = true; });
+  var head = f.querySelector(":scope > .head");
+  if(head && !head.querySelector(".k2chip")){ var chip = mk("span", "k2chip", chipHTML(f.dataset.mode, f.dataset.say)); chip.setAttribute("data-mode", f.dataset.mode); head.insertBefore(chip, head.firstChild); }
+  $("svstage").appendChild(f);
+  if(f.dataset.kind === "map") buildMap(f);
+  renderTex(f);
+  SL.made[i] = f;
+  return f;
+}
+function slideGo(i, follow){
+  var L = liveIdx(), max = L >= 0 ? L : frames.length - 1;
+  i = clamp(i, 0, max);
+  var old = SL.made[SL.i]; if(old) old.classList.remove("on");
+  SL.i = i; SL.follow = L >= 0 ? (follow || i === L) : true;
+  var f = studentFrame(i); f.classList.add("on");
+  if(f._drawLinks) f._drawLinks();
+  slideFit(); paintSlideBar();
+}
+function slideFit(){
+  var f = SL.made[SL.i], box = $("svsbox"); if(!f || !box) return;
+  var k = f.dataset.kind, w = k === "map" ? (+f.dataset.w || 3600) : 1600;
+  var h = k === "map" ? (+f.dataset.h || 2000) : k === "scroll" ? Math.max(900, f.offsetHeight) : 900;
+  // fit the window: the whole slide plus its buttons stay on screen
+  var top = $("svslides").parentNode.querySelector(".svtop"), room = W.innerHeight - (top ? top.offsetHeight : 0) - 110;
+  var sec = $("svslides"), full = sec.clientWidth - 36;
+  box.style.maxWidth = k === "scroll" ? "" : Math.max(320, Math.min(full, Math.floor(room * w / h))) + "px";
+  box.style.margin = "0 auto";
+  var s = box.clientWidth / w;
+  f.style.transform = "scale(" + s.toFixed(5) + ")";
+  $("svstage").style.height = Math.round(h * s) + "px";
+  box.classList.toggle("tall", k === "scroll");
+}
+function paintSlideBar(){
+  var L = liveIdx(), max = L >= 0 ? L : frames.length - 1;
+  $("svpos").textContent = "Slide " + (SL.i + 1) + " of " + frames.length;
+  $("svprev").disabled = SL.i <= 0;
+  $("svnext").disabled = SL.i >= max;
+  $("svnext").title = L >= 0 && SL.i >= L ? "This is where your teacher is up to" : "";
+  var behind = L >= 0 && SL.i !== L;
+  $("svgolive").hidden = !behind;
+  var fl = $("svflag");
+  fl.textContent = L < 0 ? "Not live: look back over any slide" : behind ? "Your teacher is on slide " + (L + 1) : "Live: following your teacher";
+  fl.className = "svsflag" + (L >= 0 && !behind ? " on" : "");
+}
+// Called whenever the teacher's state changes.
+function slidesLive(){
+  if(!$("svslides")) return;
+  var L = liveIdx();
+  if(L >= 0 && (SL.follow || SL.i > L)) slideGo(L, true);
+  else paintSlideBar();
 }
 function setStat(cls, text){ var s = $("svstat"); s.className = "svpill " + cls; s.textContent = text; }
 function onStudentMsg(m){
@@ -1924,8 +2040,8 @@ function onStudentMsg(m){
   }
   var f = m.from || {}; if(f.role !== "teacher") return;
   if(m.t === "state" && m.at && Math.abs(now() - m.at) > 60000) return;
-  if(m.t === "state"){ if(m.deck !== DECK){ SV.state = null; setStat("off", "Your teacher is on another lesson"); paintLocks(); return; } SV.state = m; SV.at = now(); setStat("live", "Live with your teacher"); paintLocks(); }
-  if(m.t === "end"){ SV.state = null; setStat("off", "Not live: work at your own pace"); paintLocks(); turnBanner(null); }
+  if(m.t === "state"){ if(m.deck !== DECK){ SV.state = null; setStat("off", "Your teacher is on another lesson"); paintLocks(); slidesLive(); return; } SV.state = m; SV.at = now(); setStat("live", "Live with your teacher"); paintLocks(); slidesLive(); }
+  if(m.t === "end"){ SV.state = null; setStat("off", "Not live: work at your own pace"); paintLocks(); turnBanner(null); slidesLive(); }
   if(m.t === "nominate"){ turnBanner(m.to === SV.id ? m : null); }
 }
 function isOpen(id){ if(!SV.state) return null; return (SV.state.open || []).indexOf(id) >= 0; }

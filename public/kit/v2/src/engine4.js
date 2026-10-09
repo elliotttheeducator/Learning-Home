@@ -110,7 +110,7 @@ function sendState(){
   qa(".live-wall").forEach(function(e){ walls[itemId(e)] = {open: !!L.open[itemId(e)]}; });
   qa(".live-prac").forEach(function(e){ pracs[itemId(e)] = {open: !!L.open[itemId(e)]}; });
   var R = LIVE.roster, ids = Object.keys(R);
-  LIVE.T.send({t: "state", at: now(), deck: DECK, title: D.title,
+  LIVE.T.send({t: "state", at: now(), deck: DECK, title: D.title, url: location.pathname, mins: +BODY.dataset.mins || 80,
     frame: {i: cur, n: frames.length, id: f.dataset.id, title: frameTitle(f), kind: f.dataset.kind, mode: f.dataset.mode, script: sc ? sc.textContent.trim().slice(0, 1500) : "", hasSteps: !!f.querySelector(".stepbtn"), items: liveItems(f).map(itemId)},
     next: frames[cur + 1] ? frameTitle(frames[cur + 1]) : "",
     open: Object.keys(L.open).filter(function(k){ return L.open[k]; }), polls: polls, walls: walls, pracs: pracs,

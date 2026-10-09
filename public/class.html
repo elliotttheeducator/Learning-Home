@@ -160,6 +160,12 @@
   .cbrow button { font: 800 26px/1 var(--font); padding: 16px 26px; border: 0; border-radius: 14px; background: var(--c); color: #fff; cursor: pointer; }
   .cbrow button:disabled { opacity: .6; cursor: wait; }
   .cberr { color: #C2261D; font-weight: 700; font-size: 22px; margin-top: 12px; min-height: 1em; }
+  #livebar { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    background: var(--c); color: #fff; text-decoration: none; padding: 14px 24px; border-radius: 999px; font-size: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.25); max-width: calc(100% - 32px); }
+  #livebar .dot { width: 14px; height: 14px; border-radius: 50%; background: #fff; animation: lbpulse 1.4s ease-in-out infinite; }
+  @keyframes lbpulse { 50% { opacity: .35; } }
+  #livebar .go { background: #fff; color: var(--ink); font-weight: 800; padding: 6px 16px; border-radius: 999px; }
+  @media (prefers-reduced-motion: reduce) { #livebar .dot { animation: none; } }
   @media (max-width: 560px) { .codebox { margin: 24px 16px; padding: 22px 18px; } }
 </style>
 </head>
@@ -420,9 +426,9 @@
   });
 
   function load(first) {
-    return fetch("/api/calendar/" + encodeURIComponent(classId), { cache: "no-store", headers: { "X-Class-Code": myCode() } })
+    return fetch("/api/calendar/" + encodeURIComponent(classId), { cache: "no-store", headers: { "X-Class-Code": myCode(), "X-Student-Id": myId() } })
       .then(function (r) {
-        if (r.status === 403) return r.json().then(function (j) { askCode(j.class); throw new Error("code"); });
+        if (r.status === 403) return r.json().then(function (j) { if (j.error === "name" && myCode()) askName(j.class); else askCode(j.class); throw new Error("code"); });
         if (!r.ok) throw new Error(r.status); return r.json();
       })
       .then(function (j) {
@@ -430,8 +436,8 @@
         document.title = j.class.name + " Calendar";
         document.documentElement.style.setProperty("--c", j.class.colour);
         document.getElementById("title").textContent = j.class.name;
-        document.getElementById("code").textContent = j.class.code + " \u00b7 " + j.teacher;
-        render(true);
+        document.getElementById("code").textContent = j.class.code + " \u00b7 " + j.teacher + (j.me ? " \u00b7 " + j.me : "");
+        render(true); checkLive();
         if (first) { var w = document.getElementById("thisWeek"); if (w && innerWidth > 760) w.scrollIntoView({ block: "center" }); scrollTo(0, 0); }
       })
       .catch(function (err) {
@@ -447,6 +453,50 @@
   function mine() {
     try { var v = JSON.parse(localStorage.getItem("lh-classes") || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
   }
+  function myId() {
+    var v = "";
+    try { v = localStorage.getItem("kit2-id") || ""; } catch (e) {}
+    if (!/^[A-Za-z0-9-]{6,60}$/.test(v)) {
+      v = "s-" + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+      try { localStorage.setItem("kit2-id", v); } catch (e) {}
+    }
+    return v;
+  }
+  // In the class (code is right) but no name on the class list yet: ask once.
+  function askName(cls) {
+    data = null;
+    if (cls) { document.documentElement.style.setProperty("--c", cls.colour); document.getElementById("title").textContent = cls.name; }
+    var had = ""; try { had = localStorage.getItem("kit2-name") || ""; } catch (e) {}
+    document.getElementById("main").innerHTML = '<form class="codebox" id="nameF" autocomplete="off"><h2>What is your name?</h2>' +
+      '<p>Type your first and last name. You only do this once, and only your teacher can change it.</p>' +
+      '<div class="cbrow"><input id="nameIn" maxlength="30" aria-label="Your first and last name" autocomplete="name" value="' + esc(had) + '">' +
+      '<button id="nameB">Join my class</button></div><div class="cberr" id="nameErr" role="alert"></div></form>';
+    var inp = document.getElementById("nameIn"); inp.focus();
+    document.getElementById("nameF").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = inp.value.trim(), er = document.getElementById("nameErr");
+      if (!v) { er.textContent = "Type your name first."; return; }
+      document.getElementById("nameB").disabled = true;
+      fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: myCode(), id: myId(), student: v }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok || !j.student) throw new Error(j.error || "That did not work. Try again."); return j; }); })
+        .then(function (j) { try { localStorage.setItem("kit2-name", j.student); } catch (e) {} load(true); })
+        .catch(function (e2) { er.textContent = e2.message; document.getElementById("nameB").disabled = false; });
+    });
+  }
+  // Live lesson banner: shows while the teacher's live lesson for this class is on.
+  function checkLive() {
+    if (!data) return;
+    fetch("/live/" + encodeURIComponent(classId) + "/status", { cache: "no-store", headers: { "X-Class-Code": myCode() } })
+      .then(function (r) { return r.ok ? r.json() : { live: false }; })
+      .then(function (j) {
+        var b = document.getElementById("livebar");
+        if (!j.live || !j.url) { if (b) b.remove(); return; }
+        if (!b) { b = document.createElement("a"); b.id = "livebar"; document.body.appendChild(b); }
+        b.href = j.url;
+        b.innerHTML = '<span class="dot"></span><b>Live lesson now</b><span>' + esc(j.title || "Join your teacher") + '</span><span class="go">Join &#8594;</span>';
+      }, function () {});
+  }
+  setInterval(checkLive, 30000);
   function myCode() { var x = mine().filter(function (c) { return c && c.id === classId; })[0]; return x ? x.code : ""; }
   function askCode(cls) {
     data = null;

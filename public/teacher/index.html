@@ -663,8 +663,8 @@
       '<div class="dr-head"><div class="eyebrow">' + esc(c.code) + " · " + esc(tt) + "</div><h2>" + esc(c.name) + "</h2>" +
       '<div class="links"><a href="/' + esc(id) + '" target="_blank" rel="noopener">Open the student calendar</a><button class="copy" data-copy="/' + esc(id) + '">Copy the calendar link</button><a href="/' + esc(id) + '#objectives" target="_blank" rel="noopener">Learning objectives</a></div>' +
       '<button class="dr-close" aria-label="Close">&#10005;</button></div>' +
-      '<div class="dr-body"><div class="codecard" id="codeCard"><span class="hint">Loading the class code...</span></div>' + coverageHTML(c) + '<div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
-    drawCode(id);
+      '<div class="dr-body"><div class="codecard" id="codeCard"><span class="hint">Loading the class code...</span></div>' + '<details class="coverage" id="studBox"><summary>Students <small>loading...</small></summary><div id="studList"></div></details>' + coverageHTML(c) + '<div class="stack">' + (body || '<p class="hint">No lessons on the timetable.</p>') + "</div></div>");
+    drawCode(id); drawStudents(id);
     Array.prototype.forEach.call(drawer.querySelectorAll("[data-lesson]"), function (b) { b.addEventListener("click", function () { openLesson(b.dataset.lesson, true); }); });
     Array.prototype.forEach.call(drawer.querySelectorAll(".lesson-row"), function (b) {
       b.addEventListener("click", function (e) { if (e.target.closest("a")) return; openLesson(b.dataset.k, true); });
@@ -983,6 +983,32 @@
         getCodes({ classId: id, code: v }).then(function () { toast("Code changed"); drawCode(id); }, function (e) { toast(e.message); });
       });
     }, function (e) { box.innerHTML = '<span class="msg-bad">' + esc(e.message) + "</span>"; });
+  }
+  // Students on the class list. They type their name once when they join; only the teacher renames.
+  function drawStudents(id, list) {
+    var box = $("studList"); if (!box) return;
+    (list ? Promise.resolve(list) : fetch("/api/teacher/students?class=" + encodeURIComponent(id), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return j.students || []; }))
+      .then(function (ls) {
+        if (!$("studList")) return;
+        $("studBox").querySelector("summary small").textContent = ls.length ? ls.length + " joined" : "nobody has joined yet";
+        box.innerHTML = ls.length ? ls.map(function (st) {
+          return '<div class="cv-row st-row" data-sid="' + esc(st.id) + '"><b></b><span><b>' + esc(st.name) + '</b><br><small class="hint">Joined ' + esc(new Date(st.joinedAt).toLocaleDateString("en-AU")) + '</small></span>' +
+            '<span class="cv-ls"><button class="btn small" data-ren type="button">Rename</button><button class="btn small quiet" data-rem type="button">Remove</button></span></div>';
+        }).join("") : '<p class="hint" style="margin:8px 0 0">Students appear here when they join with the class code and type their name.</p>';
+        Array.prototype.forEach.call(box.querySelectorAll(".st-row"), function (row) {
+          var sid = row.dataset.sid, st = ls.filter(function (x) { return x.id === sid; })[0];
+          row.querySelector("[data-ren]").addEventListener("click", function () {
+            var v = prompt("New name for " + st.name + ":", st.name); if (v == null || !v.trim() || v.trim() === st.name) return;
+            fetch("/api/teacher/students", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ classId: id, id: sid, name: v }) })
+              .then(function (r) { return r.json(); }).then(function (j) { if (j.ok) { toast("Renamed"); drawStudents(id, j.students); } else toast(j.error || "Could not rename"); });
+          });
+          row.querySelector("[data-rem]").addEventListener("click", function () {
+            if (!confirm("Take " + st.name + " off the class list? If they still have the class code, they can join again with their name.")) return;
+            fetch("/api/teacher/students", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ classId: id, id: sid }) })
+              .then(function (r) { return r.json(); }).then(function (j) { if (j.ok) { toast("Removed"); drawStudents(id, j.students); } else toast(j.error || "Could not remove"); });
+          });
+        });
+      }, function () { box.innerHTML = '<span class="msg-bad">Could not load the class list.</span>'; });
   }
   function showCode(id, code) {
     var c = classes[id], o = document.createElement("div");

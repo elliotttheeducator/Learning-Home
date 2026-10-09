@@ -9,6 +9,7 @@ import y7Science from "./plans/y7-science.json";
 import { serveFile, listFiles, uploadFile, fileVersions, restoreVersion, updateFile } from "./files.js";
 import { allCodes, setCode, classForCode, normalise } from "./codes.js";
 import { liveRoute } from "./live.js";
+import { register, nameOf, listStudents, renameStudent, removeStudent } from "./students.js";
 export { LiveRoom } from "./live.js";
 
 // Starting plans written in the repo. Anything saved from the teacher planner
@@ -28,11 +29,14 @@ export default {
       if (path === "/api/health") return Response.json({ ok: true, site: "learning-home" });
 
       // Deck Kit 2 live rooms: teacher deck, phone remote and student pages for one class.
-      const lv = path.match(/^\/live\/([a-z0-9-]+)$/);
+      const lv = path.match(/^\/live\/([a-z0-9-]+)(\/status)?$/);
       if (lv) {
+        const isT = await teacher(request, env);
         return liveRoute(request, env, lv[1], url, {
-          isTeacher: await teacher(request, env),
+          isTeacher: isT,
           classForCode: async code => { const d = await db(env); return d ? classForCode(d, code) : ""; },
+          studentName: async id => { const d = await db(env); return d ? nameOf(d, lv[1], id) : ""; },
+          until: isT ? lessonEndsAt(lv[1]) : 0,
           classes: catalog.classes,
         });
       }
@@ -107,11 +111,25 @@ export default {
           await new Promise(r => setTimeout(r, 400)); // slows down guessing
           return json({ error: "That code does not match a class. Check it with your teacher." }, 404);
         }
-        return json({ id: cls.id, code: normalise(b.code), name: cls.name, colour: cls.colour });
+        // Joining needs a name the first time. After that the class list keeps it, and only the teacher changes it.
+        const student = await register(d, cls.id, b.id, b.student);
+        return json({ id: cls.id, code: normalise(b.code), name: cls.name, colour: cls.colour, student, needName: !student });
       }
       // Links like /join/K7QF3M add the class straight away.
       const jn = path.match(/^\/join\/([A-Za-z0-9-]+)\/?$/);
       if (jn) return redirect("/?code=" + encodeURIComponent(normalise(jn[1])));
+
+      // The teacher's class lists: rename or remove a student.
+      if (path === "/api/teacher/students") {
+        if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
+        const d = await db(env);
+        if (!d) return json({ error: "The database is not connected." }, 503);
+        if (request.method === "GET") return json({ students: await listStudents(d, url.searchParams.get("class") || "") });
+        let b; try { b = await request.json(); } catch { return json({ error: "Send JSON." }, 400); }
+        if (!catalog.classes.some(c => c.id === b.classId)) return json({ error: "No such class." }, 404);
+        const ok = request.method === "DELETE" ? await removeStudent(d, b.classId, b.id) : await renameStudent(d, b.classId, b.id, b.name);
+        return ok ? json({ ok: true, students: await listStudents(d, b.classId) }) : json({ error: "No such student, or the name is empty." }, 400);
+      }
 
       if (path === "/api/teacher/codes") {
         if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
@@ -132,14 +150,17 @@ export default {
       if (cal) {
         const cls = catalog.classes.find(c => c.id === cal[1]);
         if (!cls) return json({ error: "No such class." }, 404);
+        let me = "";
         if (!(await teacher(request, env))) {
           const d = await db(env);
           if (d && (await classForCode(d, request.headers.get("X-Class-Code"))) !== cls.id) {
             return json({ error: "code", class: { id: cls.id, name: cls.name, colour: cls.colour } }, 403, { "Cache-Control": "no-store" });
           }
+          me = d ? await nameOf(d, cls.id, request.headers.get("X-Student-Id")) : "";
+          if (d && !me) return json({ error: "name", class: { id: cls.id, name: cls.name, colour: cls.colour } }, 403, { "Cache-Control": "no-store" });
         }
         const lessons = await allLessons(env, [cls.id], false);
-        return json({ ...calendarBase(), class: publicClass(cls), lessons }, 200, { "Cache-Control": "no-store" });
+        return json({ ...calendarBase(), class: publicClass(cls), lessons, me }, 200, { "Cache-Control": "no-store" });
       }
 
       // Class calendar pages: /y7-enrichment and /y7-enrichment/
@@ -158,6 +179,18 @@ export default {
     return new Response(missing.body, { status: 404, headers: missing.headers });
   },
 };
+
+// When the class's timetabled lesson happening now ends, plus 5 minutes, as a timestamp.
+// 0 when no lesson is on (the live room then uses the deck's own length).
+function lessonEndsAt(classId) {
+  const p = {};
+  new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Adelaide", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).forEach(x => { p[x.type] = x.value; });
+  const date = p.year + "-" + p.month + "-" + p.day, nowMin = (+p.hour % 24) * 60 + +p.minute;
+  const mins = hm => +hm.slice(0, 2) * 60 + +hm.slice(3);
+  const l = scheduledLessons([classId]).find(x => x.date === date && mins(x.start) - 20 <= nowMin && nowMin < mins(x.end));
+  return l ? Date.now() + (mins(l.end) - nowMin + 5) * 60000 : 0;
+}
 
 // ---------- Calendar ----------
 
