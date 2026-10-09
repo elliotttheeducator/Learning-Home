@@ -110,6 +110,8 @@ New decks use Deck Kit 2: one lesson file that is the teacher deck and the stude
 - `<body data-theme="biology" data-deck="unique-id" data-class="y10-science">`, frames as
   `<section class="frame" data-kind="slide|scroll|map" data-mode="..." data-id="...">`.
 - The full list of frames and blocks is at `/kit/v2/README.md` on the site.
+- YouTube is not blocked at school: embed with `<div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>`.
+- Gaps (`<button class="gap">word</button>`) become a word bank for students; keep each gap to the word or phrase students should write.
 - For a claude.ai preview, also give a standalone copy (engine folded in); never upload that copy.
 
 ## 4. Elliott's rules for every resource

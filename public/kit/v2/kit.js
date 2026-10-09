@@ -178,7 +178,9 @@ Panel.prototype.fillBg = function(){
   }
   this.el.style.background = bg;
   // carry the slide's coloured mode stripe down the spare strips too
-  var stripe = bg && this.kind === "slide" ? getComputedStyle(t).getPropertyValue("--m").trim() : "";
+  // only when the spare strips are above and below: with strips at the sides the slide's own stripe shows
+  var sideGap = this.size().w - 1600 * this.cam.s > 4;
+  var stripe = bg && this.kind === "slide" && !sideGap ? getComputedStyle(t).getPropertyValue("--m").trim() : "";
   this.el.style.boxShadow = stripe ? "inset " + Math.round(16 * this.cam.s) + "px 0 0 " + stripe : "";
 };
 Panel.prototype.fit = function(){
@@ -1005,6 +1007,22 @@ function fitTools(){
 function initMedia(){
   qa(".hot").forEach(function(h){ h.type = "button"; h.addEventListener("click", function(){ h.classList.toggle("on"); }); });
   qa(".vid").forEach(buildVideo);
+  qa(".yt").forEach(buildYouTube);
+}
+// YouTube (allowed at school): <div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>
+function ytId(v){
+  v = String(v || "").trim();
+  var m = v.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : /^[A-Za-z0-9_-]{11}$/.test(v) ? v : "";
+}
+function buildYouTube(box){
+  if(box.querySelector("iframe")) return;
+  var id = ytId(box.dataset.yt); if(!id){ box.textContent = "This YouTube link did not work."; return; }
+  var q = ["rel=0", "modestbranding=1", "playsinline=1"];
+  if(box.dataset.start) q.push("start=" + parseT(box.dataset.start));
+  if(box.dataset.end) q.push("end=" + parseT(box.dataset.end));
+  box.setAttribute("data-interactive", "");
+  box.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + "?" + q.join("&") + '" title="' + esc(box.dataset.title || "YouTube video") + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
 }
 function parseT(s){ s = String(s || "0"); var p = s.split(":").map(Number); return p.length > 1 ? p[0] * 60 + p[1] : p[0]; }
 function buildVideo(box){
@@ -1140,6 +1158,7 @@ function watchView(){
       var m = list[i], t = m.target.nodeType === 1 ? m.target : m.target.parentNode;
       if(!t || !f.contains(t)) continue;
       if(t === f && m.type === "attributes") continue; // camera moves and the on class
+      if(t.closest && t.closest(".vid,.yt")) continue;   // a playing video: each student plays their own
       if(t.closest && t.closest(".k2ink")){ if(!kind) kind = "ink"; } else { kind = "view"; break; }
     }
     if(kind) queueView(kind);
@@ -2046,12 +2065,17 @@ function slideGo(i){
   paintDrawer(); paintSlideBar();
 }
 function showSlide(){
-  var i = SL.i, stage = $("svstage"), v = SL.views[i], f;
+  var i = SL.i, stage = $("svstage"), v = SL.views[i], f, keepMedia = SL.shown && SL.shownI === i ? qa(".vid,.yt", SL.shown) : [];
   if(v && v.html){ var box = mk("div"); box.innerHTML = v.html; f = box.firstElementChild; }
   if(!f) f = ownFrame(i);
   f.classList.add("on"); f.removeAttribute("style");
+  // the same slide again (the teacher changed something): keep each video playing where it is
+  var newMedia = qa(".vid,.yt", f);
+  if(keepMedia.length && keepMedia.length === newMedia.length) newMedia.forEach(function(n, k){ n.replaceWith(keepMedia[k]); });
+  else{ qa(".yt", f).forEach(function(y){ qa("iframe", y).forEach(function(x){ x.remove(); }); buildYouTube(y); }); qa(".vid", f).forEach(function(b){ if(!b.querySelector("video")) buildVideo(b); }); }
   if(SL.shown) SL.shown.remove();
-  stage.appendChild(f); SL.shown = f;
+  stage.appendChild(f); SL.shown = f; SL.shownI = i;
+  wordBank(f);
   if(f.dataset.kind === "map" && !f.querySelector(":scope > .mapbg")) buildMap(f);
   if(f._drawLinks) f._drawLinks();
   qa(".k2ink", f).forEach(function(n){ n.remove(); });
@@ -2083,9 +2107,16 @@ function paintSlideBar(){
   var fl = $("svflag");
   fl.textContent = L < 0 ? "Not live: look back over any slide" : behind ? "Your teacher is on slide " + (L + 1) : "Live with your teacher";
   fl.className = "svsflag" + (L >= 0 && !behind ? " on" : "");
-  var T = SV.state && SV.state.timer, tm = $("svtimer");
-  if(tm){ tm.hidden = !(T && L >= 0); if(T) tm.textContent = Math.floor(T.left / 60) + ":" + String(Math.round(T.left % 60)).padStart(2, "0") + (T.run ? "" : " paused"); }
+  paintStudentTimer();
 }
+function paintStudentTimer(){
+  var T = SV.state && SV.state.timer, tm = $("svtimer"); if(!tm) return;
+  tm.hidden = !(T && liveIdx() >= 0); if(!T) return;
+  var left = Math.max(0, T.left - (T.run ? (now() - SV.at) / 1000 : 0));
+  tm.textContent = Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + (T.run ? "" : " paused");
+  tm.classList.toggle("over", left <= 0);
+}
+setInterval(function(){ if(VIEW === "student") paintStudentTimer(); }, 1000);
 // Teacher's state changed: whenever the teacher changes slide, everyone goes there too.
 function slidesLive(){
   if(!$("svstage")) return;
@@ -2110,6 +2141,52 @@ function gotView(m){
     if(SL.i === m.i){ stopReplay(); drawInk(); }
   }
 }
+/* ---------- gaps: a word bank on the student's copy ----------
+   The missing words, scrambled, under the slide. Click a word to put it in the next empty gap
+   (or the gap picked first); click a filled gap to take the word back out. When the teacher
+   fills the gaps, each answer gets a tick or a cross. Answers save in this browser. */
+function gapKey(f){ return "gaps:" + (f.dataset.id || SL.i); }
+function wordBank(f){
+  var bank = $("svbank"), gs = qa(".gap", f);
+  if(!bank){ bank = mk("div", "svbank"); bank.id = "svbank"; BODY.appendChild(bank); }
+  var open = gs.filter(function(g){ return !g.classList.contains("on"); });
+  var mine = SV.ans[gapKey(f)] || {}, sel = -1;
+  gs.forEach(function(g, k){
+    g.dataset.k = k; g.classList.remove("ok", "no", "pick", "sel");
+    var right = g.textContent.trim(), got = mine[k];
+    g.dataset.a = right;
+    if(g.classList.contains("on")){ if(got != null){ g.classList.add(normAns(got) === normAns(right) ? "ok" : "no"); if(normAns(got) !== normAns(right)) g.setAttribute("data-was", got); } }
+    else if(got != null){ g.textContent = got; g.classList.add("pick"); }
+    else g.textContent = right; // hidden by the slide's own style until filled
+  });
+  var had = BODY.classList.contains("sv2-bank");
+  BODY.classList.toggle("sv2-bank", open.length > 0);
+  if(had !== open.length > 0 && SL.P && SL.P.target) setTimeout(function(){ SL.P.fit(); }, 0);
+  if(!open.length){ bank.innerHTML = ""; return; }
+  // the same scramble every time for this slide
+  var words = gs.map(function(g){ return g.dataset.a; }), seed = 0, fid = String(f.dataset.id || "");
+  for(var c = 0; c < fid.length; c++) seed = (seed * 31 + fid.charCodeAt(c)) | 0;
+  words = words.map(function(w, k){ seed = (seed * 1103515245 + 12345) | 0; return {w: w, r: seed}; }).sort(function(a, b){ return a.r - b.r; }).map(function(o){ return o.w; });
+  var used = {}; for(var k in mine) used[mine[k]] = (used[mine[k]] || 0) + 1;
+  bank.innerHTML = '<b>Word bank</b>' + words.map(function(w){
+    var u = used[w] > 0; if(u) used[w]--;
+    return '<button type="button" class="svword' + (u ? " used" : "") + '"' + (u ? " disabled" : "") + '>' + esc(w) + "</button>";
+  }).join("") + '<span class="svbhint">Click a word to put it in the next gap. Click a gap to take it out.</span>';
+  function put(w){
+    var tgt = sel >= 0 ? gs[sel] : open.filter(function(g){ return mine[g.dataset.k] == null; })[0];
+    if(!tgt || tgt.classList.contains("on")) return;
+    mine[tgt.dataset.k] = w; SV.ans[gapKey(f)] = mine; saveAns(); wordBank(f);
+  }
+  qa(".svword", bank).forEach(function(b){ b.onclick = function(){ put(b.textContent); }; });
+  open.forEach(function(g){
+    g.onclick = function(e){
+      e.stopPropagation();
+      if(mine[g.dataset.k] != null){ delete mine[g.dataset.k]; SV.ans[gapKey(f)] = mine; saveAns(); wordBank(f); return; }
+      gs.forEach(function(x){ x.classList.remove("sel"); }); sel = +g.dataset.k; g.classList.add("sel");
+    };
+  });
+}
+
 /* ---------- the teacher's ink on the student's screen, and replaying it ---------- */
 function drawInk(){
   var k = SL.shown && SL.shown.querySelector(".k2ink"); if(!k) return;

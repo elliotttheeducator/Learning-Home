@@ -146,6 +146,22 @@ function fitTools(){
 function initMedia(){
   qa(".hot").forEach(function(h){ h.type = "button"; h.addEventListener("click", function(){ h.classList.toggle("on"); }); });
   qa(".vid").forEach(buildVideo);
+  qa(".yt").forEach(buildYouTube);
+}
+// YouTube (allowed at school): <div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>
+function ytId(v){
+  v = String(v || "").trim();
+  var m = v.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : /^[A-Za-z0-9_-]{11}$/.test(v) ? v : "";
+}
+function buildYouTube(box){
+  if(box.querySelector("iframe")) return;
+  var id = ytId(box.dataset.yt); if(!id){ box.textContent = "This YouTube link did not work."; return; }
+  var q = ["rel=0", "modestbranding=1", "playsinline=1"];
+  if(box.dataset.start) q.push("start=" + parseT(box.dataset.start));
+  if(box.dataset.end) q.push("end=" + parseT(box.dataset.end));
+  box.setAttribute("data-interactive", "");
+  box.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + "?" + q.join("&") + '" title="' + esc(box.dataset.title || "YouTube video") + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
 }
 function parseT(s){ s = String(s || "0"); var p = s.split(":").map(Number); return p.length > 1 ? p[0] * 60 + p[1] : p[0]; }
 function buildVideo(box){

@@ -100,6 +100,7 @@ function watchView(){
       var m = list[i], t = m.target.nodeType === 1 ? m.target : m.target.parentNode;
       if(!t || !f.contains(t)) continue;
       if(t === f && m.type === "attributes") continue; // camera moves and the on class
+      if(t.closest && t.closest(".vid,.yt")) continue;   // a playing video: each student plays their own
       if(t.closest && t.closest(".k2ink")){ if(!kind) kind = "ink"; } else { kind = "view"; break; }
     }
     if(kind) queueView(kind);
