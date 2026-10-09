@@ -516,6 +516,9 @@ table.t tr.tot td{border-top:3px solid var(--ink)}
 .k2hidden{display:none!important}
 .k2add{position:absolute;z-index:5;box-sizing:border-box}
 .k2add > *{width:100%;box-sizing:border-box}
+.k2add > .live-wall,.k2add > .k2pv{height:100%}
+.k2add > .live-wall .wallgrid{flex:1;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+#k2edtb button.swap{background:#7048E8}
 .k2add > .live-poll,.k2add > .live-wall,.k2add > .activity{background:#fff;border-radius:18px;padding:18px 22px;box-shadow:0 8px 22px rgba(0,0,0,.12)}
 .k2add[data-type="note"] > .k2note,.k2add[data-type="arrow"] > svg,.k2add[data-type="write"] > .work{height:100%}
 .k2txt{font-family:var(--body);line-height:1.3;font-weight:600;outline:none}
@@ -574,3 +577,5 @@ table.t tr.tot td{border-top:3px solid var(--ink)}
 .k2edform .msg{color:#7048E8;min-height:1em}
 .k2edform .k2up{display:inline-flex;flex-direction:row;align-items:center;gap:8px;color:#7048E8;cursor:pointer}
 .k2-typing [contenteditable="true"]{outline:3px solid #7048E8;outline-offset:3px;cursor:text}
+.k2-student .live-wall .svgoact{align-self:flex-start;width:auto;padding:12px 22px}
+.k2-student .live-wall .wallcard{cursor:default}

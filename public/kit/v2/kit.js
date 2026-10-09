@@ -1135,7 +1135,7 @@ function sendView(){
   if(!LIVE.on || !LIVE.T) return;
   var f = frames[cur]; if(!f) return;
   var c = f.cloneNode(true); c.removeAttribute("style"); c.classList.remove("on");
-  qa(".k2edui", c).forEach(function(n){ n.remove(); }); qa("[contenteditable]", c).forEach(function(n){ n.removeAttribute("contenteditable"); });
+  qa(".k2edui", c).forEach(function(n){ n.remove(); }); qa(".live-wall.anon .wallcard small", c).forEach(function(n){ n.remove(); }); qa("[contenteditable]", c).forEach(function(n){ n.removeAttribute("contenteditable"); });
   qa("aside.script,.k2ink", c).forEach(function(n){ n.remove(); }); // ink travels on its own, as strokes
   var html = c.outerHTML;
   if(html.length < 300000) LIVE.T.send({t: "view", deck: DECK, i: cur, html: html, le: layerSig(f.dataset.id)}); // bigger: students use their own copy
@@ -1620,7 +1620,7 @@ function newItem(type){
   if(type === "note"){ it.html = "Note"; it.w = 300; it.h = 220; it.c = "#FFE066"; }
   if(type === "start"){ it.text = "Pens on paper: start writing now"; it.w = 760; }
   if(type === "poll"){ it.q = "Which is right?"; it.choices = ["A", "B", "C"]; it.w = 640; }
-  if(type === "wall"){ it.q = "What do you think?"; it.w = 700; }
+  if(type === "wall"){ it.q = "What do you think?"; it.w = 760; it.h = 560; }
   if(type === "question"){ it.title = "Your turn"; it.qs = [{text: "Question", a: "", tier: "bronze"}]; it.w = 640; }
   if(type === "story"){ it.title = "Storyboard"; it.n = 4; it.caps = []; it.w = 1200; it.h = 380; }
   if(type === "write"){ it.label = "Write here"; it.w = 700; it.h = 260; }
@@ -1740,6 +1740,8 @@ function paintSel(){
   if(ED.sel.some(function(e){ return e.classList.contains("k2add"); })) t += '<button data-tb="dup">Duplicate</button><button data-tb="front">To front</button>';
   if(one && !add && one.parentNode.closest("[data-k2key]")) t += '<button data-tb="bigger-sel">Select the bigger box</button>';
   if(ED.sel.some(function(e){ return !e.classList.contains("k2add"); })) t += '<button data-tb="reset">Put back</button>';
+  // Swap what is there for a live block in the same spot (a writing box becomes a class wall, say).
+  if(!ED.sel.some(function(e){ return e.classList.contains("k2add"); })) t += '<button data-tb="to-wall" class="swap">Turn into a class wall</button><button data-tb="to-poll" class="swap">Turn into a poll</button>';
   t += '<button data-tb="del" class="del">' + (ED.sel.every(function(e){ return e.classList.contains("k2add"); }) ? "Delete" : "Hide") + '</button>';
   tb.innerHTML = t; tb.hidden = false;
   var rr = ED.sel[0].getBoundingClientRect();
@@ -1747,7 +1749,7 @@ function paintSel(){
   tb.style.left = clamp(rr.left, 100, innerWidth - tb.offsetWidth - 8) + "px";
   tb.style.top = (rr.top - tb.offsetHeight - 10 < 8 ? Math.min(innerHeight - tb.offsetHeight - 8, (rr.bottom || rr.top + 40) + 10) : rr.top - tb.offsetHeight - 10) + "px";
 }
-function textOnly(el){ return !el.querySelector("button,input,textarea,select,svg,canvas,img,video,iframe,.tex,.gap,.live,.activity,.k2add") && !el.closest(".live,.activity"); }
+function textOnly(el){ return !!el.textContent.trim() && !el.querySelector("button,input,textarea,select,svg,canvas,img,video,iframe,.tex,.gap,.live,.activity,.k2add") && !el.closest(".live,.activity"); }
 
 /* ---------- what the toolbar does ---------- */
 function itemOf(el){ var L = frameLayer(frames[cur]); for(var i = 0; i < L.add.length; i++) if(L.add[i].id === el.dataset.add) return L.add[i]; return null; }
@@ -1767,8 +1769,27 @@ function toolbarAction(a){
   if(a === "bigger-sel"){ ED.hist.pop(); edSelect([one.parentNode.closest("[data-k2key]")]); return; }
   if(a === "reset"){ ED.sel.forEach(function(e){ if(!e.classList.contains("k2add")) delete frameLayer(f).mod[e.getAttribute("data-k2key")]; }); }
   if(a === "del"){ deleteSel(true); return; }
+  if(a === "to-wall" || a === "to-poll"){ swapForLive(a === "to-wall" ? "wall" : "poll"); return; }
   var keep = ED.sel.map(selKey);
   applyFrame(f, false); saveLayer(); edSelect(keep.map(findKey));
+}
+// Hide the selection and put a class wall or poll exactly where it was. The question comes from
+// the selected text when it is short, else from the slide's title.
+function swapForLive(type){
+  var f = frames[cur], b = null, txt = "";
+  ED.sel.forEach(function(e){
+    var r = worldRect(e); b = b ? {x: Math.min(b.x, r.x), y: Math.min(b.y, r.y), r: Math.max(b.r, r.x + r.w), btm: Math.max(b.btm, r.y + r.h)} : {x: r.x, y: r.y, r: r.x + r.w, btm: r.y + r.h};
+    var t = (e.innerText || "").replace(/\s+/g, " ").trim(); if(t && t.length < 200 && !txt) txt = t.replace(/^\d+\s*/, "");
+  });
+  if(!txt){ var h = f.querySelector(".head h2,h1"); txt = h ? h.textContent.trim() : ""; }
+  var L = frameLayer(f), it = newItem(type);
+  ED.sel.forEach(function(e){ modOf(e).hide = true; });
+  it.x = Math.round(b.x); it.y = Math.round(b.y); it.w = Math.max(320, Math.round(b.r - b.x)); it.h = Math.max(200, Math.round(b.btm - b.y));
+  if(txt) it.q = txt;
+  L.add.push(it);
+  applyFrame(f, false); saveLayer();
+  var el = f.querySelector('.k2add[data-add="' + it.id + '"]'); edSelect(el ? [el] : []);
+  openItemForm(it);
 }
 function selKey(e){ return e.classList.contains("k2add") ? "a:" + e.dataset.add : "k:" + e.getAttribute("data-k2key"); }
 function findKey(k){ var f = frames[cur]; return k.charAt(0) === "a" ? f.querySelector('.k2add[data-add="' + k.slice(2) + '"]') : f.querySelector('[data-k2key="' + k.slice(2) + '"]'); }
@@ -2619,7 +2640,14 @@ function studentSafe(f){
   qa("[contenteditable]", f).forEach(function(n){ n.removeAttribute("contenteditable"); });
   qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){
     var b = mk("button", "svgoact"); b.type = "button"; b.dataset.goact = e.dataset.id || "";
-    b.textContent = e.classList.contains("activity") ? "Your turn: answer this" : "Your turn: join in";
+    b.textContent = e.classList.contains("activity") ? "Your turn: answer this" : e.classList.contains("live-wall") ? "Add yours to the wall" : "Your turn: join in";
+    // A class wall stays on the slide like a Padlet: everyone sees the posts (names only if the teacher shows them).
+    if(e.classList.contains("live-wall") && e.querySelector(".wallgrid")){
+      if(e.classList.contains("anon")) qa(".wallcard small", e).forEach(function(n){ n.remove(); });
+      qa(".wallcard", e).forEach(function(c){ c.disabled = true; });
+      var q = e.querySelector(".lq"); if(q) q.after(b); else e.insertBefore(b, e.firstChild);
+      return;
+    }
     e.replaceWith(b);
   });
   qa("video", f).forEach(function(v){ v.controls = true; });

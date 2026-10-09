@@ -101,6 +101,7 @@ and Bronze, Silver, Gold progress. When live, the board shows how many have fini
 ## Live blocks
 - Poll: `<div class="live-poll" data-id="lever" data-choices="A|B|C" data-answer="C">Question</div>`. Results stay hidden until you press Show results.
 - Wall: `<div class="live-wall" data-id="moths">Question</div>`. Names hidden by default, tap a card to spotlight it.
+  Like a Padlet: students see every post on their copy of the slide (names only when you show them).
 - Tally: `<div class="live-prac" data-tally data-id="coins" data-cols="TT|Tt|tt" data-expect="25|50|25">Instructions</div>`. Groups send counts;
   the board adds up the class as percentage bars with the expected percentages marked.
 - Prac data: `<div class="live-prac" data-id="chute" data-cols="Area (cm²)|Trial 1 (s)|Trial 2 (s)|Trial 3 (s)" data-x="0" data-y="1-3" data-ylabel="Mean fall time (s)">Instructions</div>`. Table, means, outliers flagged, graph with a trend line.
@@ -127,6 +128,8 @@ writing space, picture (drop an image file to upload it), YouTube, arrow.
 Click to select, Shift+click or drag a box to select several, drag to move, the corner handle resizes,
 double click retypes text. The toolbar duplicates, brings to front, hides (original content) or
 deletes (added things); "Select the bigger box" climbs out of a small part. Ctrl+Z undoes, arrows nudge.
+"Turn into a class wall" or "Turn into a poll" hides the selection and puts the block in exactly its
+place (a writing box on a Do Now becomes a Padlet-style wall), with the question from the selected text.
 Edits are a layer over the file, not a copy of it: added things plus the differences (moves, sizes,
 hides, retyped text) per frame, keyed by each element's place in the file (`data-k2key`). They are kept
 in D1 (`deck_edits`, `/api/deck/<data-deck>/edits`, read by anyone, saved by the teacher) and in the
