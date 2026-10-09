@@ -337,6 +337,7 @@ function paintPrac(id){
   var e = D.querySelector('.live-prac[data-id="' + id + '"]'); if(!e) return;
   var P = liveData().pracs[id], S = pracSpec(e), rows = [], notes = [];
   for(var k in P.rows) rows.push(P.rows[k]);
+  if(e.hasAttribute("data-tally")) return paintTally(e, S, rows);
   rows.sort(function(a, b){ return (a.vals[S.x] || 0) - (b.vals[S.x] || 0); });
   var h = '<table class="t"><tr><th>Group</th>' + S.cols.map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + (S.yi.length > 1 ? "<th>Mean</th>" : "") + "</tr>";
   var pts = [];
@@ -352,6 +353,24 @@ function paintPrac(id){
   e.querySelector(".lstat").textContent = rows.length + (rows.length === 1 ? " group" : " groups");
   e.querySelector(".pracnote").textContent = notes.length ? notes.join(". ") + ". Talk about it before averaging?" : "";
   e.querySelector(".pracchart").innerHTML = chartSVG(pts, S.xlabel, S.ylabel);
+}
+/* Tally (live-prac with data-tally): groups send counts for each category, the board adds up the
+   class and shows each as a percentage bar, with the expected percentage (data-expect="25|50|25") marked. */
+function paintTally(e, S, rows){
+  var tot = S.cols.map(function(){ return 0; }), exp = String(e.dataset.expect || "").split("|").map(parseFloat);
+  rows.forEach(function(r){ S.cols.forEach(function(c, i){ var v = r.vals[i]; if(v != null && v >= 0) tot[i] += v; }); });
+  var N = tot.reduce(function(a, b){ return a + b; }, 0);
+  var h = '<table class="t"><tr><th>Group</th>' + S.cols.map(function(c){ return "<th>" + esc(c) + "</th>"; }).join("") + "</tr>" +
+    rows.map(function(r){ return "<tr><td>" + esc(r.group) + "</td>" + S.cols.map(function(c, i){ return '<td class="num">' + (r.vals[i] == null ? "" : r.vals[i]) + "</td>"; }).join("") + "</tr>"; }).join("") +
+    '<tr class="tot"><td><b>Class</b></td>' + tot.map(function(v){ return '<td class="num"><b>' + v + "</b></td>"; }).join("") + "</tr></table>";
+  e.querySelector(".pracwrap").innerHTML = h;
+  e.querySelector(".lstat").textContent = rows.length + (rows.length === 1 ? " group, " : " groups, ") + N + " in total";
+  e.querySelector(".pracnote").textContent = N && exp.length === S.cols.length ? "The marks show what the Punnett square predicts. The more results, the closer the class gets." : "";
+  e.querySelector(".pracchart").innerHTML = '<div class="tally">' + S.cols.map(function(c, i){
+    var pc = N ? 100 * tot[i] / N : 0, ex = exp[i];
+    return '<div class="trow"><span class="tl">' + esc(c) + '</span><span class="tbar"><i style="width:' + pc.toFixed(1) + '%"></i>' +
+      (isFinite(ex) ? '<b class="tex2" style="left:' + ex + '%" title="Predicted ' + ex + '%"></b>' : "") + '</span><span class="tp">' + Math.round(pc) + "%</span></div>";
+  }).join("") + "</div>";
 }
 function nice(mx){ if(mx <= 0) return 1; var p = Math.pow(10, Math.floor(Math.log10(mx))), n = mx / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
 function chartSVG(pts, xl, yl){

@@ -64,11 +64,6 @@ links on the frame: `data-links="dna>genes, genes>punnett"`. Tapping a node flie
   missing words (scrambled) to click into the gaps; when you fill the gaps, their answers get a tick or a cross.
   `data-bank="off"` on the frame (or a `.sec`) turns the word bank off: notes as you go, written in books.
 
-## Lesson flow (Elliott's preference)
-- Teach in bursts: Listen, then Write, then Listen, then Write. Each idea is followed straight away by a
-  short write (a few lines or gaps), not several Listen slides and then one long copy-it-all slide.
-- Mix the note styles across a lesson: some notes with a word bank (gap fills), some written as you go
-  (`data-bank="off"`, or a Write frame with lined space).
 - Answers: `.pa` spans show with `button.ansall` or key A.
 - Tiers: `.tiers > .tier.bronze|.silver|.gold`. Tables: `table.t`. Points: `ul.pts`. Cards: `.card`.
 - Pieces: `data-piece="Label"` on any element lets it be summoned into the workspace.
@@ -77,6 +72,19 @@ links on the frame: `data-links="dna>genes, genes>punnett"`. Tapping a node flie
   Host clips on Learning Home (uploads to 20 MB).
 - YouTube (not blocked at school): `<div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>`.
   Any YouTube link or the 11 character id works; start and end are optional. Each student plays their own copy.
+
+## Lesson flow (Elliott's preference)
+- Teach in bursts: Listen, then Write, then Listen, then Write. Each idea is followed straight away by a
+  short write (a few lines or gaps), not several Listen slides and then one long copy-it-all slide.
+- Mix the note styles across a lesson: some notes with a word bank (gap fills), some written as you go
+  (`data-bank="off"`, or a Write frame with lined space).
+
+## A deck's own animations
+A deck can add its own script after `kit.js` for custom animations (steppers, zooms, card flips).
+Drive them with classes and attributes on the slide, so the live view carries every state to students.
+Students get a copy of each slide: bind to it on `document`'s `kit2:frame` event (`e.detail` is the
+slide element) and start from the state already showing, so a student reviewing later can step
+through the animation themselves. `/y10-science/genetics-anim.js` is a worked example.
 
 ## Activities (on the board and on every student's page)
 ```html
@@ -93,6 +101,8 @@ and Bronze, Silver, Gold progress. When live, the board shows how many have fini
 ## Live blocks
 - Poll: `<div class="live-poll" data-id="lever" data-choices="A|B|C" data-answer="C">Question</div>`. Results stay hidden until you press Show results.
 - Wall: `<div class="live-wall" data-id="moths">Question</div>`. Names hidden by default, tap a card to spotlight it.
+- Tally: `<div class="live-prac" data-tally data-id="coins" data-cols="TT|Tt|tt" data-expect="25|50|25">Instructions</div>`. Groups send counts;
+  the board adds up the class as percentage bars with the expected percentages marked.
 - Prac data: `<div class="live-prac" data-id="chute" data-cols="Area (cm²)|Trial 1 (s)|Trial 2 (s)|Trial 3 (s)" data-x="0" data-y="1-3" data-ylabel="Mean fall time (s)">Instructions</div>`. Table, means, outliers flagged, graph with a trend line.
 - Activities and live blocks open for students on their own when you reach their frame.
 

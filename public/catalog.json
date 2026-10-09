@@ -48,7 +48,10 @@
         { "day": "Tue", "periods": ["P2"],       "room": "39" },
         { "day": "Thu", "periods": ["P6", "P7"], "room": "7" }
       ],
-      "resources": [],
+      "resources": [
+        { "title": "Why do you look like your family? (live deck)", "type": "deck", "unit": "Biology (Genetics & Evolution)", "for": "students", "path": "/y10-science/why-you-look-like-your-family.html", "added": "2026-10-09" },
+        { "title": "Dominant, recessive and the Punnett square (live deck)", "type": "deck", "unit": "Biology (Genetics & Evolution)", "for": "students", "path": "/y10-science/punnett-squares.html", "added": "2026-10-09" }
+      ],
       "units": [
         { "id": "genetics", "name": "Biology (Genetics & Evolution)",
           "objectives": [

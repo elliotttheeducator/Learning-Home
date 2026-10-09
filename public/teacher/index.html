@@ -402,6 +402,10 @@
   function byAud(p) {
     var out = { teacher: [], students: [], print: [] };
     (p.resources || []).forEach(function (r) { if (usable(r)) out[aud(r)].push(r); });
+    // A Deck Kit 2 deck is one file: the teacher deck when signed in, the live page for students.
+    // So a students deck is also the first thing to Teach.
+    var live = out.students.filter(function (r) { return r.type === "deck"; });
+    out.teacher = live.concat(out.teacher);
     return out;
   }
   function goBtn(r, big, primaryKey) {
