@@ -155,7 +155,14 @@ function studentSafe(f){
   qa("[contenteditable]", f).forEach(function(n){ n.removeAttribute("contenteditable"); });
   qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){
     var b = mk("button", "svgoact"); b.type = "button"; b.dataset.goact = e.dataset.id || "";
-    b.textContent = e.classList.contains("activity") ? "Your turn: answer this" : "Your turn: join in";
+    b.textContent = e.classList.contains("activity") ? "Your turn: answer this" : e.classList.contains("live-wall") ? "Add yours to the wall" : "Your turn: join in";
+    // A class wall stays on the slide like a Padlet: everyone sees the posts (names only if the teacher shows them).
+    if(e.classList.contains("live-wall") && e.querySelector(".wallgrid")){
+      if(e.classList.contains("anon")) qa(".wallcard small", e).forEach(function(n){ n.remove(); });
+      qa(".wallcard", e).forEach(function(c){ c.disabled = true; });
+      var q = e.querySelector(".lq"); if(q) q.after(b); else e.insertBefore(b, e.firstChild);
+      return;
+    }
     e.replaceWith(b);
   });
   qa("video", f).forEach(function(v){ v.controls = true; });
