@@ -110,6 +110,10 @@ do not exist on this site. When bringing one across:
 - Live rooms: `src/live.js` (Durable Object `LiveRoom`, binding `LIVE`), route `/live/<class-id>`.
   Teacher by session cookie, students by class code. Phone remote: `/kit/v2/remote.html`.
 - Fix bugs in `public/kit/v2/src/` and rebuild, never in a deck: every deck loads the same engine.
+- Edit mode (key M in a deck, `src/engine6.js`): Elliott drags polls, text, storyboards and more onto frames
+  and moves, resizes or hides what is there. Only the differences are stored (D1 `deck_edits`), and the
+  student page is built from the same edited frames. When you change a deck file that has edits, check
+  them (`/api/deck/<data-deck>/edits`): moves and hides are keyed by element position.
 
 ## Elliott's rules for every resource
 - Never use em-dashes, anywhere: code comments, copy, commit messages included.

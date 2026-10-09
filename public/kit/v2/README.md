@@ -120,6 +120,21 @@ Keys: arrows / Page Up / Page Down / space move (scroll pages scroll first), P p
 E eraser, Ctrl+Z / Ctrl+Y, S step, A answers, G gaps, T timer, N nominate, B blank screen,
 C calculator, R protractor, L frame list, F full screen, U hide controls.
 
+## Edit mode (M, or the menu)
+Drag things from the palette onto a frame (or click one to add it in the middle): text, sticky note,
+Start writing banner, poll, class wall, questions (Bronze, Silver, Gold with answers), storyboard,
+writing space, picture (drop an image file to upload it), YouTube, arrow.
+Click to select, Shift+click or drag a box to select several, drag to move, the corner handle resizes,
+double click retypes text. The toolbar duplicates, brings to front, hides (original content) or
+deletes (added things); "Select the bigger box" climbs out of a small part. Ctrl+Z undoes, arrows nudge.
+Edits are a layer over the file, not a copy of it: added things plus the differences (moves, sizes,
+hides, retyped text) per frame, keyed by each element's place in the file (`data-k2key`). They are kept
+in D1 (`deck_edits`, `/api/deck/<data-deck>/edits`, read by anyone, saved by the teacher) and in the
+browser under `kit2e:<data-deck>`, and go onto the frames before either view is built, so students get
+exactly the edited deck. New polls, walls and questions switch on when you press Done (the deck
+reloads, ink saved first); students in a live lesson reload too. Changing the file later can shift keys:
+check moved or hidden things after big edits to a frame's markup.
+
 ## Saving
 Ink, workspace boards, text edits, the lesson clock and live results save to localStorage under
 `kit2:<data-deck>`, with the Kit 1 guards: nothing written before the stored copy is read, an empty

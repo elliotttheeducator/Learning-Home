@@ -36,7 +36,7 @@ function buildTeacher(){
   wsP.target = wsWorld;
   buildWsBar(wsEl);
   [mainP, wsP].forEach(bindPanel);
-  buildChrome();
+  buildChrome(); bindEditor();
   initActivitiesTeacher(); initLiveBlocks();
   markEditable(); applyEdits();
   initWalk(); initGaps(); initMedia();
@@ -177,6 +177,7 @@ function go(i, first){
   if(cur >= 0 && frames[cur]){ frames[cur].classList.remove("on"); stopMedia(frames[cur]); }
   var leaving = cur; cur = i;
   var f = frames[i]; f.classList.add("on");
+  if(ED.on) edFrameChanged();
   mainP.target = f; mainP.kind = f.dataset.kind === "map" ? "map" : f.dataset.kind;
   if(f._drawLinks) f._drawLinks();
   mainP.fit();
@@ -288,7 +289,7 @@ function menuItem(id, label, key, cls){ return '<button class="mi ' + (cls || ""
 function openMenu(btn){
   var h = '<div class="mh">Lesson</div>' + menuItem("start", store.lesson ? "Restart the lesson clock" : "Start the lesson clock") +
     menuItem("list", "All frames and teacher notes", "L") + menuItem("fs", "Full screen", "F") + menuItem("hide", "Hide the controls", "U") +
-    menuItem("edit", editing ? "Stop editing text" : "Edit text on the frames") + (editing ? menuItem("revert", "Undo my text edits on this frame") : "") +
+    menuItem("editmode", ED.on ? "Finish editing" : "Edit mode: add polls, text, storyboards", "M") +
     '<div class="mh">Look</div><div class="row" style="padding:2px 8px 6px">' + Object.keys(FONTS).map(function(t){ return '<button class="mi" type="button" data-theme-pick="' + t + '" style="padding:6px 10px">' + ({kit: "Kit", professional: "Professional", biology: "Biology", maths: "Maths", chemistry: "Chemistry", physics: "Physics", year7: "Year 7"})[t] + '</button>'; }).join("") + '</div>' +
     '<div class="mh">Students</div>' + menuItem("student", "Preview the student page") + menuItem("remote", "Phone remote") +
     '<div class="mh nofs">Saving</div>' + menuItem("dl", "Download with my ink", "", "nofs") + menuItem("backup", "Save a backup file", "", "nofs") +
@@ -304,6 +305,7 @@ function openMenu(btn){
     if(a === "fs") toggleFS();
     if(a === "hide") toggleUI();
     if(a === "edit") setEditing(!editing);
+    if(a === "editmode") setEditMode(!ED.on);
     if(a === "revert") revertEdits();
     if(a === "student") W.open(location.pathname + "?view=student" + location.hash, "_blank");
     if(a === "remote") showRemoteInfo();
@@ -420,6 +422,7 @@ function onKey(e){
   else if(k === "l" || k === "L") toggleList();
   else if(k === "f" || k === "F") toggleFS();
   else if(k === "u" || k === "U") toggleUI();
+  else if(k === "m" || k === "M") setEditMode(!ED.on);
   else if(k === "s" || k === "S") stepCurrent();
   else if(k === "a" || k === "A") answersCurrent();
   else if(k === "g" || k === "G"){ var g = f.querySelector(".gapall"); if(g) g.click(); }

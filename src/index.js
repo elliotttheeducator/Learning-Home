@@ -120,6 +120,28 @@ export default {
         return json({ error: "Not found." }, 404);
       }
 
+      // Deck edits (Deck Kit 2 edit mode): only the extras and differences over the deck file.
+      // Anyone can read them (they are part of the deck); only the teacher saves them.
+      const de = path.match(/^\/api\/deck\/([A-Za-z0-9_-]{1,80})\/edits$/);
+      if (de) {
+        const d = await db(env);
+        if (!d) return json({ data: null });
+        await d.prepare("CREATE TABLE IF NOT EXISTS deck_edits (deck TEXT PRIMARY KEY, data TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
+        if (request.method === "PUT") {
+          if (!(await teacher(request, env))) return json({ error: "Sign in first." }, 401);
+          const text = await request.text();
+          if (text.length > 600000) return json({ error: "Those edits are too big. Use uploads for pictures." }, 413);
+          let b; try { b = JSON.parse(text); } catch { return json({ error: "Send JSON." }, 400); }
+          if (!b || !b.data || typeof b.data !== "object" || typeof b.data.frames !== "object") return json({ error: "No edits came through." }, 400);
+          const now = new Date().toISOString();
+          await d.prepare("INSERT INTO deck_edits (deck, data, updated_at) VALUES (?, ?, ?) ON CONFLICT (deck) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at")
+            .bind(de[1], JSON.stringify(b.data), now).run();
+          return json({ ok: true, updatedAt: now });
+        }
+        const row = await d.prepare("SELECT data, updated_at FROM deck_edits WHERE deck = ?").bind(de[1]).first();
+        return json({ data: row ? JSON.parse(row.data) : null, updatedAt: row ? row.updated_at : "" }, 200, { "Cache-Control": "no-store" });
+      }
+
       // Class codes: a student types the code once and the browser keeps it.
       if (path === "/api/join" && request.method === "POST") {
         let b; try { b = await request.json(); } catch { return json({ error: "Send JSON." }, 400); }

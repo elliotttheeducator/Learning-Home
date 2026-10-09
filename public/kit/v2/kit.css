@@ -512,6 +512,69 @@ figure.img .imwrap>svg,figure.img .imwrap>img{display:block}
 table.t tr.tot td{border-top:3px solid var(--ink)}
 .svpv{background:#FFD43B;color:#1d2433;text-decoration:none;display:inline-flex;align-items:center}
 
+/* ---------- edit mode layer (added things show for everyone) ---------- */
+.k2hidden{display:none!important}
+.k2add{position:absolute;z-index:5;box-sizing:border-box}
+.k2add > *{width:100%;box-sizing:border-box}
+.k2add > .live-poll,.k2add > .live-wall,.k2add > .activity{background:#fff;border-radius:18px;padding:18px 22px;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.k2add[data-type="note"] > .k2note,.k2add[data-type="arrow"] > svg,.k2add[data-type="write"] > .work{height:100%}
+.k2txt{font-family:var(--body);line-height:1.3;font-weight:600;outline:none}
+.k2note{font-family:var(--body);line-height:1.3;padding:18px 20px;border-radius:6px;box-shadow:0 8px 18px rgba(0,0,0,.16);rotate:-1.5deg;outline:none}
+.k2arrow{display:block;width:100%;height:100%;overflow:visible}
+.k2startw{display:flex;align-items:center;gap:18px;background:var(--youdo,#2F9E44);color:#fff;font:800 36px/1.2 var(--body);padding:18px 28px;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.18);animation:k2pulse 1.6s ease-in-out infinite}
+.k2startw .pen{font-size:46px}
+@keyframes k2pulse{50%{transform:scale(1.03)}}
+.k2story{display:flex;flex-direction:column;height:100%;gap:10px;background:var(--paper,#fff);border-radius:16px;padding:14px 16px;box-sizing:border-box}
+.k2story .sbt{font:800 30px var(--head,var(--body));color:var(--ink)}
+.k2story .sbrow{flex:1;display:flex;gap:14px;min-height:0}
+.k2story .sbp{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+.k2story .sbn{align-self:flex-start;background:var(--m,#3474F5);color:#fff;font:800 22px var(--body);border-radius:999px;min-width:36px;height:36px;display:grid;place-items:center}
+.k2story .sbbox{flex:1;border:4px solid var(--ink,#1b2135);border-radius:14px;background:#fff;min-height:80px}
+.k2story .sbcap{font:600 24px/1.25 var(--body);min-height:1.3em;border-bottom:3px dashed #c9cfdb;padding-bottom:4px}
+.k2img{margin:0}.k2img img{width:100%;height:auto;display:block;border-radius:12px}
+.k2pv{background:#fff;border:4px dashed #7048E8;border-radius:16px;padding:16px 20px;font:600 24px/1.3 var(--body);color:#1b2135}
+.k2pv .k2pvt{display:inline-block;background:#7048E8;color:#fff;border-radius:999px;padding:3px 12px;font-size:18px;margin-bottom:8px}
+.k2pv b{display:block}.k2pv ul,.k2pv ol{margin:8px 0;padding-left:28px}.k2pv li.ok{color:#2F9E44;font-weight:800}
+.k2pv small{display:block;color:#5c6680;font-size:17px;margin-top:6px}
+.tierdot{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:8px;background:#CD7F32}.tierdot.silver{background:#A8B2C1}.tierdot.gold{background:#F2B705}
+/* editing chrome: teacher only */
+.k2-editmode #k2main{cursor:default;user-select:none;-webkit-user-select:none}
+.k2-editmode #k2view{left:196px}
+.k2-editmode #k2main [contenteditable="true"]{user-select:text;-webkit-user-select:text}
+.k2-editmode .frame.on [data-k2key]:hover,.k2-editmode .frame.on .k2add:hover{outline:2px dashed rgba(112,72,232,.55);outline-offset:2px}
+.k2edui{position:absolute;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none}
+.k2selbox{position:absolute;border:3px solid #7048E8;border-radius:4px;box-sizing:border-box;background:rgba(112,72,232,.06)}
+.k2rh{position:absolute;background:#fff;border:3px solid #7048E8;border-radius:50%;pointer-events:auto;cursor:nwse-resize;box-sizing:border-box}
+.k2marq{position:absolute;border:2px dashed #7048E8;background:rgba(112,72,232,.08)}
+#k2pal{position:fixed;left:10px;top:70px;bottom:70px;width:178px;z-index:60;background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:12px;display:flex;flex-direction:column;gap:5px;overflow:auto;font-family:Figtree,"Segoe UI",sans-serif}
+#k2pal[hidden]{display:none}
+#k2pal .pt{font:800 19px Figtree,sans-serif;color:#7048E8}
+#k2pal .ph{font-size:13px;color:#5c6680;margin-bottom:4px}
+#k2pal .pi,#k2pal .pb{display:flex;align-items:center;gap:8px;border:0;border-radius:10px;background:#F1EEFD;color:#1b2135;font:700 15px Figtree,sans-serif;padding:8px 10px;cursor:grab;text-align:left;touch-action:none}
+#k2pal .pi:hover{background:#E2DBFB}
+#k2pal .pi .ic{width:24px;text-align:center;font-size:18px;color:#7048E8}
+#k2pal .pb{background:#f3f4f7;cursor:pointer;justify-content:space-between}
+#k2pal .pb kbd{font-size:11px;color:#5c6680}
+#k2pal .pb.done{background:#7048E8;color:#fff;justify-content:center}
+#k2pal .psep{height:1px;background:#e5e7ee;margin:4px 0}
+#k2pal .pst{font-size:12px;color:#5c6680;min-height:1em}
+.k2ghost{position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-50%);background:#7048E8;color:#fff;font:700 16px Figtree,sans-serif;padding:8px 14px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.25);display:flex;gap:8px}
+#k2edtb{position:fixed;z-index:70;display:flex;flex-wrap:wrap;gap:4px;background:#1b2135;border-radius:12px;padding:5px;box-shadow:0 8px 20px rgba(0,0,0,.25);max-width:620px}
+#k2edtb[hidden]{display:none}
+#k2edtb button{border:0;border-radius:8px;background:transparent;color:#fff;font:700 14px Figtree,sans-serif;padding:7px 10px;cursor:pointer}
+#k2edtb button:hover{background:rgba(255,255,255,.14)}
+#k2edtb button.del{background:#C2261D}
+.k2edform{position:fixed;inset:0;z-index:90;background:rgba(20,24,40,.35);display:grid;place-items:center}
+.k2edform .box{background:#fff;border-radius:18px;padding:22px 24px;width:min(640px,92vw);max-height:88vh;overflow:auto;display:flex;flex-direction:column;gap:12px;font:600 16px Figtree,sans-serif;color:#1b2135}
+.k2edform .box > b{font-size:22px}
+.k2edform label{display:flex;flex-direction:column;gap:4px}
+.k2edform input,.k2edform textarea,.k2edform select{font:500 17px Figtree,sans-serif;padding:8px 10px;border:2px solid #d5d9e3;border-radius:10px}
+.k2edform .qrow{display:grid;grid-template-columns:1fr 1fr 100px;gap:6px;margin-bottom:6px}
+.k2edform .row{display:flex;gap:8px}
+.k2edform .msg{color:#7048E8;min-height:1em}
+.k2edform .k2up{display:inline-flex;flex-direction:row;align-items:center;gap:8px;color:#7048E8;cursor:pointer}
+.k2-typing [contenteditable="true"]{outline:3px solid #7048E8;outline-offset:3px;cursor:text}
+
 /* ---------- Kit 1 calculator and protractor ---------- */
 #proto{position:absolute;left:0;top:0;width:1600px;height:900px;z-index:39;pointer-events:none}
 #proto svg{width:1600px;height:900px;overflow:visible}
