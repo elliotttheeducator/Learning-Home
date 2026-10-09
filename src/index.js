@@ -18,6 +18,9 @@ const SEED_PLANS = { "y7-enrichment": y7Enrichment, "y7-science": y7Science };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const SESSION_COOKIE = "lh_session";
+// Set while the signed-in teacher looks at the site as a student (see /auth/student-view).
+const VIEW_COOKIE = "lh_view";
+const studentView = request => cookie(request, VIEW_COOKIE) === "student";
 const SESSION_DAYS = 30;
 
 export default {
@@ -32,8 +35,10 @@ export default {
       const lv = path.match(/^\/live\/([a-z0-9-]+)(\/status)?$/);
       if (lv) {
         const isT = await teacher(request, env);
+        const pv = isT && (studentView(request) || url.searchParams.get("as") === "student");
         return liveRoute(request, env, lv[1], url, {
-          isTeacher: isT,
+          isTeacher: isT && !pv,
+          preview: pv,
           classForCode: async code => { const d = await db(env); return d ? classForCode(d, code) : ""; },
           studentName: async id => { const d = await db(env); return d ? nameOf(d, lv[1], id) : ""; },
           until: isT ? lessonEndsAt(lv[1]) : 0,
@@ -45,7 +50,18 @@ export default {
       if (path === "/auth/login") return login(request, env, url);
       if (path === "/auth/logout") return logout(url);
       if (path === "/api/me") {
-        return json({ teacher: await teacher(request, env) });
+        const t = await teacher(request, env);
+        // Student view: the teacher sees every class exactly as a student would.
+        if (t && studentView(request)) return json({ teacher: false, preview: true, classes: catalog.classes.map(c => c.id) });
+        return json({ teacher: t });
+      }
+      // Turn student view on (?next=/) or off (?off=1). Only for the signed-in teacher.
+      if (path === "/auth/student-view") {
+        if (!(await teacher(request, env))) return redirect("/auth/login?next=" + encodeURIComponent("/auth/student-view"));
+        const off = url.searchParams.has("off");
+        const res = redirect(off ? "/teacher/" : safeNext(url.searchParams.get("next") || "/"));
+        res.headers.append("Set-Cookie", `${VIEW_COOKIE}=${off ? "" : "student"}; Path=/; Secure; SameSite=Lax; Max-Age=${off ? 0 : 43200}`);
+        return res;
       }
 
       // Teacher area: static files, but only for a signed-in teacher.
@@ -54,6 +70,10 @@ export default {
         const res = await env.ASSETS.fetch(request);
         const out = new Response(res.body, res);
         out.headers.set("Cache-Control", "private, no-store");
+        // Opening the planner ends student view.
+        if (/^\/teacher\/?(index\.html)?$/.test(path) && studentView(request)) {
+          out.headers.append("Set-Cookie", `${VIEW_COOKIE}=; Path=/; Secure; SameSite=Lax; Max-Age=0`);
+        }
         return out;
       }
 
@@ -71,7 +91,7 @@ export default {
       const up = path.match(/^\/files\/([a-z0-9-]+\/[a-z0-9][a-z0-9.-]*)$/);
       if (up) {
         const d = await db(env);
-        const res = d ? await serveFile(d, up[1], await teacher(request, env)) : null;
+        const res = d ? await serveFile(d, up[1], (await teacher(request, env)) && !studentView(request)) : null;
         if (res === "signin") return redirect("/auth/login?next=" + encodeURIComponent(path));
         if (res) return res;
       }
@@ -150,8 +170,10 @@ export default {
       if (cal) {
         const cls = catalog.classes.find(c => c.id === cal[1]);
         if (!cls) return json({ error: "No such class." }, 404);
-        let me = "";
-        if (!(await teacher(request, env))) {
+        let me = "", preview = false;
+        if (await teacher(request, env)) {
+          if (studentView(request)) { me = "Student view"; preview = true; }
+        } else {
           const d = await db(env);
           if (d && (await classForCode(d, request.headers.get("X-Class-Code"))) !== cls.id) {
             return json({ error: "code", class: { id: cls.id, name: cls.name, colour: cls.colour } }, 403, { "Cache-Control": "no-store" });
@@ -160,7 +182,7 @@ export default {
           if (d && !me) return json({ error: "name", class: { id: cls.id, name: cls.name, colour: cls.colour } }, 403, { "Cache-Control": "no-store" });
         }
         const lessons = await allLessons(env, [cls.id], false);
-        return json({ ...calendarBase(), class: publicClass(cls), lessons, me }, 200, { "Cache-Control": "no-store" });
+        return json({ ...calendarBase(), class: publicClass(cls), lessons, me, preview }, 200, { "Cache-Control": "no-store" });
       }
 
       // Class calendar pages: /y7-enrichment and /y7-enrichment/

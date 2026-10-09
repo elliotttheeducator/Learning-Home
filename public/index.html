@@ -45,6 +45,11 @@
   .cls .nm { font-size: 22px; font-weight: 700; line-height: 1.2; }
   .cls .ct { font-size: 17px; opacity: .9; }
 
+  .pvbar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 12px 22px;
+    background: #FFD43B; color: #1d2433; font: 600 20px/1.3 var(--font); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+  .pvbar b { font-weight: 900; }
+  .pvbar span { flex: 1 1 300px; }
+  .pvbar a { background: #1d2433; color: #fff; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 800; }
   .join { background: var(--panel); border: 2px solid var(--line); border-radius: 22px; padding: 26px 28px; margin: 0 0 32px; max-width: 760px; }
   .join h2 { font-size: 30px; margin: 0 0 6px; }
   .join p { margin: 0 0 16px; color: var(--ink-soft); font-size: 22px; }
@@ -136,7 +141,10 @@ function myId() {
 }
 function myName() { try { return localStorage.getItem("kit2-name") || ""; } catch (e) { return ""; } }
 // The classes this browser has joined: [{ id, code }]. Kept until the student removes one.
+let PREVIEW = false;
 function mine() {
+  // Student view (teacher only): every class, as a student in each would see it.
+  if (PREVIEW && catalog) return catalog.classes.map(c => ({ id: c.id, code: "" }));
   try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v.filter(x => x && x.id && x.code) : []; } catch (e) { return []; }
 }
 function keep(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} }
@@ -151,12 +159,13 @@ function draw() {
         <span class="yr">${esc(yearOf(c.name))}</span>
         <span><span class="nm">${esc(c.name.replace(/^Year\s*\d+\s*/i, ""))}</span><br>
         <span class="ct">${esc(days(c))}</span></span>
-      </a><button class="rm" data-rm="${esc(c.id)}" title="Remove this class from this computer" aria-label="Remove ${esc(c.name)}">&#10005;</button></div>`;
+      </a>${PREVIEW ? "" : `<button class="rm" data-rm="${esc(c.id)}" title="Remove this class from this computer" aria-label="Remove ${esc(c.name)}">&#10005;</button>`}</div>`;
   }).join("");
   const join = document.getElementById("join");
   join.classList.toggle("small", have.length > 0);
   document.getElementById("joinH").textContent = have.length ? "Add another class" : "Add your class";
-  const nm = myName();
+  join.hidden = PREVIEW;
+  const nm = PREVIEW ? "" : myName();
   document.getElementById("hello").textContent = nm ? "Hi " + nm.split(" ")[0] + "!" : "";
   document.getElementById("lede").textContent = have.length ? "Pick your class to see your lessons, slides, apps and booklets." : "Your lessons, slides, apps and booklets.";
   let last = "";
@@ -225,9 +234,21 @@ document.getElementById("livebox").addEventListener("click", e => {
   b.closest(".livepop").remove();
 });
 
-fetch("/catalog.json", { cache: "no-store" })
-  .then(r => r.json())
-  .then(data => {
+// Student view banner: shown on every student page while the teacher previews the site.
+function previewBar() {
+  const b = document.createElement("div");
+  b.className = "pvbar";
+  b.innerHTML = '<b>Student view</b><span>This is what students see. Only published lessons and student files show.</span><a href="/auth/student-view?off=1">Back to teacher view</a>';
+  document.body.prepend(b);
+  document.querySelector("footer").hidden = true;
+}
+Promise.all([
+  fetch("/catalog.json", { cache: "no-store" }).then(r => r.json()),
+  fetch("/api/me", { cache: "no-store" }).then(r => r.ok ? r.json() : {}, () => ({})),
+])
+  .then(([data, me]) => {
+    PREVIEW = !!me.preview;
+    if (PREVIEW) previewBar();
     catalog = data;
     // Old links used /#class-id. Send them to the class calendar.
     const old = data.classes.find(x => "#" + x.id === location.hash);

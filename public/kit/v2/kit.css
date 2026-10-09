@@ -510,6 +510,7 @@ figure.img .imwrap>svg,figure.img .imwrap>img{display:block}
 .tally .tbar .tex2{position:absolute;top:-8px;bottom:-8px;width:5px;margin-left:-2px;border-radius:3px;background:var(--ink)}
 .tally .tp{font:800 28px var(--mono);text-align:right}
 table.t tr.tot td{border-top:3px solid var(--ink)}
+.svpv{background:#FFD43B;color:#1d2433;text-decoration:none;display:inline-flex;align-items:center}
 
 /* ---------- Kit 1 calculator and protractor ---------- */
 #proto{position:absolute;left:0;top:0;width:1600px;height:900px;z-index:39;pointer-events:none}
