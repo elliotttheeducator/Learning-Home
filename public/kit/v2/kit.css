@@ -382,24 +382,55 @@ body.k2-edit [data-k2edit]:focus{outline:3px solid #f5b800;background:rgba(255,2
 .frame[data-skin="professional"][data-kind="slide"]::before{width:8px}
 
 /* ---------------- STUDENT VIEW ---------------- */
-/* student slides: same frames, scaled to the page, keeping up with the teacher */
-.svslides{max-width:1280px;margin:18px auto 0;padding:0 18px}
-.svsbox{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:var(--paper)}
-.svsbox.tall{max-height:78vh;overflow-y:auto}
-.svsstage{position:relative;overflow:hidden}
-.svsstage .frame{position:absolute;left:0;top:0;transform-origin:0 0}
-.svsbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 2px 0;max-width:var(--svw,none);margin:0 auto}
-.svsbar .sp{flex:1 1 auto}
-.svsnav{font:800 18px var(--body);border:2px solid var(--rule);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 16px;min-height:48px}
+/* student view: one slide at a time, live with the teacher */
+body.k2-sv2{overflow:hidden;height:100%}
+.k2-sv2 .svtop{position:fixed;left:0;right:0;top:0;height:60px;flex-wrap:nowrap}
+.k2-sv2 .svtop .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.svstage{position:fixed!important;left:0;right:0;top:60px;bottom:76px;background:var(--ground)}
+.sv2-open .svstage{right:min(480px,46vw)}
+.svstage .frame[data-kind="slide"]{border-radius:0;box-shadow:none}
+.sv2-bank .svstage{bottom:150px}
+body.k2-sv2.sv2-bank #svstuck{bottom:166px}
+.svbank{display:none}
+.sv2-bank .svbank{position:fixed;left:0;right:0;bottom:76px;height:74px;display:flex;align-items:center;gap:10px;padding:0 18px;background:var(--card);border-top:2px solid var(--rule);overflow-x:auto;z-index:21}
+.sv2-open .svbank{right:min(480px,46vw)}
+.svbank b{font:800 18px var(--body);color:var(--ink-2);white-space:nowrap}
+.svword{font:700 22px var(--body);border:2px solid var(--accent);background:#fff;color:var(--ink);border-radius:12px;padding:6px 16px;min-height:50px;white-space:nowrap}
+.svword:hover{background:var(--soft)}
+.svword.used{opacity:.3;border-style:dashed;cursor:default}
+.svbhint{font:600 15px var(--body);color:var(--ink-2);white-space:nowrap;margin-left:auto}
+.svstage .gap{cursor:pointer}
+.svstage .gap.pick{color:var(--ink);background:var(--soft)}
+.svstage .gap.sel{outline:4px solid var(--youdo);outline-offset:2px}
+.svstage .gap.ok{color:#15803d;background:#dcfce7}
+.svstage .gap.ok::after{content:" \2713"}
+.svstage .gap.no{color:#b91c1c;background:#fee2e2}
+.svstage .gap.no::before{content:attr(data-was) " \2192 ";text-decoration:line-through;opacity:.7}
+#svtimer.over{background:var(--youdo);color:#fff}
+.yt{position:relative;width:100%;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;background:#000}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.svstage .frame[data-kind="map"] .mapbg{border-radius:0}
+.svsbar{position:fixed;left:0;right:0;bottom:0;height:76px;display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--paper);border-top:2px solid var(--rule);z-index:20}
+.sv2-open .svsbar{right:min(480px,46vw)}
+.svsnav{font:800 18px var(--body);border:2px solid var(--rule);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 16px;min-height:52px}
 .svsnav:disabled{opacity:.4;cursor:not-allowed}
-.svspos{font:800 17px var(--body);color:var(--ink-2);min-width:120px;text-align:center}
-.svsflag{font:700 16px var(--body);color:var(--ink-2)}
+.svspos{font:800 17px var(--body);color:var(--ink-2);min-width:110px;text-align:center}
+.svsflag{font:700 17px var(--body);color:var(--ink-2);margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .svsflag.on{color:var(--wedo)}
-.svsflag.on::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wedo);margin-right:8px;vertical-align:1px}
-.svgolive{font:800 18px var(--body);border:0;background:var(--wedo);color:#fff;border-radius:999px;padding:10px 22px;min-height:48px;box-shadow:0 6px 16px rgba(0,0,0,.15);animation:k2pulse 1.6s ease-in-out infinite}
+.svsflag.on::before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--wedo);margin-right:8px;vertical-align:1px;animation:k2blink 1.4s ease-in-out infinite}
+@keyframes k2blink{50%{opacity:.3}}
+.svgolive{font:800 19px var(--body);border:0;background:var(--wedo);color:#fff;border-radius:999px;padding:10px 24px;min-height:52px;box-shadow:0 6px 16px rgba(0,0,0,.15);animation:k2pulse 1.6s ease-in-out infinite}
 @keyframes k2pulse{50%{transform:scale(1.05)}}
-@media (prefers-reduced-motion:reduce){.svgolive{animation:none}}
-.svgoact{font:800 26px var(--body);border:3px dashed var(--accent);background:var(--card);color:var(--accent);border-radius:var(--radius);padding:24px 30px;min-height:80px;align-self:flex-start}
+.svact{font:800 19px var(--body);border:3px solid var(--youdo);background:var(--card);color:var(--youdo);border-radius:999px;padding:8px 22px;min-height:52px}
+.svact.on{background:var(--youdo);color:#fff}
+@media (prefers-reduced-motion:reduce){.svgolive,.svsflag.on::before{animation:none}}
+.svgoact{font:800 30px var(--body);border:4px dashed var(--youdo);background:var(--card);color:var(--youdo);border-radius:var(--radius);padding:24px 34px;min-height:90px;align-self:flex-start;cursor:pointer}
+.svdrawer{position:fixed;right:0;top:60px;bottom:0;width:min(480px,46vw);background:var(--paper);border-left:2px solid var(--rule);overflow-y:auto;z-index:25;box-shadow:-10px 0 30px rgba(0,0,0,.08)}
+.svdhead{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--paper);border-bottom:2px solid var(--rule);font:800 22px var(--body);z-index:2}
+.svdrawer .sv{max-width:none;padding:0 16px 100px}
+.k2-sv2 #svstuck{bottom:92px}
+.sv2-open #svstuck{right:calc(min(480px,46vw) + 18px)}
+@media (max-width:760px){.sv2-open .svstage,.sv2-open .svsbar{right:0}.svdrawer{width:100%}.svsflag{display:none}}
 .sv{max-width:980px;margin:0 auto;padding:0 18px 120px;font-size:20px;color:var(--ink)}
 .svtop{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:2px solid var(--rule);display:flex;align-items:center;gap:10px;padding:12px 18px;flex-wrap:wrap}
 .svtop .ttl{font:var(--hw) 22px var(--head)}

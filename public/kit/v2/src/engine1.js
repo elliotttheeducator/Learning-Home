@@ -174,7 +174,9 @@ Panel.prototype.fillBg = function(){
   }
   this.el.style.background = bg;
   // carry the slide's coloured mode stripe down the spare strips too
-  var stripe = bg && this.kind === "slide" ? getComputedStyle(t).getPropertyValue("--m").trim() : "";
+  // only when the spare strips are above and below: with strips at the sides the slide's own stripe shows
+  var sideGap = this.size().w - 1600 * this.cam.s > 4;
+  var stripe = bg && this.kind === "slide" && !sideGap ? getComputedStyle(t).getPropertyValue("--m").trim() : "";
   this.el.style.boxShadow = stripe ? "inset " + Math.round(16 * this.cam.s) + "px 0 0 " + stripe : "";
 };
 Panel.prototype.fit = function(){

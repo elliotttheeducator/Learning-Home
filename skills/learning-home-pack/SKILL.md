@@ -110,6 +110,8 @@ New decks use Deck Kit 2: one lesson file that is the teacher deck and the stude
 - `<body data-theme="biology" data-deck="unique-id" data-class="y10-science">`, frames as
   `<section class="frame" data-kind="slide|scroll|map" data-mode="..." data-id="...">`.
 - The full list of frames and blocks is at `/kit/v2/README.md` on the site.
+- YouTube is not blocked at school: embed with `<div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>`.
+- Gaps (`<button class="gap">word</button>`) become a word bank for students; keep each gap to the word or phrase students should write.
 - For a claude.ai preview, also give a standalone copy (engine folded in); never upload that copy.
 
 ## 4. Elliott's rules for every resource
@@ -122,6 +124,9 @@ New decks use Deck Kit 2: one lesson file that is the teacher deck and the stude
 - Decks: stylus ink, eraser and save; a clock; timers on activity slides; unmistakable when
   students should start writing; empty room to write. Never fill in worked solutions.
 - Walkthroughs reveal one step at a time behind a button.
+- Teach in bursts: Listen, Write, Listen, Write. Follow each idea straight away with a short write, never
+  several Listen slides then one long copy-it-all slide. Mix note styles: some gap notes with a word bank,
+  some written as you go (`data-bank="off"` on the frame turns the word bank off).
 - Apps are fun and game-like and work with typed input. Bronze / Silver / Gold extension tiers.
 - Lessons are 80 usable minutes; plan well under.
 - Nothing identifying a student, and no textbook pages or scanned faculty booklets in anything

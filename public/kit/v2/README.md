@@ -60,13 +60,23 @@ links on the frame: `data-links="dna>genes, genes>punnett"`. Tapping a node flie
 - Equations: `<span class="tex big" data-tex="\dfrac{F}{m}" data-tex-display></span>`. Division is always `\dfrac`.
 - Walkthrough: `.walk > .walkq + .walkrow(.wleft(button.stepbtn[data-steps=ID] + ol.wsteps#ID > li) + .work)`. Key S.
 - Working space: `<div class="work" data-label="Working"></div>` (`.lined` for lines). Never fill in working.
-- Gaps: `<button class="gap">word</button>`, and `button.gapall`. Key G.
+- Gaps: `<button class="gap">word</button>`, and `button.gapall`. Key G. Students get a word bank of the
+  missing words (scrambled) to click into the gaps; when you fill the gaps, their answers get a tick or a cross.
+  `data-bank="off"` on the frame (or a `.sec`) turns the word bank off: notes as you go, written in books.
+
+## Lesson flow (Elliott's preference)
+- Teach in bursts: Listen, then Write, then Listen, then Write. Each idea is followed straight away by a
+  short write (a few lines or gaps), not several Listen slides and then one long copy-it-all slide.
+- Mix the note styles across a lesson: some notes with a word bank (gap fills), some written as you go
+  (`data-bank="off"`, or a Write frame with lined space).
 - Answers: `.pa` spans show with `button.ansall` or key A.
 - Tiers: `.tiers > .tier.bronze|.silver|.gold`. Tables: `table.t`. Points: `ul.pts`. Cards: `.card`.
 - Pieces: `data-piece="Label"` on any element lets it be summoned into the workspace.
 - Image: `<figure class="img"><div class="imwrap"><img src="..."> <button class="hot" style="left:30%;top:40%">1<span>Label</span></button></div><figcaption>Source, author, licence</figcaption></figure>`.
 - Video: `<div class="vid" data-src="clip.webm"><p class="pause" data-t="1:20">Question</p></div>`. Stops at each pause point.
-  Host clips on Learning Home (uploads to 20 MB). YouTube may be blocked at school.
+  Host clips on Learning Home (uploads to 20 MB).
+- YouTube (not blocked at school): `<div class="yt" data-yt="https://youtu.be/ID" data-start="1:20" data-end="3:05"></div>`.
+  Any YouTube link or the 11 character id works; start and end are optional. Each student plays their own copy.
 
 ## Activities (on the board and on every student's page)
 ```html

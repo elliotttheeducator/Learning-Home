@@ -1,8 +1,8 @@
 
 /* ============================================================
-   STUDENT VIEW: the same lesson file as a scrolling page.
-   Activities become checking questions, live blocks appear when the
-   teacher opens them, frames marked data-student="notes" are copied in.
+   STUDENT VIEW: the same lesson file, one slide at a time, following the
+   teacher live. Activities become checking questions in a Your turn panel,
+   live blocks appear when the teacher opens them.
    The name is typed once and kept in this browser.
    ============================================================ */
 var SV = {T: null, state: null, id: "", name: "", ans: {}};
@@ -25,25 +25,21 @@ function checkQ(q, v){
   return null;
 }
 function buildStudent(){
-  BODY.classList.add("k2-student");
+  BODY.classList.add("k2-student", "k2-sv2");
   SV.ans = {}; try{ SV.ans = JSON.parse(lsGet(SKEY, "{}")) || {}; }catch(e){ SV.ans = {}; }
-  SV.id = lsGet("kit2-id", ""); if(!SV.id){ SV.id = "s-" + rid() + rid(); lsSet("kit2-id", SV.id); }
+  SV.id = lsGet("kit2-id", ""); if(!/^[A-Za-z0-9-]{6,60}$/.test(SV.id)){ SV.id = "s-" + rid() + rid(); lsSet("kit2-id", SV.id); }
   SV.name = lsGet("kit2-name", "");
   var top = mk("div", "svtop");
-  top.innerHTML = '<span class="ttl">' + esc(D.title) + '</span><span class="sp"></span><span class="svpill off" id="svstat">Not live</span><button class="svpill" type="button" id="svname"></button>';
+  top.innerHTML = '<span class="ttl">' + esc(D.title) + '</span><span class="sp"></span><span class="svpill" id="svtimer" hidden></span><span class="svpill off" id="svstat">Not live</span><button class="svpill" type="button" id="svname"></button>';
   BODY.appendChild(top);
   buildSlides();
-  var main = mk("main", "sv"); main.id = "svmain"; BODY.appendChild(main);
-  var tf = frames[0], sub = tf && tf.querySelector(".title-frame p");
-  main.innerHTML = '<h1>' + esc(D.title) + '</h1><p class="intro">' + (sub ? esc(sub.textContent) : "Work through each part when your teacher opens it. Your answers save in this browser.") + '</p>';
-  frames.forEach(function(f){
-    if(f.dataset.student === "notes"){
-      var c = mk("section", "svcard svnotes"); var fc = f.cloneNode(true);
-      qa("aside.script,.work,.k2ink,.activity,.live-poll,.live-wall,.live-prac,.stepbtn,.ansall,.gapall", fc).forEach(function(n){ n.remove(); });
-      qa("ol.wsteps li", fc).forEach(function(li){ li.classList.remove("hid"); });
-      fc.classList.add("on"); fc.removeAttribute("style"); c.appendChild(fc); main.appendChild(c);
-    }
-    qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){ main.appendChild(studentBlock(e)); });
+  // Activities for the slide on screen open in a panel at the side, so students answer without losing the slide.
+  var dr = mk("aside", "svdrawer"); dr.id = "svdrawer"; dr.hidden = true;
+  dr.innerHTML = '<div class="svdhead"><b>Your turn</b><button type="button" class="svpill" id="svdclose">Close</button></div>';
+  var main = mk("div", "sv"); main.id = "svmain"; dr.appendChild(main); BODY.appendChild(dr);
+  $("svdclose").onclick = function(){ dr.hidden = true; paintSlideBar(); };
+  frames.forEach(function(f, fi){
+    qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){ var c = studentBlock(e); c.dataset.frame = fi; main.appendChild(c); });
   });
   var stuck = mk("button"); stuck.id = "svstuck"; stuck.type = "button"; stuck.setAttribute("aria-pressed", "false"); stuck.textContent = "I'm stuck";
   stuck.onclick = function(){ var on = stuck.getAttribute("aria-pressed") !== "true"; stuck.setAttribute("aria-pressed", String(on)); stuck.textContent = on ? "Help is coming" : "I'm stuck"; if(SV.T) SV.T.send({t: "stuck", on: on}); };
@@ -96,81 +92,107 @@ function connectStudent(){
     if(SV.state && now() - SV.at > 50000){ SV.state = null; setStat("off", "Not live yet: work at your own pace"); paintLocks(); turnBanner(null); slidesLive(); }
   }, 10000);
 }
-/* ---------- the slides, keeping up with the teacher ----------
-   Live: the student follows the teacher's slide. They can go back to earlier slides, never past
-   the teacher's, and Go live takes them back to it. Not live: every slide, to look back over. */
-var SL = {i: 0, follow: true, made: {}};
+/* ---------- the slides: a live view of the teacher's screen ----------
+   One slide at a time, full screen. Live, students go wherever the teacher goes (forward or back)
+   and see the slide as the teacher has it: ink as it is drawn, steps revealed, gaps filled.
+   They can step back to earlier slides (shown as the teacher left them) but never past the
+   teacher's slide; Go live takes them back. Not live: every slide, to look back over. */
+var SL = {i: 0, lastL: -1, views: {}, inks: {}, shown: null, P: null};
 function liveIdx(){ var st = SV.state; return st && st.frame && st.frame.i != null && st.frame.i < frames.length ? +st.frame.i : -1; }
 function buildSlides(){
   if(!frames.length) return;
-  var sec = mk("section", "svslides"); sec.id = "svslides"; sec.setAttribute("aria-label", "Slides");
-  sec.innerHTML = '<div class="svsbox" id="svsbox"><div class="svsstage" id="svstage"></div></div>' +
-    '<div class="svsbar"><button type="button" class="svsnav" id="svprev" aria-label="Previous slide">&#8249; Back</button>' +
+  var stage = mk("div", "k2panel svstage"); stage.id = "svstage"; BODY.appendChild(stage);
+  SL.P = new Panel(stage);
+  var bar = mk("div", "svsbar"); bar.id = "svsbar";
+  bar.innerHTML = '<button type="button" class="svsnav" id="svprev" aria-label="Previous slide">&#8249; Back</button>' +
     '<span class="svspos" id="svpos"></span>' +
     '<button type="button" class="svsnav" id="svnext" aria-label="Next slide">Next &#8250;</button>' +
-    '<span class="sp"></span><span class="svsflag" id="svflag"></span>' +
-    '<button type="button" class="svgolive" id="svgolive" hidden>Go live</button></div>';
-  BODY.appendChild(sec);
-  $("svprev").onclick = function(){ slideGo(SL.i - 1, false); };
-  $("svnext").onclick = function(){ slideGo(SL.i + 1, false); };
-  $("svgolive").onclick = function(){ var L = liveIdx(); if(L >= 0) slideGo(L, true); };
-  sec.addEventListener("click", function(e){
+    '<span class="svsflag" id="svflag"></span>' +
+    '<button type="button" class="svgolive" id="svgolive" hidden>Go live</button>' +
+    '<button type="button" class="svsnav" id="svreplay" hidden>Replay the drawing</button>' +
+    '<button type="button" class="svact" id="svact" hidden>Your turn</button>';
+  BODY.appendChild(bar);
+  $("svprev").onclick = function(){ slideGo(SL.i - 1); };
+  $("svnext").onclick = function(){ slideGo(SL.i + 1); };
+  $("svreplay").onclick = replayInk;
+  $("svgolive").onclick = function(){ var L = liveIdx(); if(L >= 0) slideGo(L); };
+  $("svact").onclick = function(){ var d = $("svdrawer"); d.hidden = !d.hidden; paintDrawer(); };
+  stage.addEventListener("click", function(e){
     var b = e.target.closest("[data-goact]"); if(!b) return;
-    var c = D.querySelector('.svcard[data-act="' + b.dataset.goact + '"]');
-    if(c){ c.hidden = false; c.scrollIntoView({behavior: "smooth", block: "start"}); }
+    $("svdrawer").hidden = false; paintDrawer();
   });
+  stage.addEventListener("wheel", function(e){
+    if(SL.P.kind !== "scroll") return;
+    e.preventDefault(); SL.P.cam.y -= e.deltaY; SL.P.clampCam(); SL.P.apply();
+  }, {passive: false});
   D.addEventListener("keydown", function(e){
     if(e.target.closest && e.target.closest("input,textarea,select,[contenteditable]")) return;
-    if(e.key === "ArrowLeft"){ slideGo(SL.i - 1, false); e.preventDefault(); }
-    else if(e.key === "ArrowRight"){ slideGo(SL.i + 1, false); e.preventDefault(); }
+    if(e.key === "ArrowLeft"){ slideGo(SL.i - 1); e.preventDefault(); }
+    else if(e.key === "ArrowRight"){ slideGo(SL.i + 1); e.preventDefault(); }
   });
-  W.addEventListener("resize", slideFit);
-  slideGo(0, true);
+  W.addEventListener("resize", function(){ if(SL.P.target) SL.P.fit(); });
+  slideGo(0);
 }
-// A copy of a frame for students: no teacher notes, ink or teacher buttons; activities point to the page below.
-function studentFrame(i){
-  if(SL.made[i]) return SL.made[i];
+// The student's own copy of a frame, used until the teacher's live copy of it arrives.
+function ownFrame(i){
   var f = frames[i].cloneNode(true);
   f.removeAttribute("style"); f.classList.remove("on");
-  qa("aside.script,.work,.k2ink,.stepbtn,.ansall,.gapall,.k2pieceflag,.vctl", f).forEach(function(n){ n.remove(); });
+  studentSafe(f);
+  var head = f.querySelector(":scope > .head");
+  if(head && !head.querySelector(".k2chip")){ var chip = mk("span", "k2chip", chipHTML(f.dataset.mode, f.dataset.say)); chip.setAttribute("data-mode", f.dataset.mode); head.insertBefore(chip, head.firstChild); }
+  return f;
+}
+// No teacher notes or teacher buttons; activities become a button to the Your turn panel.
+function studentSafe(f){
+  qa("aside.script,.work,.stepbtn,.ansall,.gapall,.k2pieceflag,.vctl,.lctl", f).forEach(function(n){ n.remove(); });
+  qa("[contenteditable]", f).forEach(function(n){ n.removeAttribute("contenteditable"); });
   qa(".activity,.live-poll,.live-wall,.live-prac", f).forEach(function(e){
     var b = mk("button", "svgoact"); b.type = "button"; b.dataset.goact = e.dataset.id || "";
-    b.textContent = e.classList.contains("activity") ? "Answer this below \u2193" : "Join in below \u2193";
+    b.textContent = e.classList.contains("activity") ? "Your turn: answer this" : "Your turn: join in";
     e.replaceWith(b);
   });
   qa("video", f).forEach(function(v){ v.controls = true; });
-  var head = f.querySelector(":scope > .head");
-  if(head && !head.querySelector(".k2chip")){ var chip = mk("span", "k2chip", chipHTML(f.dataset.mode, f.dataset.say)); chip.setAttribute("data-mode", f.dataset.mode); head.insertBefore(chip, head.firstChild); }
-  $("svstage").appendChild(f);
-  if(f.dataset.kind === "map") buildMap(f);
-  renderTex(f);
-  SL.made[i] = f;
   return f;
 }
-function slideGo(i, follow){
+function slideGo(i){
   var L = liveIdx(), max = L >= 0 ? L : frames.length - 1;
   i = clamp(i, 0, max);
-  var old = SL.made[SL.i]; if(old) old.classList.remove("on");
-  SL.i = i; SL.follow = L >= 0 ? (follow || i === L) : true;
-  var f = studentFrame(i); f.classList.add("on");
-  if(f._drawLinks) f._drawLinks();
-  slideFit(); paintSlideBar();
+  SL.i = i; showSlide();
+  paintDrawer(); paintSlideBar();
 }
-function slideFit(){
-  var f = SL.made[SL.i], box = $("svsbox"); if(!f || !box) return;
-  var k = f.dataset.kind, w = k === "map" ? (+f.dataset.w || 3600) : 1600;
-  var h = k === "map" ? (+f.dataset.h || 2000) : k === "scroll" ? Math.max(900, f.offsetHeight) : 900;
-  // fit the window: the whole slide plus its buttons stay on screen
-  var top = $("svslides").parentNode.querySelector(".svtop"), room = W.innerHeight - (top ? top.offsetHeight : 0) - 110;
-  var sec = $("svslides"), full = sec.clientWidth - 36;
-  box.style.maxWidth = k === "scroll" ? "" : Math.max(320, Math.min(full, Math.floor(room * w / h))) + "px";
-  box.style.margin = "0 auto";
-  var s = box.clientWidth / w;
-  f.style.transform = "scale(" + s.toFixed(5) + ")";
-  $("svstage").style.height = Math.round(h * s) + "px";
-  box.classList.toggle("tall", k === "scroll");
+function showSlide(){
+  var i = SL.i, stage = $("svstage"), v = SL.views[i], f, keepMedia = SL.shown && SL.shownI === i ? qa(".vid,.yt", SL.shown) : [];
+  if(v && v.html){ var box = mk("div"); box.innerHTML = v.html; f = box.firstElementChild; }
+  if(!f) f = ownFrame(i);
+  f.classList.add("on"); f.removeAttribute("style");
+  // the same slide again (the teacher changed something): keep each video playing where it is
+  var newMedia = qa(".vid,.yt", f);
+  if(keepMedia.length && keepMedia.length === newMedia.length) newMedia.forEach(function(n, k){ n.replaceWith(keepMedia[k]); });
+  else{ qa(".yt", f).forEach(function(y){ qa("iframe", y).forEach(function(x){ x.remove(); }); buildYouTube(y); }); qa(".vid", f).forEach(function(b){ if(!b.querySelector("video")) buildVideo(b); }); }
+  if(SL.shown) SL.shown.remove();
+  stage.appendChild(f); SL.shown = f; SL.shownI = i;
+  wordBank(f);
+  if(f.dataset.kind === "map" && !f.querySelector(":scope > .mapbg")) buildMap(f);
+  if(f._drawLinks) f._drawLinks();
+  qa(".k2ink", f).forEach(function(n){ n.remove(); });
+  var svg = D.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "k2ink"); f.appendChild(svg);
+  stopReplay(); drawInk();
+  renderTex(f);
+  SL.P.target = f; SL.P.kind = f.dataset.kind === "map" ? "map" : f.dataset.kind || "slide";
+  SL.P.fit();
+}
+function paintDrawer(){
+  var d = $("svdrawer"); if(!d) return;
+  var mine = qa(".svcard[data-frame]").filter(function(c){ return +c.dataset.frame === SL.i; });
+  qa(".svcard[data-frame]").forEach(function(c){ c.style.display = +c.dataset.frame === SL.i ? "" : "none"; });
+  var b = $("svact"); if(b){ b.hidden = !mine.length; b.classList.toggle("on", !d.hidden); }
+  if(!mine.length) d.hidden = true;
+  var was = BODY.classList.contains("sv2-open");
+  BODY.classList.toggle("sv2-open", !d.hidden);
+  if(was !== !d.hidden && SL.P && SL.P.target) SL.P.fit();
 }
 function paintSlideBar(){
+  if(!$("svpos")) return;
   var L = liveIdx(), max = L >= 0 ? L : frames.length - 1;
   $("svpos").textContent = "Slide " + (SL.i + 1) + " of " + frames.length;
   $("svprev").disabled = SL.i <= 0;
@@ -179,15 +201,119 @@ function paintSlideBar(){
   var behind = L >= 0 && SL.i !== L;
   $("svgolive").hidden = !behind;
   var fl = $("svflag");
-  fl.textContent = L < 0 ? "Not live: look back over any slide" : behind ? "Your teacher is on slide " + (L + 1) : "Live: following your teacher";
+  fl.textContent = L < 0 ? "Not live: look back over any slide" : behind ? "Your teacher is on slide " + (L + 1) : "Live with your teacher";
   fl.className = "svsflag" + (L >= 0 && !behind ? " on" : "");
+  paintStudentTimer();
 }
-// Called whenever the teacher's state changes.
+function paintStudentTimer(){
+  var T = SV.state && SV.state.timer, tm = $("svtimer"); if(!tm) return;
+  tm.hidden = !(T && liveIdx() >= 0); if(!T) return;
+  var left = Math.max(0, T.left - (T.run ? (now() - SV.at) / 1000 : 0));
+  tm.textContent = Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + (T.run ? "" : " paused");
+  tm.classList.toggle("over", left <= 0);
+}
+setInterval(function(){ if(VIEW === "student") paintStudentTimer(); }, 1000);
+// Teacher's state changed: whenever the teacher changes slide, everyone goes there too.
 function slidesLive(){
-  if(!$("svslides")) return;
+  if(!$("svstage")) return;
   var L = liveIdx();
-  if(L >= 0 && (SL.follow || SL.i > L)) slideGo(L, true);
-  else paintSlideBar();
+  if(L >= 0 && L !== SL.lastL){ SL.lastL = L; slideGo(L); return; }
+  if(L < 0) SL.lastL = -1;
+  paintSlideBar();
+}
+// The teacher's live copy of a slide (and its ink) as it changes.
+function gotView(m){
+  if(m.deck !== DECK || m.i == null || m.i < 0 || m.i >= frames.length) return;
+  if(m.t === "view"){
+    var box = mk("div"); box.innerHTML = m.html || ""; var f = box.firstElementChild;
+    if(!f || !f.classList.contains("frame")) return;
+    studentSafe(f);
+    qa(".k2ink", f).forEach(function(n){ n.remove(); });
+    SL.views[m.i] = {html: f.outerHTML};
+    if(SL.i === m.i){ var y = SL.P.cam.y, s = SL.P.cam.s; showSlide(); if(SL.P.kind === "scroll"){ SL.P.cam.y = y; SL.P.cam.s = s; SL.P.clampCam(); SL.P.apply(); } }
+  }
+  if(m.t === "ink"){
+    SL.inks[m.i] = Array.isArray(m.s) ? m.s : [];
+    if(SL.i === m.i){ stopReplay(); drawInk(); }
+  }
+}
+/* ---------- gaps: a word bank on the student's copy ----------
+   The missing words, scrambled, under the slide. Click a word to put it in the next empty gap
+   (or the gap picked first); click a filled gap to take the word back out. When the teacher
+   fills the gaps, each answer gets a tick or a cross. Answers save in this browser. */
+function gapKey(f){ return "gaps:" + (f.dataset.id || SL.i); }
+function wordBank(f){
+  // data-bank="off" on a frame or section: notes as you go, no word bank (gaps fill when the teacher fills them)
+  var bank = $("svbank"), gs = qa(".gap", f).filter(function(g){ return !g.closest('[data-bank="off"]'); });
+  if(!bank){ bank = mk("div", "svbank"); bank.id = "svbank"; BODY.appendChild(bank); }
+  var open = gs.filter(function(g){ return !g.classList.contains("on"); });
+  var mine = SV.ans[gapKey(f)] || {}, sel = -1;
+  gs.forEach(function(g, k){
+    g.dataset.k = k; g.classList.remove("ok", "no", "pick", "sel");
+    var right = g.textContent.trim(), got = mine[k];
+    g.dataset.a = right;
+    if(g.classList.contains("on")){ if(got != null){ g.classList.add(normAns(got) === normAns(right) ? "ok" : "no"); if(normAns(got) !== normAns(right)) g.setAttribute("data-was", got); } }
+    else if(got != null){ g.textContent = got; g.classList.add("pick"); }
+    else g.textContent = right; // hidden by the slide's own style until filled
+  });
+  var had = BODY.classList.contains("sv2-bank");
+  BODY.classList.toggle("sv2-bank", open.length > 0);
+  if(had !== open.length > 0 && SL.P && SL.P.target) setTimeout(function(){ SL.P.fit(); }, 0);
+  if(!open.length){ bank.innerHTML = ""; return; }
+  // the same scramble every time for this slide
+  var words = gs.map(function(g){ return g.dataset.a; }), seed = 0, fid = String(f.dataset.id || "");
+  for(var c = 0; c < fid.length; c++) seed = (seed * 31 + fid.charCodeAt(c)) | 0;
+  words = words.map(function(w, k){ seed = (seed * 1103515245 + 12345) | 0; return {w: w, r: seed}; }).sort(function(a, b){ return a.r - b.r; }).map(function(o){ return o.w; });
+  var used = {}; for(var k in mine) used[mine[k]] = (used[mine[k]] || 0) + 1;
+  bank.innerHTML = '<b>Word bank</b>' + words.map(function(w){
+    var u = used[w] > 0; if(u) used[w]--;
+    return '<button type="button" class="svword' + (u ? " used" : "") + '"' + (u ? " disabled" : "") + '>' + esc(w) + "</button>";
+  }).join("") + '<span class="svbhint">Click a word to put it in the next gap. Click a gap to take it out.</span>';
+  function put(w){
+    var tgt = sel >= 0 ? gs[sel] : open.filter(function(g){ return mine[g.dataset.k] == null; })[0];
+    if(!tgt || tgt.classList.contains("on")) return;
+    mine[tgt.dataset.k] = w; SV.ans[gapKey(f)] = mine; saveAns(); wordBank(f);
+  }
+  qa(".svword", bank).forEach(function(b){ b.onclick = function(){ put(b.textContent); }; });
+  open.forEach(function(g){
+    g.onclick = function(e){
+      e.stopPropagation();
+      if(mine[g.dataset.k] != null){ delete mine[g.dataset.k]; SV.ans[gapKey(f)] = mine; saveAns(); wordBank(f); return; }
+      gs.forEach(function(x){ x.classList.remove("sel"); }); sel = +g.dataset.k; g.classList.add("sel");
+    };
+  });
+}
+
+/* ---------- the teacher's ink on the student's screen, and replaying it ---------- */
+function drawInk(){
+  var k = SL.shown && SL.shown.querySelector(".k2ink"); if(!k) return;
+  var ss = SL.inks[SL.i] || [];
+  k.innerHTML = ss.map(function(st){ return st && st.p && st.p.length ? strokePath(st) : ""; }).join("");
+  paintReplay();
+}
+function paintReplay(){
+  var b = $("svreplay"); if(!b) return;
+  var n = (SL.inks[SL.i] || []).length;
+  b.hidden = !n; b.textContent = SL.rp ? "Stop" : "Replay the drawing";
+}
+function stopReplay(){ if(SL.rp){ cancelAnimationFrame(SL.rp.raf); SL.rp = null; } paintReplay(); }
+// Draws the teacher's strokes again in the order they were made, about 4 seconds of ink a second.
+function replayInk(){
+  if(SL.rp){ stopReplay(); drawInk(); return; }
+  var k = SL.shown && SL.shown.querySelector(".k2ink"), ss = SL.inks[SL.i] || []; if(!k || !ss.length) return;
+  var total = ss.reduce(function(a, st){ return a + (st.p ? st.p.length : 0); }, 0);
+  var perMs = Math.max(0.12, total / 15000), t0 = performance.now(); // at most about 15 seconds
+  SL.rp = {raf: 0};
+  paintReplay();
+  (function frame(){
+    var done = Math.floor((performance.now() - t0) * perMs), h = [], left = done;
+    for(var i = 0; i < ss.length && left > 0; i++){
+      var st = ss[i], n = Math.min(st.p.length, left);
+      h.push(strokePath({c: st.c, w: st.w, h: st.h, p: st.p.slice(0, n)})); left -= n;
+    }
+    k.innerHTML = h.join("");
+    if(done < total && SL.rp) SL.rp.raf = requestAnimationFrame(frame); else { SL.rp = null; drawInk(); }
+  })();
 }
 function setStat(cls, text){ var s = $("svstat"); s.className = "svpill " + cls; s.textContent = text; }
 function onStudentMsg(m){
@@ -198,9 +324,9 @@ function onStudentMsg(m){
     return;
   }
   var f = m.from || {}; if(f.role !== "teacher") return;
-  if(m.t === "state" && m.at && Math.abs(now() - m.at) > 60000) return;
   if(m.t === "state"){ if(m.deck !== DECK){ SV.state = null; setStat("off", "Your teacher is on another lesson"); paintLocks(); slidesLive(); return; } SV.state = m; SV.at = now(); setStat("live", "Live with your teacher"); paintLocks(); slidesLive(); }
   if(m.t === "end"){ SV.state = null; setStat("off", "Not live: work at your own pace"); paintLocks(); turnBanner(null); slidesLive(); }
+  if(m.t === "view" || m.t === "ink"){ gotView(m); return; }
   if(m.t === "nominate"){ turnBanner(m.to === SV.id ? m : null); }
 }
 function isOpen(id){ if(!SV.state) return null; return (SV.state.open || []).indexOf(id) >= 0; }
