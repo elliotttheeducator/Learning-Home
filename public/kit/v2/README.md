@@ -62,6 +62,13 @@ links on the frame: `data-links="dna>genes, genes>punnett"`. Tapping a node flie
 - Working space: `<div class="work" data-label="Working"></div>` (`.lined` for lines). Never fill in working.
 - Gaps: `<button class="gap">word</button>`, and `button.gapall`. Key G. Students get a word bank of the
   missing words (scrambled) to click into the gaps; when you fill the gaps, their answers get a tick or a cross.
+  `data-bank="off"` on the frame (or a `.sec`) turns the word bank off: notes as you go, written in books.
+
+## Lesson flow (Elliott's preference)
+- Teach in bursts: Listen, then Write, then Listen, then Write. Each idea is followed straight away by a
+  short write (a few lines or gaps), not several Listen slides and then one long copy-it-all slide.
+- Mix the note styles across a lesson: some notes with a word bank (gap fills), some written as you go
+  (`data-bank="off"`, or a Write frame with lined space).
 - Answers: `.pa` spans show with `button.ansall` or key A.
 - Tiers: `.tiers > .tier.bronze|.silver|.gold`. Tables: `table.t`. Points: `ul.pts`. Cards: `.card`.
 - Pieces: `data-piece="Label"` on any element lets it be summoned into the workspace.

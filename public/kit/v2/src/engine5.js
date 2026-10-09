@@ -243,7 +243,8 @@ function gotView(m){
    fills the gaps, each answer gets a tick or a cross. Answers save in this browser. */
 function gapKey(f){ return "gaps:" + (f.dataset.id || SL.i); }
 function wordBank(f){
-  var bank = $("svbank"), gs = qa(".gap", f);
+  // data-bank="off" on a frame or section: notes as you go, no word bank (gaps fill when the teacher fills them)
+  var bank = $("svbank"), gs = qa(".gap", f).filter(function(g){ return !g.closest('[data-bank="off"]'); });
   if(!bank){ bank = mk("div", "svbank"); bank.id = "svbank"; BODY.appendChild(bank); }
   var open = gs.filter(function(g){ return !g.classList.contains("on"); });
   var mine = SV.ans[gapKey(f)] || {}, sel = -1;

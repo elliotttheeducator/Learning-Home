@@ -124,6 +124,9 @@ New decks use Deck Kit 2: one lesson file that is the teacher deck and the stude
 - Decks: stylus ink, eraser and save; a clock; timers on activity slides; unmistakable when
   students should start writing; empty room to write. Never fill in worked solutions.
 - Walkthroughs reveal one step at a time behind a button.
+- Teach in bursts: Listen, Write, Listen, Write. Follow each idea straight away with a short write, never
+  several Listen slides then one long copy-it-all slide. Mix note styles: some gap notes with a word bank,
+  some written as you go (`data-bank="off"` on the frame turns the word bank off).
 - Apps are fun and game-like and work with typed input. Bronze / Silver / Gold extension tiers.
 - Lessons are 80 usable minutes; plan well under.
 - Nothing identifying a student, and no textbook pages or scanned faculty booklets in anything

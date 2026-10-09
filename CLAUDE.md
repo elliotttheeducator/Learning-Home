@@ -119,6 +119,9 @@ do not exist on this site. When bringing one across:
   activity slides, and it must be unmistakable when students should start writing. Leave
   empty room to write on. Never fill in worked solutions: question, step labels, blank space.
 - Walkthroughs reveal one step at a time behind a button, not automatically.
+- Teach in bursts: Listen, Write, Listen, Write. Each idea is followed straight away by a short write, never
+  several Listen slides and then one long copy-it-all slide. Mix note styles: some with a word bank (gaps),
+  some written as you go (`data-bank="off"`).
 - Lessons run 80 usable minutes. Plan well under that and cut rather than overrun.
 - Apps should be genuinely fun and game-like, and work with typed input.
 - Bronze / Silver / Gold tiers for extension.
