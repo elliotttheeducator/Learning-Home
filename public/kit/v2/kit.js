@@ -166,8 +166,24 @@ Panel.prototype.dims = function(){
   if(this.kind === "scroll") return {w: 1600, h: Math.max(900, t.offsetHeight)};
   return {w: 1600, h: 900};
 };
+// One panel on screen: slides and maps run edge to edge, and any spare strip (a screen that is not
+// 16:9) takes the frame's own background. Two panels side by side keep the margin.
+Panel.prototype.isSplit = function(){ var v = document.getElementById("k2view"); return !!(v && v.classList.contains("split")); };
+Panel.prototype.fillBg = function(){
+  var t = this.target, bg = "";
+  if(t && !this.isSplit() && (this.kind === "slide" || this.kind === "map")){
+    var src = this.kind === "map" ? (t.querySelector(".mapbg") || t) : t;
+    bg = getComputedStyle(src).backgroundColor;
+    if(/rgba\(.*,\s*0\)$|transparent/.test(bg)) bg = "";
+  }
+  this.el.style.background = bg;
+  // carry the slide's coloured mode stripe down the spare strips too
+  var stripe = bg && this.kind === "slide" ? getComputedStyle(t).getPropertyValue("--m").trim() : "";
+  this.el.style.boxShadow = stripe ? "inset " + Math.round(16 * this.cam.s) + "px 0 0 " + stripe : "";
+};
 Panel.prototype.fit = function(){
   var sz = this.size(), d = this.dims(), c = this.cam, pad = 14;
+  if((this.kind === "slide" || this.kind === "map") && !this.isSplit()) pad = 0;
   if(this.kind === "scroll"){
     c.s = Math.min((sz.w - pad * 2) / 1600, 1.6); c.x = (sz.w - 1600 * c.s) / 2; c.y = pad;
   }else if(this.kind === "ws"){
@@ -177,7 +193,7 @@ Panel.prototype.fit = function(){
     c.s = Math.min((sz.w - pad * 2) / d.w, (sz.h - pad * 2) / d.h);
     c.x = (sz.w - d.w * c.s) / 2; c.y = (sz.h - d.h * c.s) / 2;
   }
-  this.fitS = c.s; this.apply();
+  this.fitS = c.s; this.fillBg(); this.apply();
 };
 Panel.prototype.clampCam = function(){
   var sz = this.size(), d = this.dims(), c = this.cam;
