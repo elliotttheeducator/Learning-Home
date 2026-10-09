@@ -85,6 +85,17 @@ do not exist on this site. When bringing one across:
   stored one unless Clear was just pressed, the rolling `-prev` backup and the Recover button.
 - Strip the doctype/html/head/body wrapper claude.ai adds if it is duplicated.
 
+## Deck Kit 2 (all new decks)
+- Engine at `public/kit/v2/` (`kit.js`, `kit.css`, built from `src/` with `python3 make.py`).
+  The full build contract is `public/kit/v2/README.md`. Read it before making a deck.
+- A deck is one HTML lesson file that links `/kit/v2/kit.css` and `/kit/v2/kit.js`. It opens as the
+  deck for the signed-in teacher and as the student page for everyone else, so tag it `for=students`.
+- Frames mix freely: `data-kind="slide"`, `"scroll"` or `"map"`. Themes: kit, professional, biology,
+  maths, chemistry, physics, year7, per deck or per frame.
+- Live rooms: `src/live.js` (Durable Object `LiveRoom`, binding `LIVE`), route `/live/<class-id>`.
+  Teacher by session cookie, students by class code. Phone remote: `/kit/v2/remote.html`.
+- Fix bugs in `public/kit/v2/src/` and rebuild, never in a deck: every deck loads the same engine.
+
 ## Elliott's rules for every resource
 - Never use em-dashes, anywhere: code comments, copy, commit messages included.
 - Australian spelling.

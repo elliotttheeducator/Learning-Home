@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deck Kit 2 gallery</title>
+<meta name="learning-home" content="class=y10-science; for=students; type=deck; title=Deck Kit 2 gallery">
+<link rel="stylesheet" href="/kit/v2/kit.css">
+</head>
+<!--
+  DECK KIT 2 LESSON FILE. Everything between <main id="deck"> and </main> is the lesson.
+  body: data-theme (kit, professional, biology, maths, chemistry, physics, year7),
+        data-deck (unique, keeps the ink separate), data-class (Learning Home class id, for live),
+        data-mins (usable minutes, default 80).
+  Each <section class="frame"> is one step of the lesson:
+        data-kind   slide | scroll | map
+        data-mode   listen | notes | ido | wedo | youdo | check   (drives the colour and the chip)
+        data-say    optional words for the chip, e.g. "Answer in your booklet"
+        data-t      title in the frame list      data-id   stable id (keeps ink attached)
+        data-mins   planned minutes              data-timer  countdown seconds
+        data-part   groups the frame list        data-theme  this frame only
+        data-student="notes"  copies the frame into the student page
+  See README.md next to kit.js for every block.
+-->
+<body data-theme="biology" data-deck="kit2-gallery" data-class="y10-science" data-mins="80">
+<main id="deck">
+
+<section class="frame" data-kind="slide" data-mode="listen" data-id="title" data-t="Title" data-mins="1" data-part="Start">
+  <div class="title-frame">
+    <h1>Deck Kit 2</h1>
+    <p>One lesson file: slides, pages and maps, in any theme, with your class joining in.</p>
+    <button class="k2start" type="button">Start lesson</button>
+  </div>
+  <aside class="script">This is the gallery. Every frame shows one thing the kit can do. Press the clock or Start lesson to begin the 80 minute lesson clock.</aside>
+</section>
+
+<section class="frame" data-kind="map" data-mode="listen" data-id="map" data-t="Unit map" data-mins="2" data-w="3600" data-h="2000"
+  data-links="dna>genes, genes>punnett, punnett>mut, mut>sel, sel>evid, evid>gmo">
+  <h2 class="maptitle">Term 4: genes to evolution</h2>
+  <div class="node" data-id="dna" style="left:220px;top:380px;width:620px"><span class="num">1</span><h3>DNA and genes</h3><p>A gene is a section of DNA that codes for a protein.</p></div>
+  <div class="node" data-id="genes" style="left:1060px;top:300px;width:640px"><span class="num">2</span><h3>Alleles</h3><p>Different versions of the same gene. Dominant and recessive.</p></div>
+  <div class="node" data-id="punnett" style="left:1960px;top:380px;width:640px"><span class="num">3</span><h3>Punnett squares</h3><p>Predict the chance of each genotype in the offspring.</p></div>
+  <div class="node" data-id="mut" style="left:2700px;top:820px;width:640px"><span class="num">4</span><h3>Mutations</h3><p>A permanent change to the DNA base sequence.</p></div>
+  <div class="node" data-id="sel" style="left:1960px;top:1300px;width:660px"><span class="num">5</span><h3>Natural selection</h3><p>Selection pressures change which alleles get passed on.</p></div>
+  <div class="node" data-id="evid" style="left:1060px;top:1380px;width:640px"><span class="num">6</span><h3>Evidence</h3><p>Fossils, anatomy and DNA all point the same way.</p></div>
+  <div class="node" data-id="gmo" style="left:220px;top:1300px;width:620px"><span class="num">7</span><h3>GMO task</h3><p>Should Australia grow gene-edited crops?</p></div>
+  <aside class="script">Maps zoom. Tap a topic to fly into it, double tap empty space or press 0 to come back out. Finger and mouse pan, the pen writes on the map itself.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-mode="notes" data-id="notes" data-t="Key idea: mutations" data-mins="5" data-part="Teach" data-student="notes">
+  <header class="head"><h2>Mutations</h2></header>
+  <div class="body c64">
+    <div class="pane">
+      <p class="lead">A mutation is a <button class="gap">permanent</button> change to the <button class="gap">DNA base sequence</button>.</p>
+      <ul class="pts">
+        <li>It can change the <button class="gap">protein</button> that gene makes.</li>
+        <li>So it can change the genotype, and then the phenotype.</li>
+        <li>Most mutations are neutral. Some are harmful, a few help.</li>
+      </ul>
+      <div><button class="k2btn gapall" type="button">Fill the gaps</button></div>
+    </div>
+    <div class="pane">
+      <div class="card" data-piece="Base sequence" style="display:flex;flex-direction:column;gap:14px;align-items:center">
+        <div style="display:flex;gap:8px;font:800 40px var(--mono)"><span style="background:#e7efdc;border-radius:10px;padding:8px 14px">A</span><span style="background:#e7efdc;border-radius:10px;padding:8px 14px">T</span><span style="background:#ffd9a8;border-radius:10px;padding:8px 14px;outline:4px solid #c98a1b">G</span><span style="background:#e7efdc;border-radius:10px;padding:8px 14px">C</span></div>
+        <p class="small">One base swapped</p>
+      </div>
+      <div class="work" data-label="Your notes"></div>
+    </div>
+  </div>
+  <aside class="script">Notes frames copy into the student page (data-student="notes"), so absent students get the key idea. Tap each gap to fill it, or press G for all of them.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="maths" data-mode="ido" data-id="walk" data-t="Walkthrough (Maths theme)" data-mins="6">
+  <header class="head"><h2>Solving for the denominator</h2></header>
+  <div class="body">
+    <div class="walk">
+      <div class="walkq" data-piece="Equation"><span class="tex big" data-tex="\sin 35^\circ = \dfrac{12}{x}" data-tex-display></span></div>
+      <div class="walkrow">
+        <div class="wleft">
+          <button class="stepbtn" type="button" data-steps="w1">Reveal step</button>
+          <ol class="wsteps" id="w1">
+            <li>Multiply both sides by <span class="tex inline" data-tex="x"></span></li>
+            <li>Divide both sides by <span class="tex inline" data-tex="\sin 35^\circ"></span></li>
+            <li>Calculator, round to 1 d.p.</li>
+          </ol>
+        </div>
+        <div class="work" data-label="Working"></div>
+      </div>
+    </div>
+  </div>
+  <aside class="script">This frame has its own theme (data-theme="maths") inside a Biology deck. Press S or the button to reveal one step at a time. The equation is a piece: open the workspace (W) and summon it to work beside the slide.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="physics" data-mode="wedo" data-id="force" data-t="Net force (Physics theme)" data-mins="6" data-timer="300">
+  <header class="head"><h2>Push versus friction</h2></header>
+  <div class="body c46">
+    <div class="pane">
+      <div class="card" data-piece="Trolley diagram" style="padding:10px">
+        <svg viewBox="0 0 600 300" width="100%" aria-label="A 5 kg trolley with a 40 newton push to the right and 15 newtons of friction to the left">
+          <rect x="0" y="236" width="600" height="20" fill="#dcdff7"/>
+          <g transform="translate(225 116)">
+            <rect x="0" y="0" width="150" height="120" rx="14" fill="#fff" stroke="#17142e" stroke-width="5"/>
+            <text x="75" y="72" font-size="30" font-weight="800" text-anchor="middle" font-family="Manrope,sans-serif" fill="#17142e">5 kg</text>
+            <line x1="-170" y1="50" x2="-14" y2="50" stroke="#EA580C" stroke-width="10" stroke-linecap="round"/><path d="M-20 34 L4 50 L-20 66 Z" fill="#EA580C"/>
+            <text x="-95" y="30" font-size="26" font-weight="800" text-anchor="middle" font-family="Manrope,sans-serif" fill="#c2410c">Push 40 N</text>
+            <line x1="0" y1="112" x2="-96" y2="112" stroke="#0891B2" stroke-width="10" stroke-linecap="round"/><path d="M-90 96 L-114 112 L-90 128 Z" fill="#0891B2"/>
+            <text x="-60" y="160" font-size="24" font-weight="800" text-anchor="middle" font-family="Manrope,sans-serif" fill="#0e7490">Friction 15 N</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="pane">
+      <p><b style="color:var(--f-push)">1</b> Draw the interaction</p>
+      <div class="work" style="min-height:120px"></div>
+      <p><b style="color:var(--f-net)">2</b> Combine the forces</p>
+      <div class="work" style="min-height:120px"></div>
+      <p><b style="color:var(--f-acc)">3</b> Find the acceleration</p>
+      <div class="work" style="min-height:120px"></div>
+    </div>
+  </div>
+  <aside class="script">A timer frame: tap the red chip to start 5 minutes, double tap to reset, or press T. Vectors are drawn inside the diagram so they stay attached to it.</aside>
+</section>
+
+<section class="frame" data-kind="scroll" data-mode="youdo" data-id="practice" data-t="Practice page (scroll)" data-mins="15" data-timer="900" data-part="Practise" data-say="Answer on your laptop">
+  <header class="head"><h2>Punnett practice</h2></header>
+  <div class="col">
+    <div class="sec">
+      <p>Parent 1 has achondroplasia, <b>Aa</b>. Parent 2 does not, <b>aa</b>. <b>A</b> is the dominant FGFR3 variant.</p>
+    </div>
+    <div class="activity" data-id="punnett" data-title="Punnett practice">
+      <div class="q" data-tier="bronze" data-answer="Aa|aA">What is the genotype of someone who is heterozygous for this gene?</div>
+      <div class="q" data-tier="bronze" data-choices="Dominant|Recessive" data-answer="Dominant">Is achondroplasia caused by a dominant or a recessive allele?</div>
+      <div class="q" data-tier="bronze" data-num="0.5" data-tol="0.001" data-show="1/2" data-hint="How many of the four boxes contain a big A?">For Aa &#215; aa, what fraction of the offspring could have achondroplasia?</div>
+      <div class="q" data-tier="silver" data-num="0.75" data-tol="0.001" data-show="3/4" data-hint="Draw the square for Aa &#215; Aa first.">Two parents are both Aa. What fraction of their children could have achondroplasia?</div>
+      <div class="q" data-tier="silver" data-answer="aa">Which genotype will never have achondroplasia?</div>
+      <div class="q" data-tier="gold">A couple are both Aa. Explain why having one affected child does not change the chance for the next child.</div>
+    </div>
+    <div class="sec" data-mode="wedo">
+      <h3>Build the square together</h3>
+      <div class="work" data-label="Punnett square" style="min-height:420px"></div>
+    </div>
+  </div>
+  <aside class="script">A scroll frame: the page is longer than the screen. Scroll with a finger, the mouse wheel or the arrow keys. Page Down goes down the page first, then to the next frame. When live, the activity opens for students on its own and the pills show who has finished each tier.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="year7" data-mode="check" data-id="poll" data-t="Live poll (Year 7 theme)" data-mins="3" data-part="Live">
+  <header class="head"><h2>Lever 3: the tennis racket</h2></header>
+  <div class="body c46">
+    <div class="pane">
+      <div class="card" data-piece="Tennis racket" style="display:grid;place-items:center;flex:1 1 auto">
+        <svg viewBox="0 0 300 220" width="100%" aria-label="Tennis racket"><ellipse cx="205" cy="80" rx="70" ry="58" fill="#e9fbe1" stroke="#1b1b1b" stroke-width="6"/><path d="M150 112 L 50 190" stroke="#1b1b1b" stroke-width="14" stroke-linecap="round"/><path d="M150 112 L 50 190" stroke="#f72585" stroke-width="7" stroke-linecap="round"/><circle cx="262" cy="40" r="16" fill="#ffd23f" stroke="#1b1b1b" stroke-width="4"/></svg>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="live-poll" data-id="lever" data-choices="First class|Second class|Third class" data-answer="Third class">Your hand moves a little and the strings move a lot. Which class of lever is it?</div>
+    </div>
+  </div>
+  <aside class="script">Votes stay hidden until you press Show results, so nobody copies the crowd.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-mode="youdo" data-id="wall" data-t="Class wall" data-mins="5" data-say="Type on your laptop">
+  <header class="head"><h2>Why did dark moths take over?</h2></header>
+  <div class="body">
+    <div class="live-wall" data-id="moths">Near factories, soot darkened the trees. Explain why dark moths became more common.</div>
+  </div>
+  <aside class="script">Names are hidden by default. Tap any answer to put it in the spotlight. Look for "the moths changed colour to hide": that misconception is the next discussion.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="year7" data-mode="youdo" data-id="prac" data-t="Live prac data" data-mins="8" data-timer="600" data-say="Send your group's results">
+  <header class="head"><h2>Parachute drop: class results</h2></header>
+  <div class="body">
+    <div class="live-prac" data-id="chute" data-cols="Canopy area (cm²)|Trial 1 (s)|Trial 2 (s)|Trial 3 (s)" data-x="0" data-y="1-3" data-ylabel="Mean fall time (s)">Drop from 2 m. Time three drops, then send them.</div>
+  </div>
+  <aside class="script">Groups send rows from their laptops. The table, the means and the graph build as they arrive, and any trial far from the others is flagged so you can talk about outliers before averaging.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-mode="listen" data-id="media" data-t="Image and video" data-mins="5" data-part="Media">
+  <header class="head"><h2>The peppered moth</h2></header>
+  <div class="body cols">
+    <figure class="img">
+      <div class="imwrap" data-piece="Moths on bark">
+        <svg viewBox="0 0 600 420" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-label="A light and a dark moth resting on sooty bark">
+          <rect width="600" height="420" fill="#5c5a55"/>
+          <path d="M0 60 Q150 40 300 70 T600 50M0 160 Q200 130 320 170 T600 150M0 270 Q180 240 330 280 T600 260M0 370 Q200 350 300 380 T600 360" stroke="#45433f" stroke-width="16" fill="none"/>
+          <g transform="translate(170 140)"><path d="M0 0 C-60 -40 -90 20 -40 40 C-70 70 -20 80 0 50 C20 80 70 70 40 40 C90 20 60 -40 0 0Z" fill="#e8e3d4" stroke="#bdb6a3" stroke-width="3"/></g>
+          <g transform="translate(400 270)"><path d="M0 0 C-60 -40 -90 20 -40 40 C-70 70 -20 80 0 50 C20 80 70 70 40 40 C90 20 60 -40 0 0Z" fill="#3a3834" stroke="#2d2b28" stroke-width="3"/></g>
+        </svg>
+        <button class="hot" style="left:28%;top:40%">1<span>Light moth: easy to spot</span></button>
+        <button class="hot" style="left:67%;top:70%">2<span>Dark moth: hidden</span></button>
+      </div>
+      <figcaption>Illustration drawn for this deck. Web images carry their source, author and licence here.</figcaption>
+    </figure>
+    <div class="vid" data-src="sample-clip.webm">
+      <p class="pause" data-t="0:06">Before we go on: which moth would a bird find first?</p>
+      <p class="pause" data-t="0:15">Predict: what happens to the numbers of each moth over 50 years?</p>
+    </div>
+  </div>
+  <aside class="script">The video stops itself at each pause point and shows the question. The red dots on the timeline are the pause points. Keep clips on Learning Home (uploads up to 20 MB) because YouTube may be blocked at school.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="professional" data-mode="listen" data-id="pro" data-t="Professional theme" data-mins="3" data-part="Looks">
+  <header class="head"><h2>Should Australia grow gene-edited crops?</h2></header>
+  <div class="body c3" style="padding-top:40px">
+    <div class="pane"><p class="small">Your claim</p><p>One clear position, stated in the first sentence.</p></div>
+    <div class="pane"><p class="small">Your evidence</p><p>Two credible sources, one that disagrees with you.</p></div>
+    <div class="pane"><p class="small">Who is affected</p><p>Farmers, consumers, and the environment.</p></div>
+  </div>
+  <aside class="script">Any theme can be previewed on the whole deck from the menu. Frames with their own data-theme keep it.</aside>
+</section>
+
+<section class="frame" data-kind="slide" data-theme="chemistry" data-mode="youdo" data-id="chem" data-t="Activity on a slide (Chemistry theme)" data-mins="6" data-timer="240" data-say="Write in your booklet or on your laptop">
+  <header class="head"><h2>Balance the burn</h2></header>
+  <div class="body c46">
+    <div class="pane">
+      <div class="card" data-piece="Equation" style="font-size:40px;font-weight:600;text-align:center;padding:30px 10px">
+        <span class="tex" data-tex="\mathrm{CH_4} + \square\,\mathrm{O_2} \rightarrow \mathrm{CO_2} + \square\,\mathrm{H_2O}"></span>
+      </div>
+      <div class="work" data-label="Atom tally"></div>
+    </div>
+    <div class="pane">
+      <div class="activity" data-id="balance" data-title="Coefficients">
+        <div class="q" data-tier="bronze" data-num="2" data-tol="0">How many O<sub>2</sub> molecules?</div>
+        <div class="q" data-tier="bronze" data-num="2" data-tol="0">How many H<sub>2</sub>O molecules?</div>
+        <div class="q" data-tier="silver" data-num="8" data-tol="0" data-hint="Count the H atoms in 2 CH4.">Balance 2CH<sub>4</sub>: how many H atoms are on the left?</div>
+      </div>
+    </div>
+  </div>
+  <aside class="script">The same questions show here on the board and on each student's page, where they are checked as they type. Press A to show the answers on the board.</aside>
+</section>
+
+</main>
+<script src="/kit/v2/kit.js"></script>
+</body>
+</html>

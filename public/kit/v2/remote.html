@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phone remote</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@500;700;800&family=JetBrains+Mono:wght@700&display=swap">
+<style>
+:root{--ink:#15192c;--ink2:#4d5872;--line:#d3dceb;--soft:#eef3fa;--listen:#4338CA;--notes:#B45309;--ido:#0F766E;--wedo:#7C3AED;--youdo:#BE123C;--check:#15803D;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:#eef3fa;color:var(--ink);font-family:Figtree,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:520px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:100vh}
+.top{display:flex;align-items:center;gap:8px}
+.top h1{margin:0;font:800 21px "Bricolage Grotesque",Figtree,sans-serif;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clock{font:700 16px "JetBrains Mono",monospace}
+.meta{display:flex;justify-content:space-between;font-weight:700;font-size:14px;color:var(--ink2)}
+.bar{height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ido);border-radius:3px}
+.cards{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+.card{background:#fff;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.card.now{border:3px solid var(--m,#4338CA)}
+.card .k{font-size:12px;font-weight:800;color:var(--m,#4d5872)}
+.card .t{font-weight:800;font-size:16px;line-height:1.25}
+.card.nx{opacity:.75}
+.script{background:#fffbea;border:1.5px solid #f2e2a4;border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.45;white-space:pre-line;max-height:30vh;overflow:auto}
+.btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+button{font:800 16px Figtree,system-ui,sans-serif;border-radius:14px;min-height:56px;border:2px solid var(--line);background:#fff;color:var(--ink)}
+button.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.pink{background:#f72585;color:#fff;border-color:#f72585}
+button:disabled{opacity:.45}
+.cls{background:#fff;border-radius:14px;padding:12px 14px;font-size:15px}
+.sp{flex:1 1 auto}
+.nav{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.nav button{min-height:84px;font-size:30px}
+.nav .nx{background:var(--listen);color:#fff;border-color:var(--listen)}
+.msg{background:#fff;border-radius:14px;padding:16px;line-height:1.5}
+.pick{display:flex;flex-direction:column;gap:8px}
+.status{font-size:13px;font-weight:700;color:var(--ink2);text-align:center}
+</style>
+</head>
+<body>
+<main id="app"><div class="msg">Loading the remote</div></main>
+<script>
+(function(){
+  "use strict";
+  var app = document.getElementById("app");
+  var room = new URLSearchParams(location.search).get("room") || "";
+  var id = "r-" + Math.random().toString(36).slice(2, 10), state = null, ws = null, bc = null, onLH = false, status = "";
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+  function send(m){ m.from = {role: "teacher", id: id, name: "Remote"}; if(bc) bc.postMessage(m); else if(ws && ws.readyState === 1) ws.send(JSON.stringify(m)); }
+  function cmd(c, extra){ var m = {t: "cmd", c: c}; for(var k in extra) m[k] = extra[k]; send(m); if(navigator.vibrate) navigator.vibrate(15); }
+  function connect(){
+    if(!onLH){
+      bc = new BroadcastChannel("kit2-live-" + room);
+      bc.onmessage = function(ev){ var m = ev.data; if(m && m.from && m.from.role === "teacher" && m.from.id !== id) got(m); };
+      status = "Demo mode: this browser only"; send({t: "hello"}); render(); return;
+    }
+    ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/live/" + encodeURIComponent(room) + "?id=" + id + "&name=Remote&remote=1");
+    status = "Connecting"; render();
+    ws.onopen = function(){ status = "Connected"; send({t: "hello"}); render(); };
+    ws.onmessage = function(ev){ var m; try{ m = JSON.parse(ev.data); }catch(e){ return; } if(m.from && m.from.role === "teacher") got(m); };
+    ws.onclose = function(){ status = "Reconnecting"; render(); setTimeout(connect, 2000); };
+    setInterval(function(){ if(ws && ws.readyState === 1) ws.send('{"t":"ping"}'); }, 25000);
+  }
+  function got(m){ if(m.t === "state"){ state = m; render(); } if(m.t === "end"){ state = null; render(); } }
+  function fmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  function render(){
+    if(!room){ return; }
+    var d = new Date(), h = d.getHours() % 12 || 12, clock = h + ":" + String(d.getMinutes()).padStart(2, "0");
+    if(!state){
+      app.innerHTML = '<div class="top"><h1>Phone remote</h1><span class="clock">' + clock + '</span></div><div class="msg"><b>Waiting for your deck.</b><br>Open the lesson on the classroom computer and press <b>Go live</b> in its live panel.</div><div class="status">' + esc(status) + '</div>';
+      return;
+    }
+    var f = state.frame || {}, L = state.lesson, mins = L ? Math.floor(((L.paused || Date.now()) - L.start) / 60000) : null;
+    var T = state.timer, C = state.class || {};
+    app.innerHTML = '<div class="top"><h1>' + esc(state.title || "Lesson") + '</h1><span class="clock">' + clock + '</span></div>' +
+      '<div class="meta"><span>Frame ' + (f.i + 1) + ' of ' + f.n + '</span><span>' + (mins == null ? "Lesson clock not started" : mins + " of 80 min") + '</span></div>' +
+      '<div class="bar"><i style="width:' + (100 * (f.i + 1) / f.n) + '%"></i></div>' +
+      '<div class="cards"><div class="card now" style="--m:var(--' + esc(f.mode) + ')"><span class="k">NOW, ' + esc(f.kind === "slide" ? "slide" : f.kind === "scroll" ? "page" : "map") + '</span><span class="t">' + esc(f.title) + '</span></div><div class="card nx"><span class="k">NEXT</span><span class="t">' + esc(state.next || "End") + '</span></div></div>' +
+      (f.script ? '<div class="script">' + esc(f.script) + '</div>' : '') +
+      '<div class="btns">' +
+        '<button class="dark" data-c="step"' + (f.hasSteps ? '' : ' disabled') + '>Reveal step</button><button class="pink" data-c="nominate">Nominate</button>' +
+        '<button data-c="answers">Answers</button><button data-c="open"' + ((f.items || []).length ? '' : ' disabled') + '>Open for students</button>' +
+        '<button data-c="timer"' + (T ? '' : ' disabled') + '>' + (T ? (T.run ? "Pause " : "Start ") + fmt(T.left) : "No timer") + '</button><button data-c="ws">Workspace</button>' +
+        '<button data-c="blank">Blank screen</button><button data-c="start">' + (L ? "Restart clock" : "Start lesson") + '</button>' +
+      '</div>' +
+      '<div class="cls"><b>' + (C.n || 0) + '</b> ' + (C.n === 1 ? 'student' : 'students') + ' in' + (C.stuck ? ', <b style="color:#9f1239">' + C.stuck + ' stuck</b>' : '') + '</div>' +
+      '<span class="sp"></span><div class="nav"><button data-c="prev" aria-label="Previous">&#8249;</button><button class="nx" data-c="next" aria-label="Next">&#8250;</button></div>' +
+      '<div class="status">' + esc(status) + '</div>';
+  }
+  app.addEventListener("click", function(e){ var b = e.target.closest("[data-c]"); if(b && !b.disabled) cmd(b.dataset.c); var r = e.target.closest("[data-room]"); if(r){ room = r.dataset.room; history.replaceState(null, "", "?room=" + room); connect(); } });
+  setInterval(render, 15000);
+  fetch("/api/me", {credentials: "same-origin"}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+    onLH = !!(j && typeof j.teacher === "boolean");
+    if(onLH && !j.teacher){ app.innerHTML = '<div class="msg"><b>Sign in first.</b><br>The remote only works for the teacher. <a href="/auth/login?next=' + encodeURIComponent(location.pathname + location.search) + '">Sign in to Learning Home</a></div>'; return; }
+    if(room){ connect(); return; }
+    if(!onLH){ app.innerHTML = '<div class="msg">Open this with ?room=class-id</div>'; return; }
+    fetch("/catalog.json").then(function(r){ return r.json(); }).then(function(c){
+      app.innerHTML = '<div class="top"><h1>Which class?</h1></div><div class="pick">' + c.classes.map(function(k){ return '<button data-room="' + esc(k.id) + '" style="border-left:10px solid ' + esc(k.colour || "#4338CA") + '">' + esc(k.name) + '</button>'; }).join("") + '</div>';
+    });
+  }).catch(function(){ onLH = false; if(room) connect(); else app.innerHTML = '<div class="msg">Open this with ?room=class-id</div>'; });
+})();
+</script>
+</body>
+</html>
