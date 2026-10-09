@@ -16,6 +16,14 @@ browser on school PCs (mouse and keyboard, no stylus). Elliott teaches from it w
   in localStorage (`lh-classes`) and the class calendar API needs the code (`X-Class-Code` header)
   unless the teacher is signed in. Codes live in D1 (`class_codes`, `src/codes.js`); Elliott can
   change one in the planner's class panel. Files in `public/` are still open to anyone with the URL.
+- The first time a student joins a class they also type their name. It is kept on the class list in
+  D1 (`students`, `src/students.js`) against the id their browser keeps (`kit2-id`), and only Elliott
+  can rename or remove them (planner class panel). The class calendar and Deck Kit 2 live rooms need a
+  name on the list; decks take the name from there instead of asking.
+- Live lessons: when Elliott goes live in a deck, students in that class get a "Live lesson now" popup on
+  the home page and class page (`/live/<class-id>/status`) until the timetabled lesson ends plus 5 minutes,
+  or until he stops. Student deck pages show the slides and follow his slide; students can go back but not
+  past his slide, and Go live returns them to it.
 - Students only see what Elliott publishes. Lessons are unpublished until he presses Publish in the
   teacher planner (`/teacher/`); until then students see only the time and room. So new files and
   outlines can go live on the site without students seeing them.

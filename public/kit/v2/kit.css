@@ -382,6 +382,24 @@ body.k2-edit [data-k2edit]:focus{outline:3px solid #f5b800;background:rgba(255,2
 .frame[data-skin="professional"][data-kind="slide"]::before{width:8px}
 
 /* ---------------- STUDENT VIEW ---------------- */
+/* student slides: same frames, scaled to the page, keeping up with the teacher */
+.svslides{max-width:1280px;margin:18px auto 0;padding:0 18px}
+.svsbox{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:var(--paper)}
+.svsbox.tall{max-height:78vh;overflow-y:auto}
+.svsstage{position:relative;overflow:hidden}
+.svsstage .frame{position:absolute;left:0;top:0;transform-origin:0 0}
+.svsbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 2px 0;max-width:var(--svw,none);margin:0 auto}
+.svsbar .sp{flex:1 1 auto}
+.svsnav{font:800 18px var(--body);border:2px solid var(--rule);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 16px;min-height:48px}
+.svsnav:disabled{opacity:.4;cursor:not-allowed}
+.svspos{font:800 17px var(--body);color:var(--ink-2);min-width:120px;text-align:center}
+.svsflag{font:700 16px var(--body);color:var(--ink-2)}
+.svsflag.on{color:var(--wedo)}
+.svsflag.on::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wedo);margin-right:8px;vertical-align:1px}
+.svgolive{font:800 18px var(--body);border:0;background:var(--wedo);color:#fff;border-radius:999px;padding:10px 22px;min-height:48px;box-shadow:0 6px 16px rgba(0,0,0,.15);animation:k2pulse 1.6s ease-in-out infinite}
+@keyframes k2pulse{50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.svgolive{animation:none}}
+.svgoact{font:800 26px var(--body);border:3px dashed var(--accent);background:var(--card);color:var(--accent);border-radius:var(--radius);padding:24px 30px;min-height:80px;align-self:flex-start}
 .sv{max-width:980px;margin:0 auto;padding:0 18px 120px;font-size:20px;color:var(--ink)}
 .svtop{position:sticky;top:0;z-index:20;background:var(--paper);border-bottom:2px solid var(--rule);display:flex;align-items:center;gap:10px;padding:12px 18px;flex-wrap:wrap}
 .svtop .ttl{font:var(--hw) 22px var(--head)}
@@ -389,6 +407,7 @@ body.k2-edit [data-k2edit]:focus{outline:3px solid #f5b800;background:rgba(255,2
 .svpill{border-radius:999px;padding:6px 14px;font:800 15px var(--body);background:var(--soft);border:0;color:var(--ink);min-height:40px}
 .svpill.live{background:var(--wedo);color:#fff}
 .svpill.off{background:#eee;color:#666}
+.svpill:disabled{cursor:default;opacity:1}
 .sv h1{font:var(--hw) 40px/1.1 var(--head);margin:28px 0 6px}
 .sv .intro{color:var(--ink-2);margin:0 0 20px}
 .svcard{background:var(--card);border:2px solid var(--rule);border-radius:var(--radius);padding:20px 22px;margin:18px 0;display:flex;flex-direction:column;gap:14px}

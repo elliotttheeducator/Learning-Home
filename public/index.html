@@ -61,6 +61,21 @@
   .join.small input { font-size: 26px; }
   .join.small button { font-size: 22px; padding: 12px 22px; }
   .tile { position: relative; }
+  .hello { font-size: 24px; font-weight: 700; margin: -26px 0 28px; min-height: 0; }
+  .hello:empty { display: none; }
+  #livebox { display: flex; flex-direction: column; gap: 14px; margin: 0 0 28px; }
+  #livebox:empty { display: none; }
+  .livepop { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 20px 24px; border-radius: 22px; background: var(--c); color: #fff;
+    box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 70%, #000); }
+  .livepop .dot { width: 18px; height: 18px; border-radius: 50%; background: #fff; flex: none; animation: lhpulse 1.4s ease-in-out infinite; }
+  @keyframes lhpulse { 50% { opacity: .35; } }
+  .livepop .lp-t { display: flex; flex-direction: column; flex: 1 1 260px; min-width: 0; }
+  .livepop .lp-t b { font-size: 26px; }
+  .livepop .lp-t span { font-size: 22px; }
+  .lp-go { font-size: 24px; font-weight: 800; text-decoration: none; background: #fff; color: var(--ink); padding: 12px 24px; border-radius: 999px; }
+  .lp-x { all: unset; cursor: pointer; font-size: 18px; font-weight: 700; padding: 8px 12px; border-radius: 10px; }
+  .lp-x:hover { background: rgba(255,255,255,.2); }
+  @media (prefers-reduced-motion: reduce) { .livepop .dot { animation: none; } }
   .tile .rm { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: 0; border-radius: 50%;
     background: rgba(255,255,255,.25); color: #fff; font: 700 20px/1 var(--font); cursor: pointer; }
   .tile .rm:hover { background: rgba(255,255,255,.45); }
@@ -83,6 +98,8 @@
 <main class="wrap">
   <h1>Learning Home</h1>
   <p class="lede" id="lede">Your lessons, slides, apps and booklets.</p>
+  <p class="hello" id="hello"></p>
+  <div id="livebox"></div>
   <div id="again"></div>
   <nav class="classes" id="classes" aria-label="My classes"></nav>
   <section class="join" id="join">
@@ -90,6 +107,7 @@
     <p id="joinP">Type the class code your teacher gave you. You only need to do it once on this computer.</p>
     <form id="joinF" autocomplete="off">
       <input id="code" name="code" placeholder="Class code" aria-label="Class code" maxlength="20" spellcheck="false" autocapitalize="characters">
+      <input id="who" name="who" placeholder="Your first and last name" aria-label="Your first and last name" maxlength="30" autocomplete="name" hidden>
       <button id="joinB">Add class</button>
     </form>
     <div class="err" id="err" role="alert"></div>
@@ -106,6 +124,17 @@ function days(c) {
   const d = [...new Set((c.timetable || []).map(s => s.day))].sort((a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b));
   return d.length ? d.join(", ") : "";
 }
+// This browser's student id, shared with every deck on the site. The name lives on the class list.
+function myId() {
+  let v = "";
+  try { v = localStorage.getItem("kit2-id") || ""; } catch (e) {}
+  if (!/^[A-Za-z0-9-]{6,60}$/.test(v)) {
+    v = "s-" + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem("kit2-id", v); } catch (e) {}
+  }
+  return v;
+}
+function myName() { try { return localStorage.getItem("kit2-name") || ""; } catch (e) { return ""; } }
 // The classes this browser has joined: [{ id, code }]. Kept until the student removes one.
 function mine() {
   try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v.filter(x => x && x.id && x.code) : []; } catch (e) { return []; }
@@ -127,6 +156,8 @@ function draw() {
   const join = document.getElementById("join");
   join.classList.toggle("small", have.length > 0);
   document.getElementById("joinH").textContent = have.length ? "Add another class" : "Add your class";
+  const nm = myName();
+  document.getElementById("hello").textContent = nm ? "Hi " + nm.split(" ")[0] + "!" : "";
   document.getElementById("lede").textContent = have.length ? "Pick your class to see your lessons, slides, apps and booklets." : "Your lessons, slides, apps and booklets.";
   let last = "";
   try { last = localStorage.getItem("lh-class") || ""; } catch (e) {}
@@ -134,14 +165,24 @@ function draw() {
   document.getElementById("again").innerHTML = c ? `<a class="again" style="--c:${esc(c.colour)}" href="/${esc(c.id)}">Back to ${esc(c.name)} &#8594;</a>` : "";
 }
 
+function askWho(msg) {
+  const w = document.getElementById("who");
+  w.hidden = false; w.focus();
+  document.getElementById("err").textContent = msg || "";
+  document.getElementById("joinB").textContent = "Join class";
+}
 function join(code) {
-  const err = document.getElementById("err"), b = document.getElementById("joinB");
+  const err = document.getElementById("err"), b = document.getElementById("joinB"), w = document.getElementById("who");
   code = String(code || "").trim();
   if (!code) { err.textContent = "Type your class code first."; return; }
+  const student = (w.hidden ? myName() : w.value).trim();
+  if (!w.hidden && !student) { askWho("Type your name too. Your teacher sees it."); return; }
   err.textContent = ""; b.disabled = true;
-  fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code }) })
+  fetch("/api/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code, id: myId(), student }) })
     .then(r => r.json().then(j => { if (!r.ok) throw new Error(j.error || "That code did not work."); return j; }))
     .then(j => {
+      if (j.needName) { b.disabled = false; askWho("Now type your first and last name. You only do this once, and only your teacher can change it."); return; }
+      try { localStorage.setItem("kit2-name", j.student); } catch (e) {}
       const list = mine().filter(x => x.id !== j.id);
       list.push({ id: j.id, code: j.code });
       keep(list);
@@ -158,6 +199,32 @@ document.getElementById("classes").addEventListener("click", e => {
   keep(mine().filter(x => x.id !== b.dataset.rm)); draw();
 });
 
+// Live lessons: when the teacher starts one, it shows here for the lesson's time plus 5 minutes.
+function checkLive() {
+  const list = mine(); if (!catalog || !list.length) return;
+  Promise.all(list.map(x => fetch("/live/" + encodeURIComponent(x.id) + "/status", { cache: "no-store", headers: { "X-Class-Code": x.code } })
+    .then(r => r.ok ? r.json() : { live: false }).then(j => ({ ...j, classId: x.id }), () => ({ live: false }))))
+    .then(rs => {
+      const box = document.getElementById("livebox");
+      let gone = {};
+      try { gone = JSON.parse(sessionStorage.getItem("lh-live-later") || "{}"); } catch (e) {}
+      const on = rs.filter(r => r.live && r.url && gone[r.classId] !== r.startedAt);
+      box.innerHTML = on.map(r => {
+        const c = catalog.classes.find(x => x.id === r.classId) || { name: r.classId, colour: "#3474F5" };
+        return `<div class="livepop" style="--c:${esc(c.colour)}" role="alert"><span class="dot"></span><div class="lp-t"><b>Live lesson now</b><span>${esc(c.name)}${r.title ? ": " + esc(r.title) : ""}</span></div>` +
+          `<a class="lp-go" href="${esc(r.url)}">Join the lesson &#8594;</a><button class="lp-x" data-later="${esc(r.classId)}" data-at="${esc(r.startedAt)}" aria-label="Hide">Later</button></div>`;
+      }).join("");
+    });
+}
+document.getElementById("livebox").addEventListener("click", e => {
+  const b = e.target.closest("[data-later]"); if (!b) return;
+  let gone = {};
+  try { gone = JSON.parse(sessionStorage.getItem("lh-live-later") || "{}"); } catch (err) {}
+  gone[b.dataset.later] = +b.dataset.at;
+  try { sessionStorage.setItem("lh-live-later", JSON.stringify(gone)); } catch (err) {}
+  b.closest(".livepop").remove();
+});
+
 fetch("/catalog.json", { cache: "no-store" })
   .then(r => r.json())
   .then(data => {
@@ -169,6 +236,7 @@ fetch("/catalog.json", { cache: "no-store" })
     // A join link (/join/CODE or /?code=CODE) adds the class straight away.
     const q = new URLSearchParams(location.search).get("code");
     if (q) { document.getElementById("code").value = q; history.replaceState(null, "", "/"); join(q); }
+    checkLive(); setInterval(checkLive, 30000);
   })
   .catch(() => { document.getElementById("classes").outerHTML = '<p class="hint">Learning Home did not load. Refresh the page to try again.</p>'; });
 </script>
