@@ -17,7 +17,7 @@ def read(name):
 
 def build():
     tools_html = read("tools-kit1.html").strip()
-    engine = "".join(read("engine%d.js" % i) for i in (1, 2, 3, 4))
+    engine = "".join(read("engine%d.js" % i) for i in (1, 2, 3, 4, 6))
     tools = ("\n/* ---------- Kit 1 calculator and protractor ---------- */\n"
              "var TOOLS_HTML = " + json.dumps(tools_html) + ";\n"
              "function initToolsKit1(){\n" + read("tools-kit1.js") + "\n}\n")

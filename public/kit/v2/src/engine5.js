@@ -234,6 +234,8 @@ function slidesLive(){
 function gotView(m){
   if(m.deck !== DECK || m.i == null || m.i < 0 || m.i >= frames.length) return;
   if(m.t === "view"){
+    // A view from before the slide was changed in edit mode: use the edited slide instead.
+    if((m.le || "") !== layerSig(frames[m.i].dataset.id)) return;
     var box = mk("div"); box.innerHTML = m.html || ""; var f = box.firstElementChild;
     if(!f || !f.classList.contains("frame")) return;
     studentSafe(f);
@@ -333,6 +335,8 @@ function onStudentMsg(m){
     return;
   }
   var f = m.from || {}; if(f.role !== "teacher") return;
+  // The teacher changed the deck in edit mode: load the new version (answers are kept in this browser).
+  if(m.t === "edits"){ if(m.at && m.at !== LAYER.t) setTimeout(function(){ location.reload(); }, 600); return; }
   if(m.t === "state"){ if(m.deck !== DECK){ SV.state = null; setStat("off", "Your teacher is on another lesson"); paintLocks(); slidesLive(); return; } SV.state = m; SV.at = now(); setStat("live", "Live with your teacher"); paintLocks(); slidesLive(); }
   if(m.t === "end"){ SV.state = null; setStat("off", "Not live: work at your own pace"); paintLocks(); turnBanner(null); slidesLive(); }
   if(m.t === "view" || m.t === "ink"){ gotView(m); return; }
@@ -465,9 +469,13 @@ function turnBanner(m){
 loadFonts(usedThemes);
 decide(function(v){
   VIEW = v;
+  loadLayer(function(){ boot(v); });
+});
+function boot(v){
   loadStore();
   if(v === "student"){ buildStudent(); }
   else{ buildTeacher(); buildLivePanel(); if(store.liveOn && now() - store.liveOn < 3 * 3600000) startLive(); W.addEventListener("beforeunload", function(){ if(loaded) doSave(); }); D.addEventListener("visibilitychange", function(){ if(D.hidden) doSave(); }); }
+  if(v !== "student" && ED.pushLater) pushLayer();
   BODY.classList.add("k2-ready");
-});
+}
 W.KIT2 = {version: "2.0", go: function(i){ go(i); }, store: function(){ return store; }, view: function(){ return VIEW; }};

@@ -72,9 +72,10 @@ function sendView(){
   if(!LIVE.on || !LIVE.T) return;
   var f = frames[cur]; if(!f) return;
   var c = f.cloneNode(true); c.removeAttribute("style"); c.classList.remove("on");
+  qa(".k2edui", c).forEach(function(n){ n.remove(); }); qa("[contenteditable]", c).forEach(function(n){ n.removeAttribute("contenteditable"); });
   qa("aside.script,.k2ink", c).forEach(function(n){ n.remove(); }); // ink travels on its own, as strokes
   var html = c.outerHTML;
-  if(html.length < 300000) LIVE.T.send({t: "view", deck: DECK, i: cur, html: html}); // bigger: students use their own copy
+  if(html.length < 300000) LIVE.T.send({t: "view", deck: DECK, i: cur, html: html, le: layerSig(f.dataset.id)}); // bigger: students use their own copy
   sendInk();
 }
 // The slide's strokes (and the one being drawn), so students can watch it and replay it later.
@@ -101,7 +102,8 @@ function watchView(){
       var m = list[i], t = m.target.nodeType === 1 ? m.target : m.target.parentNode;
       if(!t || !f.contains(t)) continue;
       if(t === f && m.type === "attributes") continue; // camera moves and the on class
-      if(t.closest && t.closest(".vid,.yt")) continue;   // a playing video: each student plays their own
+      if(t.closest && t.closest(".vid,.yt,.k2edui")) continue;
+      if(t === f && m.type === "childList" && [].some.call(m.addedNodes, function(n){ return n.classList && n.classList.contains("k2edui"); })) continue;   // a playing video: each student plays their own
       if(t.closest && t.closest(".k2ink")){ if(!kind) kind = "ink"; } else { kind = "view"; break; }
     }
     if(kind) queueView(kind);
