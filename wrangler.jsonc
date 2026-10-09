@@ -22,10 +22,21 @@
       "migrations_dir": "migrations"
     }
   ],
+  // Deck Kit 2 live rooms (src/live.js): one Durable Object per class.
+  "durable_objects": {
+    "bindings": [ { "name": "LIVE", "class_name": "LiveRoom" } ]
+  },
+  "migrations": [
+    { "tag": "v1-live-rooms", "new_sqlite_classes": ["LiveRoom"] }
+  ],
   "preview_urls": true,
   // Settings for branch previews. Previews do not inherit bindings or secrets,
   // and they use their own database so testing never touches real lessons.
   "previews": {
+    // Each preview gets its own empty Durable Object namespace automatically.
+    "durable_objects": {
+      "bindings": [ { "name": "LIVE", "class_name": "LiveRoom" } ]
+    },
     "d1_databases": [
       {
         "binding": "DB",

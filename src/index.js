@@ -8,6 +8,8 @@ import y7Enrichment from "./plans/y7-enrichment.json";
 import y7Science from "./plans/y7-science.json";
 import { serveFile, listFiles, uploadFile, fileVersions, restoreVersion, updateFile } from "./files.js";
 import { allCodes, setCode, classForCode, normalise } from "./codes.js";
+import { liveRoute } from "./live.js";
+export { LiveRoom } from "./live.js";
 
 // Starting plans written in the repo. Anything saved from the teacher planner
 // is stored in D1 and replaces the starting plan for that lesson.
@@ -24,6 +26,16 @@ export default {
 
     try {
       if (path === "/api/health") return Response.json({ ok: true, site: "learning-home" });
+
+      // Deck Kit 2 live rooms: teacher deck, phone remote and student pages for one class.
+      const lv = path.match(/^\/live\/([a-z0-9-]+)$/);
+      if (lv) {
+        return liveRoute(request, env, lv[1], url, {
+          isTeacher: await teacher(request, env),
+          classForCode: async code => { const d = await db(env); return d ? classForCode(d, code) : ""; },
+          classes: catalog.classes,
+        });
+      }
 
       // Sign-in
       if (path === "/auth/login") return login(request, env, url);

@@ -100,6 +100,18 @@ Tell him: "In the planner, press Import pack and drop this in."
   at the same link instead of adding a copy, so Elliott's links keep working.
 - Never set anything to published. Elliott publishes lessons himself.
 
+## Deck Kit 2 decks
+
+New decks use Deck Kit 2: one lesson file that is the teacher deck and the student page.
+- Link the engine, do not inline it: `<link rel="stylesheet" href="/kit/v2/kit.css">` in the head and
+  `<script src="/kit/v2/kit.js"></script>` at the end of the body. The import leaves these links alone.
+- Tag the deck `for=students; type=deck`. Signed-in Elliott gets the deck, students get their page.
+  One file only: no separate student sheet for the same activities.
+- `<body data-theme="biology" data-deck="unique-id" data-class="y10-science">`, frames as
+  `<section class="frame" data-kind="slide|scroll|map" data-mode="..." data-id="...">`.
+- The full list of frames and blocks is at `/kit/v2/README.md` on the site.
+- For a claude.ai preview, also give a standalone copy (engine folded in); never upload that copy.
+
 ## 4. Elliott's rules for every resource
 
 - Never use em-dashes, anywhere (copy, comments, file names). Australian spelling.
