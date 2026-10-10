@@ -257,7 +257,8 @@ function buildChrome(){
   $("k2timer").onclick = toggleTimer;
   $("k2timer").ondblclick = resetTimer;
   $("k2livechip").onclick = toggleLivePanel;
-  qa(".k2start").forEach(function(b){ b.onclick = function(){ startLesson(); b.textContent = "Lesson started"; }; });
+  // Start lesson also goes live, so students' pages follow from the first slide.
+  qa(".k2start").forEach(function(b){ b.onclick = function(){ startLesson(); startLive(); b.textContent = "Lesson started: live"; toast("Lesson started and live: students follow you now"); }; });
   setTool("pen"); paintColour();
   setInterval(tickClock, 1000); tickClock();
   D.addEventListener("click", function(e){ if(!e.target.closest(".k2pop")) closePops(); });

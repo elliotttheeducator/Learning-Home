@@ -52,6 +52,7 @@ Files here: `kit.js` and `kit.css` (built, do not edit), `src/` (edit these),
 Slide layout: `<header class="head"><h2>Title</h2></header>` then
 `<div class="body c46">` with `.pane` columns. Layouts: `cols`, `c46`, `c37`, `c64`, `c3`, `centre`.
 Title frame: `<div class="title-frame"><h1>..</h1><p>..</p><button class="k2start">Start lesson</button></div>`.
+Start lesson starts the lesson clock and goes live.
 Scroll frame: `.head` then `<div class="col">` holding `.sec` blocks (`.sec` can carry its own `data-mode`, its `h3` gets a chip).
 Map frame: `<h2 class="maptitle">`, nodes `<div class="node" data-id="dna" style="left:..px;top:..px;width:..px">`,
 links on the frame: `data-links="dna>genes, genes>punnett"`. Tapping a node flies into it.
