@@ -43,7 +43,12 @@ function buildTeacher(){
   renderTex(view);
   W.addEventListener("resize", function(){ refit(); });
   if(store.theme) setTheme(store.theme, true);
-  go(clamp(+store.pos || 0, 0, frames.length - 1), true);
+  // Opening the deck again starts from the first frame. A refresh (or the reload after edit mode) stays put.
+  go(reloaded() ? clamp(+store.pos || 0, 0, frames.length - 1) : 0, true);
+}
+function reloaded(){
+  try{ var n = performance.getEntriesByType("navigation")[0]; if(n) return n.type === "reload"; }catch(e){}
+  try{ return performance.navigation.type === 1; }catch(e){ return false; }
 }
 function deckHost(){ return $("k2main") || deckEl; }
 function refit(){ fitTools(); if(mainP && mainP.target) mainP.fit(); if(wsP && layout !== "slide") wsP.fit(); }
