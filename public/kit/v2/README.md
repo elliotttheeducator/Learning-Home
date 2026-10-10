@@ -115,6 +115,7 @@ Student messages only reach the teacher. Off the site (claude.ai, a file) it fal
 BroadcastChannel, which only reaches tabs in the same browser: good for testing.
 
 ## Teaching controls
+Opening a deck starts at the first frame; a refresh (or the reload after edit mode) stays on the frame you were on.
 Only the pen draws. Finger and mouse pan and zoom (pinch, Ctrl and wheel, double tap or 0 to fit).
 D lets finger and mouse draw until the next frame. W cycles frame, split screen, workspace.
 Keys: arrows / Page Up / Page Down / space move (scroll pages scroll first), P pen, H highlighter,
